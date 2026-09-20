@@ -79,6 +79,50 @@ describe("datos del alquiler", () => {
   });
 });
 
+describe("el alta tal cual la manda el navegador", () => {
+  // Regresión: el formulario manda todo como texto y el file vacío cuando no
+  // se adjunta contrato. Esto tiene que parsear sin chistar.
+  it("parsea el formulario completo, con ajuste cargado", () => {
+    const delNavegador = {
+      rol: "inquilino",
+      full_address: "Gurruchaga 1234, 3B",
+      neighborhood_label: "Palermo, CABA",
+      start_date: "2026-01-01",
+      end_date: "",
+      monthly_amount: "450000",
+      currency: "ARS",
+      due_day: "10",
+      adjustment_index: "IPC",
+      adjustment_every_months: "6",
+      contrato: new File([], ""),
+    };
+
+    const resultado = datosAlquilerSchema.safeParse(delNavegador);
+    expect(resultado.success).toBe(true);
+    expect(resultado.data?.adjustment_index).toBe("IPC");
+    expect(resultado.data?.adjustment_every_months).toBe(6);
+    expect(resultado.data?.end_date).toBeUndefined();
+  });
+
+  it("parsea igual sin ajuste ni fecha de fin", () => {
+    const resultado = datosAlquilerSchema.safeParse({
+      rol: "propietario",
+      full_address: "Av. Rivadavia 5000",
+      neighborhood_label: "Caballito, CABA",
+      start_date: "2026-03-01",
+      end_date: "",
+      monthly_amount: "1.200",
+      currency: "USD",
+      due_day: "1",
+      adjustment_index: "",
+      adjustment_every_months: "",
+      contrato: new File([], ""),
+    });
+    expect(resultado.success).toBe(true);
+    expect(resultado.data?.monthly_amount).toBe(1200);
+  });
+});
+
 describe("vencimiento", () => {
   it("si el mes no tiene ese día, vence el último", () => {
     expect(vencimientoDelPeriodo(2026, 2, 31).toISOString().slice(0, 10)).toBe("2026-02-28");

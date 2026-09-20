@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { onboardingSchema } from "@/lib/validation/profile";
 import { rutaInternaSegura } from "@/lib/validation/auth";
 import { registrarAuditoria } from "@/lib/audit";
+import { conRedDeSeguridad } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 
 export type EstadoOnboarding =
@@ -11,6 +12,17 @@ export type EstadoOnboarding =
   | { estado: "error"; mensaje: string; campo?: string };
 
 export async function completarOnboarding(
+  anterior: EstadoOnboarding,
+  formData: FormData,
+): Promise<EstadoOnboarding> {
+  return conRedDeSeguridad(
+    "completarOnboarding",
+    () => guardarOnboarding(anterior, formData),
+    (mensaje) => ({ estado: "error", mensaje }),
+  );
+}
+
+async function guardarOnboarding(
   _anterior: EstadoOnboarding,
   formData: FormData,
 ): Promise<EstadoOnboarding> {

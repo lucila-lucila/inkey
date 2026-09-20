@@ -6,6 +6,7 @@ import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/rat
 import { enlaceInvitacion, generarToken, hashearToken } from "@/lib/tokens";
 import { BUCKET_DOCUMENTOS, subirDocumento, urlFirmada } from "@/lib/storage";
 import { registrarAuditoria } from "@/lib/audit";
+import { conRedDeSeguridad } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 import { rolInvitado as calcularRolInvitado } from "@/lib/domain/alquiler";
 
@@ -19,6 +20,17 @@ export type EstadoLink =
  * perdió o venció: el token viejo no se puede recuperar, solo reemplazar.
  */
 export async function generarNuevoLink(
+  anterior: EstadoLink,
+  formData: FormData,
+): Promise<EstadoLink> {
+  return conRedDeSeguridad(
+    "generarNuevoLink",
+    () => regenerarInvitacion(anterior, formData),
+    (mensaje) => ({ estado: "error", mensaje }),
+  );
+}
+
+async function regenerarInvitacion(
   _anterior: EstadoLink,
   formData: FormData,
 ): Promise<EstadoLink> {
@@ -156,6 +168,17 @@ export type EstadoContrato =
   | { estado: "listo" };
 
 export async function subirContrato(
+  anterior: EstadoContrato,
+  formData: FormData,
+): Promise<EstadoContrato> {
+  return conRedDeSeguridad(
+    "subirContrato",
+    () => guardarContrato(anterior, formData),
+    (mensaje) => ({ estado: "error", mensaje }),
+  );
+}
+
+async function guardarContrato(
   _anterior: EstadoContrato,
   formData: FormData,
 ): Promise<EstadoContrato> {

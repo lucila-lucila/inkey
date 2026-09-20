@@ -5,6 +5,7 @@ import { ingresoSchema, rutaInternaSegura } from "@/lib/validation/auth";
 import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { serverEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
+import { conRedDeSeguridad } from "@/lib/errores";
 
 export type EstadoIngreso =
   | { estado: "inicial" }
@@ -19,6 +20,17 @@ function urlCallback(volverA: string): string {
 
 /** Manda el magic link. Nunca revela si el mail ya existe o no. */
 export async function enviarMagicLink(
+  anterior: EstadoIngreso,
+  formData: FormData,
+): Promise<EstadoIngreso> {
+  return conRedDeSeguridad(
+    "enviarMagicLink",
+    () => mandarMagicLink(anterior, formData),
+    (mensaje) => ({ estado: "error", mensaje }),
+  );
+}
+
+async function mandarMagicLink(
   _anterior: EstadoIngreso,
   formData: FormData,
 ): Promise<EstadoIngreso> {

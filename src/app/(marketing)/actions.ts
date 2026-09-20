@@ -41,6 +41,16 @@ export async function sumarseALista(
     }
 
     const supabase = createAdminClient();
+    if (!supabase) {
+      console.error(
+        "[inkey] Falta SUPABASE_SERVICE_ROLE_KEY: no se puede guardar en la lista de espera.",
+      );
+      return {
+        estado: "error",
+        mensaje: "No pudimos guardar tu mail. Ya estamos viéndolo: probá en un rato.",
+      };
+    }
+
     const { error } = await supabase
       .from("waitlist_signups")
       .upsert(

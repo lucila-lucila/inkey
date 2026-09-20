@@ -15,17 +15,28 @@ type EntradaAuditoria = {
  * Nunca guardes datos personales de más en `metadata`.
  */
 export async function registrarAuditoria(entrada: EntradaAuditoria): Promise<void> {
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("audit_log").insert({
-    actor_id: entrada.actorId ?? null,
-    action: entrada.action,
-    entity_type: entrada.entityType,
-    entity_id: entrada.entityId ?? null,
-    metadata: entrada.metadata ?? {},
-  });
+  try {
+    const supabase = createAdminClient();
+    if (!supabase) {
+      console.warn(
+        `[inkey] Sin SUPABASE_SERVICE_ROLE_KEY no se registra la bitácora (${entrada.action}).`,
+      );
+      return;
+    }
 
-  if (error) {
-    // No abortamos la acción del usuario por un fallo de la bitácora.
-    console.error("No se pudo escribir en audit_log", { action: entrada.action, error });
+    const { error } = await supabase.from("audit_log").insert({
+      actor_id: entrada.actorId ?? null,
+      action: entrada.action,
+      entity_type: entrada.entityType,
+      entity_id: entrada.entityId ?? null,
+      metadata: entrada.metadata ?? {},
+    });
+
+    if (error) {
+      console.error("No se pudo escribir en audit_log", { action: entrada.action, error });
+    }
+  } catch (error) {
+    // La bitácora nunca puede voltear lo que la persona vino a hacer.
+    console.error("La bitácora falló de forma inesperada", { action: entrada.action, error });
   }
 }

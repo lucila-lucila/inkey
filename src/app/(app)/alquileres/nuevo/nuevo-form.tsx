@@ -10,6 +10,7 @@ import { cn } from "@/lib/cn";
 import { textoRol } from "@/lib/domain/alquiler";
 import {
   datosAlquilerSchema,
+  pasoDelCampo,
   PASOS_ALQUILER,
   type RolAlquiler,
 } from "@/lib/validation/rental";
@@ -88,10 +89,37 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
   }
 
   const esUltimo = paso === PASOS_ALQUILER.length - 1;
+  const pasoDelError = errorDelServidor?.campo ? pasoDelCampo(errorDelServidor.campo) : null;
 
   return (
     <form ref={formRef} action={accion} noValidate className="flex flex-col gap-6">
       <input type="hidden" name="rol" value={rol} />
+
+      {/*
+        Todo error del servidor se muestra acá arriba, pase lo que pase: si el
+        campo que falló está en otro paso, ofrecemos ir hasta él.
+      */}
+      {errorDelServidor && (
+        <div
+          role="alert"
+          className="flex flex-col items-start gap-3 rounded-control bg-terra-tint p-4 text-[15px] text-terra-ink"
+        >
+          <p className="m-0">{errorDelServidor.mensaje}</p>
+          {pasoDelError !== null && pasoDelError !== paso && (
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              onClick={() => {
+                setErrores({ [errorDelServidor.campo!]: errorDelServidor.mensaje });
+                setPaso(pasoDelError);
+              }}
+            >
+              Ir al paso {pasoDelError + 1}
+            </Button>
+          )}
+        </div>
+      )}
 
       <div>
         <p className="m-0 text-[14px] font-semibold text-muted">
@@ -225,12 +253,6 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
           El alquiler queda pendiente hasta que lo confirme.
         </p>
       </div>
-
-      {errorDelServidor && !errorDelServidor.campo && (
-        <p role="alert" className="m-0 text-[15px] text-terra-ink">
-          {errorDelServidor.mensaje}
-        </p>
-      )}
 
       <div className={cn("flex gap-3", paso > 0 ? "justify-between" : "justify-end")}>
         {paso > 0 && (

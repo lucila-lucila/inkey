@@ -74,6 +74,34 @@ las funciones `invitation_accept` e `invitation_reject`, que validan todo antes.
 transaccionales llegan en la Fase 6 con Resend; hasta entonces esto funciona,
 no es código muerto y se reemplaza sin tocar el resto.
 
+## Fallas y diagnóstico
+
+**Una tarea secundaria no puede voltear la acción principal.** El rate limiting
+y la bitácora son protecciones de segundo orden: si no están configuradas o
+fallan, se registran en los logs y la persona igual puede hacer lo que vino a
+hacer. Antes, una variable de entorno faltante hacía que la acción entera
+explotara sin mostrar nada en pantalla.
+
+**Contrapartida asumida:** sin `RATE_LIMIT_SALT` o sin
+`SUPABASE_SERVICE_ROLE_KEY` el rate limiting queda apagado. Preferimos eso a
+dejar a la gente afuera de la app, pero es una protección menos: `/api/salud`
+lo marca y el servidor lo avisa en los logs. Hay que configurarlas.
+
+**Todo error inesperado se muestra con un código.** `conRedDeSeguridad()`
+envuelve cada acción del servidor: si algo tira una excepción, se convierte en
+un mensaje en pantalla con una referencia corta que también queda en los logs
+como `[inkey:xxxxxx]`. Nada de fallar en silencio.
+
+**Un error de campo nunca queda escondido.** El alta de alquiler tiene pasos: si
+el servidor rechaza un campo de otro paso, el cartel aparece arriba de todo y
+ofrece ir hasta ese paso. Hay un test que comprueba que todos los campos del
+formulario pertenecen a algún paso.
+
+**`/api/salud` no pide sesión.** Reporta solo nombres de variables faltantes y
+el estado de las revisiones, nunca valores. Poder diagnosticar una instalación
+rota desde el navegador vale más que esconder que, por ejemplo, falta cargar una
+clave.
+
 ## Stack
 
 **Rate limiting en Postgres, no en Redis.** Ventana deslizante en

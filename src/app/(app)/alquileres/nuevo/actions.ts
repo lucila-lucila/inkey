@@ -8,6 +8,7 @@ import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/rat
 import { enlaceInvitacion, generarToken, hashearToken } from "@/lib/tokens";
 import { subirDocumento } from "@/lib/storage";
 import { registrarAuditoria } from "@/lib/audit";
+import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 
 export type EstadoNuevoAlquiler =
@@ -25,6 +26,17 @@ export type EstadoNuevoAlquiler =
     };
 
 export async function crearAlquiler(
+  anterior: EstadoNuevoAlquiler,
+  formData: FormData,
+): Promise<EstadoNuevoAlquiler> {
+  return conRedDeSeguridad(
+    "crearAlquiler",
+    () => guardarAlquiler(anterior, formData),
+    (mensaje) => ({ estado: "error", mensaje }),
+  );
+}
+
+async function guardarAlquiler(
   _anterior: EstadoNuevoAlquiler,
   formData: FormData,
 ): Promise<EstadoNuevoAlquiler> {
@@ -80,8 +92,11 @@ export async function crearAlquiler(
     .single();
 
   if (errorAlta || !alquiler) {
-    console.error("No se pudo crear el alquiler", errorAlta);
-    return { estado: "error", mensaje: "No pudimos guardar el alquiler. Probá de nuevo." };
+    const ref = registrarFalla("crearAlquiler: insert en rentals", errorAlta);
+    return {
+      estado: "error",
+      mensaje: `No pudimos guardar el alquiler (${errorAlta?.code ?? "sin código"}). Probá de nuevo; si sigue pasando, pasanos este código: ${ref}`,
+    };
   }
 
   // El contrato es opcional: si falla, el alquiler ya quedó creado y lo
@@ -112,10 +127,10 @@ export async function crearAlquiler(
   });
 
   if (errorInvitacion) {
-    console.error("No se pudo crear la invitación", errorInvitacion);
+    const ref = registrarFalla("crearAlquiler: insert en invitations", errorInvitacion);
     return {
       estado: "error",
-      mensaje: "Guardamos el alquiler pero no pudimos armar el link. Generalo desde el alquiler.",
+      mensaje: `Guardamos el alquiler, pero no pudimos armar el link de invitación. Abrilo desde el panel y generá el link ahí. Código: ${ref}`,
     };
   }
 

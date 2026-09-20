@@ -106,6 +106,17 @@ export const PASOS_ALQUILER = [
   },
   {
     titulo: "Ajustes y contrato",
-    campos: ["adjustment_index", "adjustment_every_months"],
+    campos: ["adjustment_index", "adjustment_every_months", "contrato"],
   },
 ] as const;
+
+/**
+ * En qué paso vive un campo. Sirve para que un error del servidor nunca quede
+ * escondido en un paso que no se está viendo.
+ */
+export function pasoDelCampo(campo: string): number | null {
+  const indice = PASOS_ALQUILER.findIndex((paso) =>
+    (paso.campos as readonly string[]).includes(campo),
+  );
+  return indice === -1 ? null : indice;
+}

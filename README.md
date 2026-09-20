@@ -98,6 +98,35 @@ Va a Vercel. Cargá en el proyecto las mismas variables de `.env.example`
 URLs de Supabase. Las migraciones se aplican contra el proyecto de Supabase de
 producción antes de publicar.
 
+## Cuando algo no anda
+
+**Primero: `/api/salud`.** Abrí `https://tu-dominio/api/salud`. Dice qué
+variables de entorno faltan, si PostgREST ve las tablas (si acabás de aplicar
+migraciones, el caché del esquema puede estar viejo) y si el bucket de
+documentos existe. Nunca muestra el valor de ninguna variable.
+
+**Los errores en pantalla traen un código.** Si algo se rompe de forma
+inesperada, la pantalla muestra un mensaje con un código corto (por ejemplo
+`a3f9c1`). Ese mismo código está en los logs del servidor como `[inkey:a3f9c1]`.
+
+**Ver los logs del servidor en Vercel.** Los `console.error` de las Server
+Actions salen por ahí, no por la consola del navegador:
+
+- En el panel: proyecto → pestaña **Logs** (o **Observability → Logs**). Filtrá
+  por `Runtime`, elegí la función y buscá el código `inkey:`. Para verlo en vivo
+  mientras reproducís el error, dejá la vista abierta y apretá el botón de la
+  app.
+- Desde la terminal, en vivo:
+  ```bash
+  npx vercel login
+  npx vercel link          # una sola vez, dentro del repo
+  npx vercel logs <url-del-deploy> --follow
+  ```
+- Un deploy puntual: en **Deployments** → el deploy → **Runtime Logs**.
+
+Los logs de runtime se guardan por poco tiempo, así que conviene mirarlos
+mientras el problema está pasando.
+
 ## Reglas que no se negocian
 
 - El historial es del inquilino: nada es público por defecto.

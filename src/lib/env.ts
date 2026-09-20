@@ -1,36 +1,61 @@
 import "server-only";
 
 /*
- * Variables de entorno del servidor. Se leen una sola vez y se validan acá,
- * así una config incompleta falla temprano y con un mensaje claro en vez de
- * romper en medio de un flujo.
+ * Variables de entorno del servidor.
+ *
+ * Distinguimos dos clases:
+ *   - las IMPRESCINDIBLES (Supabase): sin ellas la app no puede funcionar y
+ *     falla con un mensaje claro;
+ *   - las de tareas SECUNDARIAS (rate limiting, bitácora): si faltan, la app
+ *     sigue andando, lo avisa en los logs y lo reporta en /api/salud.
+ *     Una tarea secundaria nunca puede tirar abajo lo que la persona vino a
+ *     hacer.
  */
-function required(name: string): string {
-  const value = process.env[name];
-  if (!value) {
+
+export const VARIABLES = {
+  imprescindibles: ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"],
+  secundarias: ["SUPABASE_SERVICE_ROLE_KEY", "RATE_LIMIT_SALT", "NEXT_PUBLIC_SITE_URL"],
+} as const;
+
+function leer(nombre: string): string | null {
+  const valor = process.env[nombre];
+  return valor && valor.trim() !== "" ? valor : null;
+}
+
+function requerida(nombre: string): string {
+  const valor = leer(nombre);
+  if (!valor) {
     throw new Error(
-      `Falta la variable de entorno ${name}. Mirá .env.example y cargala antes de levantar la app.`,
+      `Falta la variable de entorno ${nombre}. Mirá .env.example y cargala antes de levantar la app.`,
     );
   }
-  return value;
+  return valor;
 }
 
 export const serverEnv = {
   get supabaseUrl() {
-    return required("NEXT_PUBLIC_SUPABASE_URL");
+    return requerida("NEXT_PUBLIC_SUPABASE_URL");
   },
   get supabaseAnonKey() {
-    return required("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+    return requerida("NEXT_PUBLIC_SUPABASE_ANON_KEY");
   },
   /** Solo para tareas administrativas del servidor. Nunca llega al cliente. */
   get supabaseServiceRoleKey() {
-    return required("SUPABASE_SERVICE_ROLE_KEY");
+    return leer("SUPABASE_SERVICE_ROLE_KEY");
   },
   /** Sal para hashear la IP en el rate limiting: no guardamos IPs en claro. */
   get rateLimitSalt() {
-    return required("RATE_LIMIT_SALT");
+    return leer("RATE_LIMIT_SALT");
   },
   get siteUrl() {
-    return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+    return leer("NEXT_PUBLIC_SITE_URL") ?? "http://localhost:3000";
   },
 };
+
+/** Qué falta configurar. Lo usa /api/salud para poder diagnosticar de una. */
+export function variablesFaltantes(): { imprescindibles: string[]; secundarias: string[] } {
+  return {
+    imprescindibles: VARIABLES.imprescindibles.filter((nombre) => !leer(nombre)),
+    secundarias: VARIABLES.secundarias.filter((nombre) => !leer(nombre)),
+  };
+}
