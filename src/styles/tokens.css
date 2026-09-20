@@ -1,0 +1,71 @@
+/*
+ * Tokens de diseño de Inkey.
+ * Portados uno a uno desde reference/landing.html: esta es la única fuente de
+ * verdad de color y tipografía. Si cambia algo acá, cambia en toda la app.
+ */
+
+:root {
+  /* superficies y texto */
+  --bg: #f5efe4;
+  --surface: #fffdf8;
+  --ink: #1d1a15;
+  --body: #4f493f;
+  --muted: #5e574b;
+  --line: #cfc5b3;
+
+  /* verde: confianza y confirmación (acciones primarias, estado confirmado) */
+  --green: #1e5b47;
+  --green-ink: #1e5b47;
+  --green-tint: #e4efe9;
+
+  /* terracota: secundario cálido (reseñas, éxito, lo del dueño) */
+  --terra: #b8502a;
+  --terra-ink: #9a4322;
+  --terra-tint: #f6e3d8;
+
+  /* superficies auxiliares */
+  --pill-bg: #efe7d8;
+  --dark: #1d1a15;
+  --on-dark: #f5efe4;
+  --on-dark-muted: #cfc7b8;
+  --peach: #e9b89a;
+  --avatar: #e3d6bf;
+
+  /* tipografía */
+  --serif: Fraunces, Georgia, "Times New Roman", serif;
+  --sans: "Instrument Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16140f;
+    --surface: #211e17;
+    --ink: #f2ece0;
+    --body: #cfc7b8;
+    --muted: #b3aa99;
+    --line: #3f392e;
+    --green-ink: #7fc3a6;
+    --green-tint: #1b2b24;
+    --terra-ink: #e59b78;
+    --terra-tint: #33221a;
+    --pill-bg: #2b271f;
+    --dark: #0e0d09;
+    --avatar: #3a3328;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #16140f;
+  --surface: #211e17;
+  --ink: #f2ece0;
+  --body: #cfc7b8;
+  --muted: #b3aa99;
+  --line: #3f392e;
+  --green-ink: #7fc3a6;
+  --green-tint: #1b2b24;
+  --terra-ink: #e59b78;
+  --terra-tint: #33221a;
+  --pill-bg: #2b271f;
+  --dark: #0e0d09;
+  --avatar: #3a3328;
+}
