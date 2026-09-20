@@ -12,6 +12,17 @@ import { cn } from "@/lib/cn";
 
 type Version = "completo" | "medio" | "minimo";
 
+/*
+ * Caja ajustada de cada versión: el viewBox completo deja aire a los lados, y
+ * cuando el símbolo hace de punto final ese aire se nota como un espacio de
+ * más entre la palabra y el símbolo.
+ */
+const CAJA_AJUSTADA: Record<Version, { viewBox: string; ancho: number; alto: number }> = {
+  completo: { viewBox: "3 8 118 36", ancho: 118, alto: 36 },
+  medio: { viewBox: "10 7 100 38", ancho: 100, alto: 38 },
+  minimo: { viewBox: "13 6 98 40", ancho: 98, alto: 40 },
+};
+
 const DIENTES: Record<Version, { izquierda: string; derecha: string; trazo: number }> = {
   completo: {
     izquierda: "M37 26H6M14 26v-8M23.5 26v-5.5",
@@ -42,22 +53,31 @@ export function Simbolo({
   /** Una sola tinta: el aro de atrás se corta en el cruce con el color del fondo. */
   unaTinta,
   titulo,
+  /** Forzar una versión: al lado del texto, la media se lee mejor que la mínima. */
+  version: versionForzada,
+  /** Sin el aire del viewBox, para lockups ajustados. */
+  ajustado = false,
 }: {
   ancho?: number;
   className?: string;
   unaTinta?: { color: string; fondo: string };
   titulo?: string;
+  version?: Version;
+  ajustado?: boolean;
 }) {
-  const version = versionPara(ancho);
+  const version = versionForzada ?? versionPara(ancho);
   const { izquierda, derecha, trazo } = DIENTES[version];
   const colorIzquierda = unaTinta?.color ?? "var(--primary)";
   const colorDerecha = unaTinta?.color ?? "var(--confirm)";
+  const caja = ajustado
+    ? CAJA_AJUSTADA[version]
+    : { viewBox: "0 0 124 52", ancho: 124, alto: 52 };
 
   return (
     <svg
-      viewBox="0 0 124 52"
+      viewBox={caja.viewBox}
       width={ancho}
-      height={(ancho * 52) / 124}
+      height={(ancho * caja.alto) / caja.ancho}
       fill="none"
       role={titulo ? "img" : undefined}
       aria-label={titulo}
@@ -85,56 +105,112 @@ export function Simbolo({
 }
 
 const TAMANIOS = {
-  sm: { simbolo: 96, texto: "text-[22px]" },
-  lg: { simbolo: 124, texto: "text-[28px]" },
+  sm: { simbolo: 96, fuente: 22 },
+  lg: { simbolo: 124, fuente: 28 },
 } as const;
 
+/** Cuánto de la fuente ocupa una mayúscula en Bricolage Grotesque. */
+const ALTURA_MAYUSCULA = 0.72;
+
 /**
- * Lockup principal: símbolo a la izquierda y el wordmark en display,
- * separados por 1R.
+ * Lockup.
+ *
+ * - `simbolo-izquierda` (por defecto): símbolo a la izquierda y wordmark a 1R.
+ *   Es el que va en el pie, en los mails, en el recibo y en las pantallas de
+ *   ingreso e invitación.
+ * - `punto`: wordmark grande y el símbolo chico a la derecha, apoyado en la
+ *   base del texto y ocupando el lugar del punto final. Es el del header del
+ *   sitio y de la app. El símbolo mide la mitad de la altura de las mayúsculas
+ *   y va en versión media: al lado del texto, dos dientes por llave hacen
+ *   ruido.
  */
 export function Logo({
   href = "/",
   className,
   size = "lg",
   unaTinta,
+  variante = "simbolo-izquierda",
 }: {
   href?: string;
   className?: string;
   size?: keyof typeof TAMANIOS;
   unaTinta?: { color: string; fondo: string };
+  variante?: "simbolo-izquierda" | "punto";
 }) {
-  const { simbolo, texto } = TAMANIOS[size];
-  const aire = (15 * simbolo) / 124;
+  const { simbolo, fuente } = TAMANIOS[size];
+  const esPunto = variante === "punto";
 
-  const contenido = (
+  // En el header el wordmark manda: el símbolo se dimensiona a partir de él.
+  const fuenteUsada = esPunto ? Math.round(fuente * 1.3) : fuente;
+
+  // El símbolo mide la mitad de la altura de las mayúsculas del wordmark.
+  const altoSimbolo = fuenteUsada * ALTURA_MAYUSCULA * 0.5;
+  const anchoSimbolo = esPunto
+    ? Math.round((altoSimbolo * CAJA_AJUSTADA.medio.ancho) / CAJA_AJUSTADA.medio.alto)
+    : simbolo;
+
+  // 1R de aire en el lockup normal; medio radio cuando hace de punto final.
+  const radio = esPunto
+    ? (15 * anchoSimbolo) / CAJA_AJUSTADA.medio.ancho
+    : (15 * anchoSimbolo) / 124;
+  const separacion = esPunto ? radio / 2 : radio;
+
+  const marca = (
+    <Simbolo
+      ancho={anchoSimbolo}
+      unaTinta={unaTinta}
+      version={esPunto ? "medio" : undefined}
+      ajustado={esPunto}
+    />
+  );
+
+  const palabra = (
+    <span
+      className="font-display font-extrabold"
+      style={{
+        fontSize: `${fuenteUsada}px`,
+        letterSpacing: "-1.6px",
+        color: unaTinta?.color,
+      }}
+    >
+      inkey
+    </span>
+  );
+
+  const contenido = esPunto ? (
     <>
-      <Simbolo ancho={simbolo} unaTinta={unaTinta} />
-      <span
-        className={cn("font-display font-extrabold tracking-[-1.6px]", texto)}
-        style={unaTinta ? { color: unaTinta.color } : undefined}
-      >
-        inkey
-      </span>
+      {palabra}
+      {marca}
+    </>
+  ) : (
+    <>
+      {marca}
+      {palabra}
     </>
   );
 
   const clases = cn(
-    "inline-flex items-center text-ink no-underline",
-    unaTinta ? undefined : "text-ink",
+    "inline-flex text-ink no-underline",
+    // Con el símbolo como punto final, se apoya en la base del texto.
+    esPunto ? "items-baseline" : "items-center",
     className,
   );
 
   if (!href) {
     return (
-      <span className={clases} style={{ gap: `${aire}px` }} aria-label="Inkey">
+      <span className={clases} style={{ gap: `${separacion}px` }} aria-label="Inkey">
         {contenido}
       </span>
     );
   }
 
   return (
-    <Link href={href} aria-label="Inkey, inicio" className={clases} style={{ gap: `${aire}px` }}>
+    <Link
+      href={href}
+      aria-label="Inkey, inicio"
+      className={clases}
+      style={{ gap: `${separacion}px` }}
+    >
       {contenido}
     </Link>
   );

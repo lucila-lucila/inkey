@@ -42,3 +42,39 @@ describe("recibo en PDF", () => {
     expect(pdf.length).toBeGreaterThan(2000);
   }, 30_000);
 });
+
+describe("perfil en PDF", () => {
+  it("genera un PDF válido con las métricas", async () => {
+    const { generarPerfilPdf } = await import("@/lib/pdf/perfil");
+
+    const pdf = await generarPerfilPdf({
+      nombre: "Martina",
+      inicialApellido: "R",
+      rol: "tenant",
+      generadoEl: "2026-09-20",
+      metricas: {
+        meses_confirmados: 12,
+        pagos_en_fecha: 11,
+        porcentaje_en_fecha: 92,
+        contratos_cumplidos: 1,
+        contratos_totales: 2,
+        con_comprobante: 9,
+        con_contrato: 1,
+        desde: "2025-01-01",
+        barrios: ["Palermo, CABA", "Villa Crespo, CABA"],
+        ultimos_12: Array.from({ length: 12 }, (_, i) => ({
+          periodo: `2026-${String(i + 1).padStart(2, "0")}`,
+          confirmado: i % 4 !== 0,
+        })),
+      },
+    });
+
+    expect(pdf.subarray(0, 4).toString()).toBe("%PDF");
+    expect(pdf.length).toBeGreaterThan(2000);
+
+    if (process.env.INKEY_PDF_PERFIL) {
+      const { writeFileSync } = await import("node:fs");
+      writeFileSync(process.env.INKEY_PDF_PERFIL, pdf);
+    }
+  }, 30_000);
+});

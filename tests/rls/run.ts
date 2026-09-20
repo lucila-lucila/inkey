@@ -6,13 +6,14 @@
  * Cada caso responde a una pregunta concreta: ¿puede esta persona leer o
  * tocar algo que no es suyo? Si alguno falla, hay un agujero de seguridad.
  */
-import { UID_A, UID_B, UID_C, type Caso } from "./apoyo";
+import { UID_A, UID_B, UID_C, UID_D, type Caso } from "./apoyo";
 import { CASOS_BASE } from "./casos-base";
 import { CASOS_ALQUILERES } from "./casos-alquileres";
 import { CASOS_PAGOS } from "./casos-pagos";
+import { CASOS_PERFIL } from "./casos-perfil";
 import { buscarBinariosPg, levantarCluster } from "./cluster";
 
-const CASOS: Caso[] = [...CASOS_BASE, ...CASOS_ALQUILERES, ...CASOS_PAGOS];
+const CASOS: Caso[] = [...CASOS_BASE, ...CASOS_ALQUILERES, ...CASOS_PAGOS, ...CASOS_PERFIL];
 
 async function main(): Promise<void> {
   if (!buscarBinariosPg()) {
@@ -29,8 +30,17 @@ async function main(): Promise<void> {
     // Tres personas de prueba: A inquilina, B dueño, C ajena a todo.
     // El trigger les crea el perfil.
     await cluster.client.query(
-      "insert into auth.users (id, email) values ($1, $2), ($3, $4), ($5, $6)",
-      [UID_A, "ana@mail.com", UID_B, "belen@mail.com", UID_C, "carlos@mail.com"],
+      "insert into auth.users (id, email) values ($1, $2), ($3, $4), ($5, $6), ($7, $8)",
+      [
+        UID_A,
+        "ana@mail.com",
+        UID_B,
+        "belen@mail.com",
+        UID_C,
+        "carlos@mail.com",
+        UID_D,
+        "dalia@mail.com",
+      ],
     );
     await cluster.client.query(
       "update public.profiles set first_name = 'Ana', last_name = 'Rossi' where id = $1",
@@ -43,6 +53,10 @@ async function main(): Promise<void> {
     await cluster.client.query(
       "update public.profiles set first_name = 'Carlos', last_name = 'Pérez' where id = $1",
       [UID_C],
+    );
+    await cluster.client.query(
+      "update public.profiles set first_name = 'Dalia', last_name = 'Quiroga' where id = $1",
+      [UID_D],
     );
 
     for (const caso of CASOS) {

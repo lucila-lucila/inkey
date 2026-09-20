@@ -1,0 +1,144 @@
+import { Avatar, Card, CheckIcon, Pill, Stat } from "@/components/ui";
+import { formatearMonto } from "@/lib/domain/alquiler";
+import { nombrePeriodo } from "@/lib/domain/pagos";
+import { nivelesDeVerificacion, nombreVisible, type Metricas } from "@/lib/domain/perfil";
+import { iniciales } from "@/lib/validation/profile";
+import type { Moneda } from "@/lib/validation/rental";
+
+/**
+ * El historial, tal como lo ve quien recibe el link. Es la misma pieza en el
+ * perfil propio y en el público: así lo que la persona ve antes de compartir
+ * es exactamente lo que se comparte.
+ */
+export function TarjetaPerfil({
+  nombre,
+  inicialApellido,
+  rol,
+  metricas,
+}: {
+  nombre: string;
+  inicialApellido: string;
+  rol: "tenant" | "owner";
+  metricas: Metricas;
+}) {
+  const niveles = nivelesDeVerificacion(metricas);
+  const esInquilino = rol === "tenant";
+  const meses = metricas.ultimos_12 ?? [];
+
+  return (
+    <Card hero className="flex flex-col gap-7">
+      <div className="flex items-center gap-4">
+        <Avatar initials={iniciales(nombre || "?", inicialApellido || "?")} className="size-14" />
+        <div>
+          <p className="t-subtitulo m-0">{nombreVisible(nombre, inicialApellido)}</p>
+          <p className="m-0 text-[15px] text-muted">
+            {esInquilino ? "Inquilino" : "Propietario"} en Inkey
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2.5">
+        {esInquilino ? (
+          <>
+            <Stat value={metricas.meses_confirmados} label="meses confirmados" destacado />
+            <Stat
+              value={metricas.porcentaje_en_fecha === null ? "—" : `${metricas.porcentaje_en_fecha}%`}
+              label="pagos en fecha"
+            />
+            <Stat value={metricas.contratos_cumplidos} label="contratos cumplidos" />
+          </>
+        ) : (
+          <>
+            <Stat value={metricas.contratos_totales} label="alquileres" destacado />
+            <Stat value={metricas.meses_confirmados} label="pagos confirmados" />
+            <Stat value={metricas.contratos_cumplidos} label="contratos cumplidos" />
+          </>
+        )}
+      </div>
+
+      {meses.length > 0 && (
+        <div>
+          <p className="t-etiqueta mb-3 text-muted">Últimos 12 meses</p>
+          <div className="grid grid-cols-12 gap-[5px]">
+            {meses.map((mes) => (
+              <div
+                key={mes.periodo}
+                className="flex flex-col items-center gap-1.5 text-[11px] text-muted"
+              >
+                <i
+                  className={`block h-[30px] w-full rounded-[6px] ${
+                    mes.confirmado ? "bg-confirm" : "bg-surface-sunk"
+                  }`}
+                  title={`${nombrePeriodo(`${mes.periodo}-01`)}: ${mes.confirmado ? "confirmado" : "sin confirmar"}`}
+                />
+                <span className="max-[560px]:hidden">
+                  {nombrePeriodo(`${mes.periodo}-01`, true).slice(0, 3)}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 mb-0 text-[15px] text-muted">
+            Los meses llenos son los que confirmó la otra parte.
+          </p>
+        </div>
+      )}
+
+      <div className="border-t border-line pt-6">
+        <p className="t-etiqueta mb-3 text-muted">Qué está confirmado</p>
+        <ul className="m-0 flex list-none flex-col gap-3 p-0">
+          {niveles.map((nivel) => (
+            <li key={nivel.titulo} className="flex items-start gap-3">
+              <span
+                className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-full ${
+                  nivel.logrado ? "bg-confirm-soft text-confirm-ink" : "bg-surface-sunk text-muted"
+                }`}
+              >
+                <CheckIcon size={14} />
+              </span>
+              <span>
+                <b className="block text-[16px] font-medium">{nivel.titulo}</b>
+                <span className="text-[15px] text-muted">{nivel.detalle}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {metricas.barrios?.length > 0 && (
+        <div className="border-t border-line pt-6">
+          <p className="t-etiqueta mb-2 text-muted">
+            {esInquilino ? "Alquiló en" : "Alquila en"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {metricas.barrios.map((barrio) => (
+              <Pill key={barrio}>{barrio}</Pill>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {metricas.montos && (
+        <div className="border-t border-line pt-6">
+          <p className="t-etiqueta mb-2 text-muted">Montos</p>
+          {metricas.montos.mensual_actual && (
+            <p className="m-0 text-[17px]">
+              Alquiler actual:{" "}
+              <span className="t-monto">
+                {formatearMonto(
+                  metricas.montos.mensual_actual.monto,
+                  metricas.montos.mensual_actual.moneda as Moneda,
+                )}
+              </span>{" "}
+              por mes
+            </p>
+          )}
+          {Object.entries(metricas.montos.total_confirmado ?? {}).map(([moneda, total]) => (
+            <p key={moneda} className="m-0 text-[15px] text-muted">
+              Total confirmado: {formatearMonto(total, moneda as Moneda)}
+            </p>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}

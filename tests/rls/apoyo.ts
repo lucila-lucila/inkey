@@ -91,6 +91,29 @@ export async function comoPersistente<T>(
 }
 
 export const UID_C = "33333333-3333-4333-8333-333333333333";
+/** Una cuarta persona, sin historia previa: sirve para medir métricas exactas. */
+export const UID_D = "44444444-4444-4444-8444-444444444444";
+
+/**
+ * Crea una persona nueva para un caso. Las métricas suman todo el historial
+ * de alguien, así que cada caso que mide necesita su propia persona.
+ */
+export async function crearPersona(
+  client: Client,
+  nombre: string,
+  apellido: string,
+): Promise<string> {
+  const { rows } = await client.query(
+    "insert into auth.users (email) values ($1) returning id",
+    [`${nombre.toLowerCase()}-${Math.random().toString(36).slice(2)}@mail.com`],
+  );
+  const id = rows[0].id;
+  await client.query(
+    "update public.profiles set first_name = $1, last_name = $2 where id = $3",
+    [nombre, apellido, id],
+  );
+  return id;
+}
 
 /** Crea un alquiler de prueba saltando RLS, para armar el escenario. */
 export async function crearAlquilerDePrueba(

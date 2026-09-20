@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cerrarSesion } from "@/app/(auth)/ingresar/actions";
 import { Avatar, Button, Logo } from "@/components/ui";
@@ -25,7 +26,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-dvh flex-col">
       <header className="border-b-[1.5px] border-line">
         <div className="wrap flex items-center justify-between gap-4 py-4">
-          <Logo href="/panel" size="sm" />
+          <div className="flex items-center gap-7">
+            <Logo href="/panel" variante="punto" size="sm" />
+            <nav className="flex gap-5 text-[15px] font-medium">
+              <Link href="/panel" className="text-ink no-underline hover:underline hover:underline-offset-4">
+                Panel
+              </Link>
+              <Link href="/perfil" className="text-ink no-underline hover:underline hover:underline-offset-4">
+                Mi perfil
+              </Link>
+            </nav>
+          </div>
           <div className="flex items-center gap-3">
             {nombre && <Avatar initials={iniciales(nombre, apellido)} className="size-10 text-[16px]" />}
             <form action={cerrarSesion}>

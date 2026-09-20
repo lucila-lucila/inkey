@@ -18,7 +18,7 @@ tomadas (con su motivo) en [`docs/decisiones.md`](docs/decisiones.md).
 | 1 | Base: tokens, componentes, auth, onboarding, perfiles, RLS, landing | ✅ |
 | 2 | Alquileres e invitaciones | ✅ |
 | 3 | Pagos, comprobantes y recibo PDF | ✅ |
-| 4 | Perfil compartible | ⏳ |
+| 4 | Perfil compartible | ✅ |
 | 5 | Fin de contrato y reseñas | ⏳ |
 | 6 | Notificaciones y recordatorios | ⏳ |
 | 7 | Cierre: e2e, seed, seguridad, deploy | ⏳ |
@@ -76,6 +76,7 @@ src/
 │   ├── (auth)/          /ingresar y /onboarding
 │   ├── (app)/           pantallas con sesión (/panel, /alquileres, …)
 │   ├── invitacion/      la pantalla que ve quien recibe el link
+│   ├── p/[token]/       el perfil compartible (público, con PDF y preview)
 │   └── auth/callback/   vuelta del magic link y de Google
 ├── components/ui/       componentes base (Button, Card, Field, …)
 ├── components/landing/  secciones de la landing

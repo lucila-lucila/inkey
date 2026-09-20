@@ -69,4 +69,43 @@ test.describe("identidad", () => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "Inkey, inicio" }).first()).toBeVisible();
   });
+
+  test("en el header, el símbolo hace de punto final del wordmark", async ({ page }) => {
+    await page.goto("/");
+
+    const medida = await page.evaluate(() => {
+      // En el celular y en escritorio se muestran lockups distintos: medimos el
+      // que está visible.
+      const enlace = [...document.querySelectorAll("header a[aria-label='Inkey, inicio']")].find(
+        (candidato) => (candidato as HTMLElement).offsetParent !== null,
+      )!;
+      const palabra = enlace.querySelector("span")!;
+      const simbolo = enlace.querySelector("svg")!;
+      const estilos = getComputedStyle(palabra);
+
+      // Altura real de una mayúscula en la fuente cargada.
+      const lienzo = document.createElement("canvas").getContext("2d")!;
+      lienzo.font = `${estilos.fontWeight} ${estilos.fontSize} ${estilos.fontFamily}`;
+      const mayuscula = lienzo.measureText("H").actualBoundingBoxAscent;
+
+      const cajaSimbolo = simbolo.getBoundingClientRect();
+      const cajaPalabra = palabra.getBoundingClientRect();
+
+      return {
+        proporcion: cajaSimbolo.height / mayuscula,
+        separacion: cajaSimbolo.left - cajaPalabra.right,
+        // El símbolo va después de la palabra, no antes.
+        aLaDerecha: cajaSimbolo.left > cajaPalabra.left,
+        // Y apoyado en la base del texto.
+        distanciaALaBase: Math.abs(cajaSimbolo.bottom - cajaPalabra.bottom),
+      };
+    });
+
+    expect(medida.aLaDerecha).toBe(true);
+    // La mitad de la altura de las mayúsculas.
+    expect(medida.proporcion).toBeGreaterThan(0.45);
+    expect(medida.proporcion).toBeLessThan(0.55);
+    // Ajustado, como un punto final.
+    expect(medida.separacion).toBeLessThan(6);
+  });
 });

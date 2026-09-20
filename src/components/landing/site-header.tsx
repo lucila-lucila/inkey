@@ -4,9 +4,9 @@ export function SiteHeader() {
   return (
     <header>
       <div className="wrap flex items-center justify-between py-6">
-        {/* El lockup completo no entra en un celular: ahí va la versión chica. */}
-        <Logo href="#top" size="lg" className="max-[560px]:hidden" />
-        <Logo href="#top" size="sm" className="min-[561px]:hidden" />
+        {/* En el header, el wordmark manda y el símbolo hace de punto final. */}
+        <Logo href="#top" variante="punto" size="lg" className="max-[560px]:hidden" />
+        <Logo href="#top" variante="punto" size="sm" className="min-[561px]:hidden" />
         <nav className="flex items-center gap-7 text-[15px] font-medium">
           <a
             href="#como"

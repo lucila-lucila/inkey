@@ -28,7 +28,7 @@ export async function GET() {
 
     // ¿PostgREST ve las tablas? (si las migraciones se aplicaron recién, el
     // caché del esquema puede estar viejo y esto lo delata)
-    for (const tabla of ["profiles", "rentals", "invitations"]) {
+    for (const tabla of ["profiles", "rentals", "invitations", "payments", "share_links"]) {
       const resultado = await conTiempoLimite(
         supabase.from(tabla).select("id", { head: true, count: "exact" }),
       );
@@ -52,6 +52,16 @@ export async function GET() {
           : "ok";
 
     // ¿Existe el bucket de documentos?
+    const perfilPublico = await conTiempoLimite(
+      supabase.rpc("public_profile", { p_token_hash: "0".repeat(64), p_contar: false }),
+    );
+    revisiones["rpc:public_profile"] =
+      perfilPublico === "timeout"
+        ? "no respondió a tiempo"
+        : perfilPublico.error
+          ? `error (${perfilPublico.error.code ?? "?"}): ${perfilPublico.error.message}`
+          : "ok";
+
     const storage = await conTiempoLimite(supabase.storage.from("documentos").list("", { limit: 1 }));
     revisiones["storage:documentos"] =
       storage === "timeout"

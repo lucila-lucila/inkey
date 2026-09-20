@@ -123,9 +123,16 @@ Geometría: R es el radio del aro; los centros están a 1R; las paletas miden 2R
 
 **Versión mínima** (menos de 40px, favicon): `stroke-width="8"`, sin dientes (`M37 26H18` y `M83 26h19`).
 
-**Lockup principal:** símbolo a la izquierda, wordmark "inkey" en Bricolage 800 con tracking -1.6px, separados por 1R. El wordmark va en `ink`.
+**Lockup principal:** símbolo a la izquierda, wordmark "inkey" en Bricolage 800 con tracking -1.6px, separados por 1R. El wordmark va en `ink`. Se usa en el pie, en los mails, en el recibo y en las pantallas de ingreso e invitación.
 
-**Alternativa:** wordmark "inkey" seguido del símbolo en versión media, ocupando el lugar del punto. Se usa en espacios angostos.
+**Lockup del header** (sitio y app): el wordmark manda y el símbolo va a la derecha, ocupando el lugar del punto final.
+
+- El wordmark es más grande que en el lockup principal.
+- El símbolo mide **la mitad de la altura de las mayúsculas** del wordmark.
+- Va **apoyado en la base del texto**, no centrado.
+- La separación entre el final de la palabra y el símbolo es de **medio radio**: bien ajustada, como un punto.
+- Se dibuja en **versión media** (un diente por llave): al lado del texto, dos dientes hacen ruido.
+- El símbolo se recorta al contorno real del dibujo, sin el aire del `viewBox`, o esa separación de medio radio se pierde.
 
 **Una sola tinta:** ambos trazos del mismo color, y el aro de atrás se interrumpe en el cruce con un trazo del color del fondo, de ancho `stroke-width + 4`, dibujado antes del arco de adelante.
 

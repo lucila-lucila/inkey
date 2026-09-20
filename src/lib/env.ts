@@ -14,7 +14,12 @@ import "server-only";
 
 export const VARIABLES = {
   imprescindibles: ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"],
-  secundarias: ["SUPABASE_SERVICE_ROLE_KEY", "RATE_LIMIT_SALT", "NEXT_PUBLIC_SITE_URL"],
+  secundarias: [
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "RATE_LIMIT_SALT",
+    "SHARE_LINK_SECRET",
+    "NEXT_PUBLIC_SITE_URL",
+  ],
 } as const;
 
 function leer(nombre: string): string | null {
@@ -46,6 +51,14 @@ export const serverEnv = {
   /** Sal para hashear la IP en el rate limiting: no guardamos IPs en claro. */
   get rateLimitSalt() {
     return leer("RATE_LIMIT_SALT");
+  },
+  /**
+   * Clave con la que se derivan los tokens de los links de perfil. Sin ella
+   * no se pueden crear ni volver a mostrar: la pantalla lo dice y /api/salud
+   * lo marca.
+   */
+  get shareLinkSecret() {
+    return leer("SHARE_LINK_SECRET");
   },
   get siteUrl() {
     return leer("NEXT_PUBLIC_SITE_URL") ?? "http://localhost:3000";

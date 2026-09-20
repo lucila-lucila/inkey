@@ -147,6 +147,55 @@ de la marca obligaría a cargar los archivos en cada render. El recibo mantiene
 los colores y la estructura del sistema visual, pero prioriza salir rápido y
 siempre igual.
 
+## Perfil compartible (Fase 4)
+
+**El token del link se deriva, no se guarda.** Un link de perfil se comparte
+muchas veces, así que la persona tiene que poder volver a copiarlo: guardar solo
+el hash (como en las invitaciones) lo haría imposible. La solución es derivarlo:
+`token = HMAC(SHARE_LINK_SECRET, id_del_link)`, y de la base guardamos solo el
+hash del resultado. Con una copia de la base, sin la clave del servidor, no se
+puede armar ningún link vivo; con la clave, la app puede volver a mostrarlo
+cuando su dueño lo pide.
+**Consecuencia:** si se cambia `SHARE_LINK_SECRET`, todos los links ya
+compartidos dejan de funcionar. Está dicho en `.env.example`.
+
+**Las métricas se calculan en la base, una sola vez.** `profile_metrics()` es la
+única definición de "meses confirmados", "pagos en fecha" y "contratos
+cumplidos". La usan el perfil propio y el público, así que no puede haber dos
+números distintos para lo mismo. No está otorgada a nadie: se llega a ella por
+`my_profile_metrics()` (que usa `auth.uid()`) o por `public_profile()` (que
+resuelve desde el token). Nadie puede pedir las métricas de otra persona.
+
+**El perfil público devuelve solo lo que se puede mostrar.** Nunca dirección,
+teléfono, mail, comprobantes, notas privadas ni meses sin confirmar. Los montos
+se quitan del objeto salvo que la persona los haya activado en ese link: no se
+mandan al cliente y se filtran en la vista.
+
+**La imagen de preview y el PDF no cuentan como visitas.** `public_profile()`
+recibe `p_contar`: cuando WhatsApp pide la imagen para el preview, o alguien se
+baja el PDF, el contador no se mueve. Así el número que ve la persona dice lo
+que espera: cuántas veces abrieron su perfil.
+
+**Los barrios sí se muestran.** Es lo único de la ubicación que el propio
+CLAUDE.md marca como público. La dirección completa nunca sale del alquiler.
+
+**Las reseñas llegan en la Fase 5.** El perfil ya tiene su lugar en la página y
+en el PDF; hoy muestra métricas y niveles de verificación.
+
+## Identidad: el lockup del header
+
+El header del sitio y de la app usan el lockup con el símbolo como punto final:
+wordmark grande, símbolo a la derecha, a la mitad de la altura de las mayúsculas
+y apoyado en la base del texto, separado por medio radio. Va en versión media
+(un diente por llave) porque al lado del texto dos dientes hacen ruido, y se
+recorta al contorno real del dibujo: si se deja el aire del `viewBox`, esa
+separación de medio radio se pierde.
+
+El lockup con el símbolo a la izquierda sigue en el pie, en el recibo, en el
+perfil en PDF y en las pantallas de ingreso e invitación. Está documentado en
+`docs/identidad.md` y hay un test end to end que mide la proporción y la
+separación, para que no se desarme sin que nos enteremos.
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting

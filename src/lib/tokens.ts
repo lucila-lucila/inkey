@@ -1,5 +1,5 @@
 import "server-only";
-import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { serverEnv } from "@/lib/env";
 
 /**
@@ -34,4 +34,23 @@ export function hashesIguales(a: string, b: string): boolean {
 /** El link que recibe la persona invitada. */
 export function enlaceInvitacion(token: string): string {
   return new URL(`/invitacion/${token}`, serverEnv.siteUrl).toString();
+}
+
+/**
+ * Token de un link de perfil.
+ *
+ * A diferencia de una invitación, un link de perfil se comparte muchas veces:
+ * la persona tiene que poder volver a copiarlo. Por eso no lo guardamos (ni en
+ * claro ni hasheado a secas): lo derivamos del id del link con un HMAC y una
+ * clave del servidor. De la base guardamos solo el hash del resultado, así que
+ * con una copia de la base —sin la clave— no se puede armar ningún link vivo.
+ */
+export function tokenDeLink(idLink: string): string | null {
+  const clave = serverEnv.shareLinkSecret;
+  if (!clave) return null;
+  return createHmac("sha256", clave).update(idLink).digest("base64url");
+}
+
+export function enlacePerfil(token: string): string {
+  return new URL(`/p/${token}`, serverEnv.siteUrl).toString();
 }

@@ -4,7 +4,7 @@ Tu rol y cómo trabajar
 
 Vas a construir el MVP de Inkey, una web app para Argentina. Trabajá por fases (ver al final). Antes de escribir código:
 
-1. Leé este documento completo y el archivo `reference/landing.html` (la landing ya aprobada: define el look & feel).
+1. Leé este documento completo y `docs/identidad.md` (la identidad de marca: define el look & feel). `reference/landing.html` es la landing de la Fase 1 y queda como referencia histórica de la estructura de la página, no de su estilo.
 2. Proponeme el esquema de base de datos, la estructura de carpetas y el plan de la Fase 1. Esperá mi OK antes de implementar.
 3. Al terminar cada fase: corré los tests, mostrame qué quedó hecho, qué falta y cómo probarlo localmente. Hacé commit con un mensaje claro.
 4. Si algo es ambiguo, preguntame. No inventes textos legales: dejá placeholders como `[TÉRMINOS Y CONDICIONES]`.
@@ -111,7 +111,7 @@ Flujos
 
 Pantallas
 
-* `/` → landing (portá `reference/landing.html` a componentes, sin cambiar el diseño)
+* `/` → landing (la estructura de secciones sale de `reference/landing.html`; el estilo, de `docs/identidad.md`)
 * `/ingresar`, `/onboarding`
 * `/panel` → resumen: tareas pendientes primero ("Confirmá el pago de octubre"), después alquileres como inquilino y propiedades como dueño
 * `/alquileres/nuevo`, `/alquileres/[id]` (detalle, historial de pagos, documentos, invitación)
@@ -123,12 +123,10 @@ Pantallas
 
 Diseño
 
-Seguí exactamente el sistema visual de `reference/landing.html`:
+Seguí exactamente el sistema visual de `docs/identidad.md` (identidad "Vecindario"): ahí viven la paleta, las tipografías, las formas, el logo, los estados y el tono de voz. Ese documento manda sobre cualquier otra referencia visual.
 
-* Colores: fondo `#F5EFE4`, superficie `#FFFDF8`, tinta `#1D1A15`, texto secundario `#4F493F` y `#5E574B`, bordes `#CFC5B3`; verde principal `#1E5B47` (confianza y confirmación, se usa en acciones primarias y estados "confirmado"); terracota `#B8502A` como secundario cálido (reseñas, éxito, lo relacionado al dueño), con tinte `#F6E3D8` y verde tinte `#E4EFE9`.
-* Modo oscuro con los mismos tokens de la landing, respetando `prefers-color-scheme`.
-* Tipografía: Fraunces para títulos y números grandes, Instrument Sans para todo lo demás.
-* Componentes: tarjetas con borde de 1,5 px color tinta; las tarjetas protagonistas (perfil, pago pendiente) llevan sombra dura desplazada (`12px 12px 0` tinta, 8 px en mobile). Botones con radio de 12 px, pastillas redondeadas, objetivos táctiles de al menos 44 px.
+* `reference/landing.html` sirve solo como referencia histórica de la estructura de la landing (qué secciones hay y en qué orden). Su paleta y su tipografía quedaron viejas: no las uses.
+* Modo oscuro con los mismos tokens, respetando `prefers-color-scheme`.
 * Accesibilidad: contraste AA, foco visible, labels reales en todos los inputs, respetar `prefers-reduced-motion`.
 * Armá los tokens como variables de Tailwind y un set chico de componentes reutilizables antes de las pantallas.
 
