@@ -28,7 +28,15 @@ export async function GET() {
 
     // ¿PostgREST ve las tablas? (si las migraciones se aplicaron recién, el
     // caché del esquema puede estar viejo y esto lo delata)
-    for (const tabla of ["profiles", "rentals", "invitations", "payments", "share_links"]) {
+    for (const tabla of [
+      "profiles",
+      "rentals",
+      "invitations",
+      "payments",
+      "share_links",
+      "reviews",
+      "review_tag_defs",
+    ]) {
       const resultado = await conTiempoLimite(
         supabase.from(tabla).select("id", { head: true, count: "exact" }),
       );

@@ -26,6 +26,8 @@ type Alquiler = {
   currency: string;
   status: string;
   start_date: string;
+  end_requested_by: string | null;
+  ended_at: string | null;
 };
 
 type Pago = {
@@ -89,7 +91,7 @@ export default async function PanelPage() {
     supabase
       .from("rentals")
       .select(
-        "id, tenant_id, owner_id, created_by, neighborhood_label, monthly_amount, currency, status, start_date",
+        "id, tenant_id, owner_id, created_by, neighborhood_label, monthly_amount, currency, status, start_date, end_requested_by, ended_at",
       )
       .order("created_at", { ascending: false }),
   ]);
@@ -128,6 +130,31 @@ export default async function PanelPage() {
       alquiler.tenant_id === user.id &&
       alquiler.start_date.slice(0, 7) <= mesActual.slice(0, 7) &&
       !pagos.some((pago) => pago.rental_id === alquiler.id && pago.period === mesActual),
+  );
+
+  // Fin de contrato: lo que espera que yo confirme.
+  const finPorConfirmar = todos.filter(
+    (alquiler) => alquiler.status === "pending_end" && alquiler.end_requested_by !== user.id,
+  );
+
+  // Y los alquileres terminados donde todavía no dejé mi reseña.
+  const terminados = todos.filter((alquiler) => alquiler.status === "ended");
+  const { data: misResenas } = terminados.length
+    ? await supabase
+        .from("reviews")
+        .select("rental_id, author_id")
+        .in(
+          "rental_id",
+          terminados.map((alquiler) => alquiler.id),
+        )
+        .eq("author_id", user.id)
+    : { data: [] };
+
+  const resenaPendiente = terminados.filter(
+    (alquiler) =>
+      !(misResenas ?? []).some(
+        (resena) => (resena as { rental_id: string }).rental_id === alquiler.id,
+      ),
   );
 
   const rebotados = pagos.filter((pago) => {
@@ -214,7 +241,9 @@ export default async function PanelPage() {
         rechazados.length === 0 &&
         porConfirmar.length === 0 &&
         porReportar.length === 0 &&
-        rebotados.length === 0 ? (
+        rebotados.length === 0 &&
+        finPorConfirmar.length === 0 &&
+        resenaPendiente.length === 0 ? (
           <Card >
             <p className="m-0 text-body">
               Nada pendiente por ahora. Cuando haya un pago para reportar o confirmar, te aparece acá
@@ -258,6 +287,30 @@ export default async function PanelPage() {
                 </p>
                 <ButtonLink href={`/pagos/${pago.id}`} variant="secondary" size="md">
                   Ver qué pasó
+                </ButtonLink>
+              </Card>
+            ))}
+
+            {finPorConfirmar.map((alquiler) => (
+              <Card key={`fin-${alquiler.id}`} hero className="flex flex-col items-start gap-3 p-5">
+                <p className="m-0 text-[17px]">
+                  Te marcaron que terminó el contrato en{" "}
+                  <strong>{alquiler.neighborhood_label}</strong>. Confirmalo si es así.
+                </p>
+                <ButtonLink href={`/alquileres/${alquiler.id}`} size="md">
+                  Ver y confirmar
+                </ButtonLink>
+              </Card>
+            ))}
+
+            {resenaPendiente.map((alquiler) => (
+              <Card key={`resena-${alquiler.id}`} className="flex flex-col items-start gap-3 p-5">
+                <p className="m-0 text-[17px]">
+                  Terminó tu alquiler en <strong>{alquiler.neighborhood_label}</strong>. Contá cómo
+                  fue: la otra parte no ve tu reseña hasta que deje la suya.
+                </p>
+                <ButtonLink href={`/alquileres/${alquiler.id}`} variant="secondary" size="md">
+                  Dejar mi reseña
                 </ButtonLink>
               </Card>
             ))}

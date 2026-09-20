@@ -1,3 +1,5 @@
+import type { ResenaPublica } from "./resenas";
+
 /** Las métricas del historial, tal como las devuelve la base. */
 export type Metricas = {
   meses_confirmados: number;
@@ -25,6 +27,7 @@ export type PerfilPublico =
       inicial_apellido: string;
       muestra_montos: boolean;
       metricas: Metricas;
+      resenas: ResenaPublica[];
     };
 
 export function nombreVisible(nombre: string, inicial: string): string {

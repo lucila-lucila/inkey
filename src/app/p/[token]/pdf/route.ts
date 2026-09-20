@@ -25,6 +25,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ tok
       inicialApellido: perfil.inicial_apellido,
       rol: perfil.rol,
       metricas: perfil.metricas,
+      resenas: perfil.resenas,
       generadoEl: new Date().toISOString().slice(0, 10),
     });
 

@@ -12,6 +12,15 @@ import {
 import { nombrePublico } from "@/lib/validation/profile";
 import { periodosDelAlquiler, vencimientoDe } from "@/lib/domain/pagos";
 import { SeccionPagos, type FilaPeriodo, type PagoDelPeriodo } from "@/components/pago/seccion-pagos";
+import { ConfirmarFin, ProponerFin } from "@/components/resena/fin-de-contrato";
+import { FormularioResena } from "@/components/resena/formulario-resena";
+import { ListaResenas } from "@/components/resena/lista-resenas";
+import {
+  direccionDe,
+  fechaDePublicacion,
+  type EtiquetaResena,
+  type ResenaPropia,
+} from "@/lib/domain/resenas";
 import type { Moneda } from "@/lib/validation/rental";
 import { createClient } from "@/lib/supabase/server";
 import { BotonContrato, CancelarAlquiler, NuevoLink, SubirContrato } from "./piezas";
@@ -68,6 +77,13 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
     .eq("rental_id", id)
     .order("period", { ascending: false });
 
+  // Reseñas de este alquiler: la propia siempre, la ajena cuando se puede
+  // mostrar. De eso se encarga RLS.
+  const { data: resenas } = await supabase
+    .from("reviews")
+    .select("id, text, tags, created_at, published_at, direction, author_id")
+    .eq("rental_id", id);
+
   const { data: invitacion } = await supabase
     .from("invitations")
     .select("id, created_at, expires_at")
@@ -88,6 +104,31 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
     pago: porPeriodo.get(periodo) ?? null,
   }));
   const hoy = new Date().toISOString().slice(0, 10);
+
+  const miDireccion = direccionDe(soyInquilino);
+  const misResenas = (resenas ?? []) as Array<ResenaPropia & { author_id: string }>;
+  const miResena = misResenas.find((resena) => resena.author_id === user.id) ?? null;
+  const resenaDelOtro = misResenas.find((resena) => resena.author_id !== user.id) ?? null;
+
+  // El catálogo de etiquetas depende de hacia dónde va la reseña.
+  const { data: etiquetas } = alquiler.status === "ended" && !miResena
+    ? await supabase
+        .from("review_tag_defs")
+        .select("code, direction, label")
+        .eq("direction", miDireccion)
+        .eq("active", true)
+        .order("orden")
+    : { data: [] };
+
+  const nombreContraparte = contraparte
+    ? nombrePublico(contraparte.first_name ?? "", contraparte.last_name ?? "")
+    : soyInquilino
+      ? "tu dueño"
+      : "tu inquilino";
+
+  const sePublicaEl = alquiler.ended_at
+    ? fechaDePublicacion(alquiler.ended_at).toISOString().slice(0, 10)
+    : hoy;
   const invitacionVencida = invitacion ? new Date(invitacion.expires_at) <= new Date() : false;
   const esCreador = alquiler.created_by === user.id;
 
@@ -163,6 +204,64 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
         </Card>
       </section>
 
+      {alquiler.status === "pending_end" && (
+        <ConfirmarFin
+          rentalId={alquiler.id}
+          loPropuseYo={alquiler.end_requested_by === user.id}
+          quien={nombreContraparte}
+        />
+      )}
+
+      {alquiler.status === "ended" && (
+        <section aria-labelledby="titulo-resenas" className="flex flex-col gap-3">
+          <h2 id="titulo-resenas" className="t-subtitulo m-0">
+            Reseñas
+          </h2>
+
+          {miResena ? (
+            <Card className="flex flex-col gap-2">
+              <h3 className="t-subtitulo mt-0 mb-0">Ya dejaste la tuya</h3>
+              <p className="m-0 text-body">
+                {miResena.published_at
+                  ? "Está publicada."
+                  : `Se publica cuando ${nombreContraparte} deje la suya, o el ${formatearFecha(sePublicaEl)}. Hasta entonces nadie la ve.`}
+              </p>
+            </Card>
+          ) : (
+            <FormularioResena
+              rentalId={alquiler.id}
+              etiquetas={(etiquetas ?? []) as EtiquetaResena[]}
+              quien={nombreContraparte}
+              sePublicaEl={sePublicaEl}
+            />
+          )}
+
+          {resenaDelOtro ? (
+            <div>
+              <p className="t-etiqueta mb-2 text-muted">Lo que dijo {nombreContraparte}</p>
+              <ListaResenas
+                resenas={[
+                  {
+                    texto: resenaDelOtro.text,
+                    // En el detalle alcanza con los códigos: el catálogo con
+                    // los nombres se muestra en el perfil.
+                    etiquetas: [],
+                    fecha: resenaDelOtro.published_at ?? resenaDelOtro.created_at,
+                    de: soyInquilino ? "Tu dueño" : "Tu inquilino",
+                  },
+                ]}
+              />
+            </div>
+          ) : (
+            <p className="m-0 text-[15px] text-muted">
+              {miResena
+                ? `Todavía no vemos la de ${nombreContraparte}.`
+                : ""}
+            </p>
+          )}
+        </section>
+      )}
+
       {alquiler.status === "active" && (
         <section aria-labelledby="titulo-pagos" className="flex flex-col gap-3">
           <h2 id="titulo-pagos" className="m-0 t-subtitulo">
@@ -198,8 +297,14 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
       </section>
 
       {esCreador && (alquiler.status === "pending" || alquiler.status === "rejected") && (
-        <section className="border-t-[1.5px] border-dashed border-line pt-5">
+        <section className="border-t border-line pt-5">
           <CancelarAlquiler rentalId={alquiler.id} />
+        </section>
+      )}
+
+      {alquiler.status === "active" && (
+        <section className="border-t border-line pt-5">
+          <ProponerFin rentalId={alquiler.id} />
         </section>
       )}
     </div>

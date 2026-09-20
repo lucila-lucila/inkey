@@ -19,7 +19,7 @@ tomadas (con su motivo) en [`docs/decisiones.md`](docs/decisiones.md).
 | 2 | Alquileres e invitaciones | ✅ |
 | 3 | Pagos, comprobantes y recibo PDF | ✅ |
 | 4 | Perfil compartible | ✅ |
-| 5 | Fin de contrato y reseñas | ⏳ |
+| 5 | Fin de contrato y reseñas | ✅ |
 | 6 | Notificaciones y recordatorios | ⏳ |
 | 7 | Cierre: e2e, seed, seguridad, deploy | ⏳ |
 

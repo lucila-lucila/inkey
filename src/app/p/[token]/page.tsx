@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ButtonLink, Cabecera, Card } from "@/components/ui";
 import { TarjetaPerfil } from "@/components/perfil/tarjeta-perfil";
+import { ListaResenas } from "@/components/resena/lista-resenas";
 import { nombreVisible, resumenParaCompartir } from "@/lib/domain/perfil";
 import { perfilDelToken } from "./datos";
 
@@ -99,6 +100,17 @@ export default async function PerfilPublicoPage({
           rol={perfil.rol}
           metricas={perfil.metricas}
         />
+
+        {perfil.resenas.length > 0 && (
+          <section aria-labelledby="titulo-resenas" className="flex flex-col gap-3">
+            <h2 id="titulo-resenas" className="t-subtitulo m-0">
+              {perfil.resenas.length === 1
+                ? "Lo que dijo la otra parte"
+                : "Lo que dijeron las otras partes"}
+            </h2>
+            <ListaResenas resenas={perfil.resenas} />
+          </section>
+        )}
 
         <Card className="flex flex-col items-start gap-3">
           <p className="m-0 text-body">

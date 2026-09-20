@@ -13,6 +13,7 @@ import {
 import { formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
 import { nombrePeriodo } from "@/lib/domain/pagos";
 import { nivelesDeVerificacion, nombreVisible, type Metricas } from "@/lib/domain/perfil";
+import type { ResenaPublica } from "@/lib/domain/resenas";
 import type { Moneda } from "@/lib/validation/rental";
 
 /*
@@ -94,6 +95,15 @@ const estilos = StyleSheet.create({
     fontSize: 9,
   },
   nota: { fontSize: 9, color: COLORES.apagado, lineHeight: 1.5, marginTop: 20 },
+  resena: {
+    backgroundColor: COLORES.crema,
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 8,
+  },
+  resenaTexto: { fontSize: 10, color: COLORES.cuerpo, lineHeight: 1.5, marginBottom: 4 },
+  resenaEtiquetas: { fontSize: 9, color: COLORES.confirmadoTinta, marginBottom: 4 },
+  resenaAutor: { fontSize: 9, color: COLORES.apagado },
   pie: {
     position: "absolute",
     bottom: 32,
@@ -114,6 +124,7 @@ export type DatosPerfilPdf = {
   inicialApellido: string;
   rol: "tenant" | "owner";
   metricas: Metricas;
+  resenas?: ResenaPublica[];
   generadoEl: string;
 };
 
@@ -269,6 +280,23 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
               <Text key={moneda} style={estilos.nivelDetalle}>
                 Total confirmado: {formatearMonto(total, moneda as Moneda)}
               </Text>
+            ))}
+          </View>
+        )}
+
+        {(datos.resenas?.length ?? 0) > 0 && (
+          <View style={estilos.seccion}>
+            <Text style={estilos.etiqueta}>LO QUE DIJO LA OTRA PARTE</Text>
+            {datos.resenas!.map((resena, indice) => (
+              <View key={`${resena.fecha}-${indice}`} style={estilos.resena}>
+                {resena.etiquetas.length > 0 && (
+                  <Text style={estilos.resenaEtiquetas}>{resena.etiquetas.join(" · ")}</Text>
+                )}
+                {resena.texto && <Text style={estilos.resenaTexto}>“{resena.texto}”</Text>}
+                <Text style={estilos.resenaAutor}>
+                  {resena.de}, {formatearFecha(resena.fecha.slice(0, 10))}
+                </Text>
+              </View>
             ))}
           </View>
         )}

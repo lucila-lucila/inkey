@@ -24,3 +24,11 @@ test.describe("perfil", () => {
     expect(respuesta.headers()["content-type"] ?? "").not.toContain("application/pdf");
   });
 });
+
+test.describe("reseñas", () => {
+  test("dejar una reseña pide sesión", async ({ page }) => {
+    // El formulario vive en el alquiler: sin sesión, ni se llega.
+    await page.goto("/alquileres/11111111-1111-4111-8111-111111111111");
+    await expect(page).toHaveURL(/\/ingresar/);
+  });
+});

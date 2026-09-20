@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui";
 import { TarjetaPerfil } from "@/components/perfil/tarjeta-perfil";
+import { ListaResenas } from "@/components/resena/lista-resenas";
 import { ROLES_PERFIL, type Metricas } from "@/lib/domain/perfil";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/cn";
@@ -32,7 +33,11 @@ export default async function PerfilPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/ingresar?volver_a=/perfil");
 
-  const [{ data: perfil }, { data: metricasCrudas }, { data: links }] = await Promise.all([
+  // Las reseñas que me dejaron y ya se pueden mostrar. RLS decide cuáles.
+  const direccion = rol === "tenant" ? "owner_to_tenant" : "tenant_to_owner";
+
+  const [{ data: perfil }, { data: metricasCrudas }, { data: links }, { data: resenas }, { data: catalogo }] =
+    await Promise.all([
     supabase.from("profiles").select("first_name, last_name").eq("id", user.id).maybeSingle(),
     supabase.rpc("my_profile_metrics", { p_role: rol }),
     supabase
@@ -40,10 +45,37 @@ export default async function PerfilPage({
       .select("id, label, show_amounts, view_count, created_at, revoked_at, subject_role")
       .eq("subject_role", rol)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("reviews")
+      .select("text, tags, created_at, published_at, direction, subject_id")
+      .eq("subject_id", user.id)
+      .eq("direction", direccion)
+      .order("created_at", { ascending: false }),
+    supabase.from("review_tag_defs").select("code, label").eq("active", true),
   ]);
 
   const metricas = metricasCrudas as Metricas;
   const error = params.error ? ERRORES[params.error] : undefined;
+
+  const nombreEtiqueta = new Map(
+    ((catalogo ?? []) as Array<{ code: string; label: string }>).map((fila) => [
+      fila.code,
+      fila.label,
+    ]),
+  );
+
+  // RLS ya filtró: lo que llega acá es lo que se puede mostrar.
+  const resenasVisibles = ((resenas ?? []) as Array<{
+    text: string | null;
+    tags: string[];
+    created_at: string;
+    published_at: string | null;
+  }>).map((resena) => ({
+    texto: resena.text,
+    etiquetas: resena.tags.map((codigo) => nombreEtiqueta.get(codigo) ?? codigo),
+    fecha: resena.published_at ?? resena.created_at,
+    de: rol === "tenant" ? "Su dueño" : "Su inquilino",
+  }));
 
   return (
     <div className="flex max-w-[720px] flex-col gap-7">
@@ -95,6 +127,15 @@ export default async function PerfilPage({
             el link igual: va a mostrar lo que haya hasta ese momento.
           </p>
         </Card>
+      )}
+
+      {resenasVisibles.length > 0 && (
+        <section aria-labelledby="titulo-resenas" className="flex flex-col gap-3">
+          <h2 id="titulo-resenas" className="t-subtitulo m-0">
+            Lo que dijeron de vos
+          </h2>
+          <ListaResenas resenas={resenasVisibles} />
+        </section>
       )}
 
       <section aria-labelledby="titulo-links" className="flex flex-col gap-4">

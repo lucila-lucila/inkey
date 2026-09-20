@@ -204,6 +204,43 @@ Hay un test end to end que recorre las cuatro pantallas con header alcanzables
 sin sesión y verifica, en cada una, que el símbolo esté a la derecha del
 nombre, con la proporción, la separación y la línea de base correctas.
 
+## Fin de contrato y reseñas (Fase 5)
+
+**El contrato termina de a dos.** Uno marca "terminó" y el otro confirma. Que
+una sola persona pudiera cerrar un alquiler compartido sería darle la última
+palabra sobre el historial del otro. Quien lo propuso puede dar marcha atrás
+mientras nadie confirmó, y no puede confirmárselo a sí mismo.
+
+**Al confirmar el fin, `end_date` pasa a hoy** si estaba vacía o era posterior:
+así los meses del alquiler dejan de crecer y las métricas cierran donde
+corresponde.
+
+**Las reseñas se publican juntas, estilo Airbnb.** Se guardan enseguida pero no
+se muestran hasta que estén las dos, o hasta 14 días después del fin del
+contrato. Así nadie escribe condicionado por lo que dijo el otro.
+
+**Esa regla vive en la base, no en el código.** `resena_visible()` la evalúa, y
+la usan tanto la política de RLS como el perfil público. Eso significa que
+funciona **sin cron**: pasados los 14 días la reseña se puede mostrar aunque
+nadie haya corrido nada. `reviews_publish_due()` existe para materializar
+`published_at` y la va a llamar el cron en la Fase 6, pero no es de lo que
+depende la regla.
+
+**Una reseña no se edita ni se borra.** Un trigger lo impide. Se escribe una
+vez, y una sola por persona y por alquiler.
+
+**Las etiquetas viven en una tabla, no en el código.** Las del inquilino y las
+del dueño son distintas, y el catálogo se puede ampliar sin migrar nada. La
+función valida que cada etiqueta exista, esté activa y corresponda a la
+dirección de esa reseña: no se puede colar una etiqueta del otro lado.
+
+**El perfil público no dice quién escribió cada reseña.** Solo "Su dueño" o "Su
+inquilino". Alcanza para saber que viene de la otra parte de ese alquiler, y no
+expone a nadie de más.
+
+**Todas las etiquetas son afirmaciones positivas.** No hay etiquetas negativas
+ni puntaje: el producto no tiene forma de marcar mal a nadie.
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting
