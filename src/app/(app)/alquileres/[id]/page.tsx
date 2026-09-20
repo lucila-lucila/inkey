@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 function Dato({ etiqueta, valor }: { etiqueta: string; valor: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-[14px] text-muted">{etiqueta}</dt>
+      <dt className="t-etiqueta text-muted">{etiqueta}</dt>
       <dd className="m-0 text-[17px] font-medium">{valor}</dd>
     </div>
   );
@@ -95,7 +95,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
     <div className="flex max-w-[720px] flex-col gap-7">
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="m-0 font-serif text-[clamp(28px,5vw,38px)] leading-[1.1] font-semibold">
+          <h1 className="m-0 t-titulo">
             {alquiler.neighborhood_label}
           </h1>
           <Pill tone={estado.tono}>{estado.texto}</Pill>
@@ -106,7 +106,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
         </p>
       </header>
 
-      <Card hero className="p-6">
+      <Card hero >
         <dl className="m-0 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Dato
             etiqueta="Alquiler mensual"
@@ -129,11 +129,11 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
       </Card>
 
       <section aria-labelledby="titulo-parte" className="flex flex-col gap-3">
-        <h2 id="titulo-parte" className="m-0 font-serif text-[24px] font-semibold">
+        <h2 id="titulo-parte" className="m-0 t-subtitulo">
           {soyInquilino ? "Tu dueño" : "Tu inquilino"}
         </h2>
 
-        <Card className="flex flex-col gap-4 p-6">
+        <Card className="flex flex-col gap-4">
           {contraparte ? (
             <p className="m-0 text-[17px]">
               <strong>{nombrePublico(contraparte.first_name ?? "", contraparte.last_name ?? "")}</strong>{" "}
@@ -165,7 +165,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
 
       {alquiler.status === "active" && (
         <section aria-labelledby="titulo-pagos" className="flex flex-col gap-3">
-          <h2 id="titulo-pagos" className="m-0 font-serif text-[24px] font-semibold">
+          <h2 id="titulo-pagos" className="m-0 t-subtitulo">
             Pagos
           </h2>
           <SeccionPagos
@@ -179,10 +179,10 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
       )}
 
       <section aria-labelledby="titulo-documentos" className="flex flex-col gap-3">
-        <h2 id="titulo-documentos" className="m-0 font-serif text-[24px] font-semibold">
+        <h2 id="titulo-documentos" className="m-0 t-subtitulo">
           Documentos
         </h2>
-        <Card className="flex flex-col gap-4 p-6">
+        <Card className="flex flex-col gap-4">
           {alquiler.contract_path ? (
             <>
               <p className="m-0 text-body">

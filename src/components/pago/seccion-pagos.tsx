@@ -48,7 +48,7 @@ export function SeccionPagos({
 
   if (filas.length === 0) {
     return (
-      <Card className="p-6">
+      <Card >
         <p className="m-0 text-body">
           Todavía no arrancó el primer mes del contrato. Cuando empiece, vas a poder registrar el
           pago acá.
@@ -64,11 +64,11 @@ export function SeccionPagos({
     <div className="flex flex-col gap-5">
       {/* Lo que hay que hacer ahora */}
       {soyInquilino ? (
-        <Card hero className="flex flex-col gap-4 p-6">
+        <Card hero className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="m-0 text-[14px] text-muted">Mes en curso</p>
-              <p className="m-0 font-serif text-[24px] font-semibold capitalize">
+              <p className="t-etiqueta m-0 text-muted">Mes en curso</p>
+              <p className="m-0 t-subtitulo capitalize">
                 {nombrePeriodo(actual.periodo)}
               </p>
               <p className="m-0 text-[15px] text-muted">
@@ -85,7 +85,7 @@ export function SeccionPagos({
           {actual.pago?.status === "confirmed" && (
             <p className="m-0 text-body">
               Tu dueño confirmó este mes.{" "}
-              <Link href={`/pagos/${actual.pago.id}`} className="font-medium text-green-ink">
+              <Link href={`/pagos/${actual.pago.id}`} className="font-medium text-confirm-ink">
                 Ver el recibo
               </Link>
             </p>
@@ -94,7 +94,7 @@ export function SeccionPagos({
           {actual.pago?.status === "reported" && (
             <p className="m-0 text-body">
               Ya lo reportaste. Le avisamos a tu dueño para que lo confirme.{" "}
-              <Link href={`/pagos/${actual.pago.id}`} className="font-medium text-green-ink">
+              <Link href={`/pagos/${actual.pago.id}`} className="font-medium text-confirm-ink">
                 Ver el detalle
               </Link>
             </p>
@@ -141,10 +141,10 @@ export function SeccionPagos({
       ) : pendientesDelDueño.length > 0 ? (
         <div className="flex flex-col gap-3">
           {pendientesDelDueño.map((fila) => (
-            <Card key={fila.periodo} hero className="flex flex-col gap-4 p-6">
+            <Card key={fila.periodo} hero className="flex flex-col gap-4">
               <div>
-                <p className="m-0 text-[14px] text-muted">Te reportaron un pago</p>
-                <p className="m-0 font-serif text-[24px] font-semibold capitalize">
+                <p className="t-etiqueta m-0 text-muted">Te reportaron un pago</p>
+                <p className="m-0 t-subtitulo capitalize">
                   {nombrePeriodo(fila.periodo)}
                 </p>
                 <p className="m-0 text-[17px]">
@@ -155,7 +155,7 @@ export function SeccionPagos({
               <BotonesDueño pagoId={fila.pago!.id} />
               <Link
                 href={`/pagos/${fila.pago!.id}`}
-                className="text-[15px] font-medium text-green-ink"
+                className="text-[15px] font-medium text-confirm-ink"
               >
                 Ver el detalle y el comprobante
               </Link>
@@ -163,7 +163,7 @@ export function SeccionPagos({
           ))}
         </div>
       ) : (
-        <Card className="p-6">
+        <Card >
           <p className="m-0 text-body">
             No hay pagos esperando tu confirmación. Cuando tu inquilino reporte uno, te aparece acá.
           </p>
@@ -173,16 +173,16 @@ export function SeccionPagos({
       {/* Historial */}
       {anteriores.length > 0 && (
         <div>
-          <h3 className="mt-0 mb-2 text-[15px] font-semibold text-muted">Meses anteriores</h3>
+          <h3 className="t-etiqueta mt-0 mb-3 text-muted">Meses anteriores</h3>
           <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {anteriores.map((fila) => (
               <li key={fila.periodo}>
-                <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
+                <Card className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="m-0 text-[17px] font-medium capitalize">
                       {nombrePeriodo(fila.periodo)}
                     </p>
-                    <p className="m-0 text-[14px] text-muted">
+                    <p className="m-0 text-[15px] text-muted">
                       {fila.pago
                         ? `${formatearMonto(fila.pago.amount, fila.pago.currency as Moneda)} · pagado el ${formatearFecha(fila.pago.paid_on)}`
                         : `Vencía el ${formatearFecha(fila.vence)}`}
@@ -197,7 +197,7 @@ export function SeccionPagos({
                         </Pill>
                         <Link
                           href={`/pagos/${fila.pago.id}`}
-                          className="text-[15px] font-medium text-green-ink"
+                          className="text-[15px] font-medium text-confirm-ink"
                         >
                           Ver
                         </Link>
@@ -206,7 +206,7 @@ export function SeccionPagos({
                       reportando === fila.periodo ? null : (
                         <Button
                           type="button"
-                          variant="outline"
+                          variant="secondary"
                           size="md"
                           onClick={() => setReportando(fila.periodo)}
                         >
@@ -233,7 +233,7 @@ export function SeccionPagos({
               </li>
             ))}
           </ul>
-          <p className="mt-3 mb-0 text-[14px] text-muted">
+          <p className="mt-3 mb-0 text-[15px] text-muted">
             Un mes sin confirmar simplemente no suma. Nunca aparece como algo negativo.
           </p>
         </div>

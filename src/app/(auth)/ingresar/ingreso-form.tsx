@@ -19,7 +19,7 @@ function BotonEnviar() {
 function BotonGoogle() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant="outline" disabled={pending} className="w-full">
+    <Button type="submit" variant="secondary" disabled={pending} className="w-full">
       {pending ? "Abriendo Google…" : "Continuar con Google"}
     </Button>
   );
@@ -31,7 +31,7 @@ export function IngresoForm({ volverA }: { volverA: string }) {
   if (estado.estado === "enviado") {
     return (
       <div aria-live="polite">
-        <h2 className="mt-0 mb-2 font-serif text-[28px] font-semibold text-terra-ink">
+        <h2 className="mt-0 mb-2 t-titulo text-primary-ink">
           Mirá tu casilla
         </h2>
         <p className="m-0 text-body">
@@ -66,7 +66,7 @@ export function IngresoForm({ volverA }: { volverA: string }) {
         <BotonEnviar />
       </form>
 
-      <div className="flex items-center gap-3 text-[14px] text-muted">
+      <div className="flex items-center gap-3 text-[15px] text-muted">
         <span className="h-px flex-1 bg-line" />o<span className="h-px flex-1 bg-line" />
       </div>
 

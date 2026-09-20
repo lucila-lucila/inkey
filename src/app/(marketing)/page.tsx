@@ -25,10 +25,11 @@ export default function LandingPage() {
         <section className="wrap grid grid-cols-1 items-center gap-14 pt-6 pb-18 min-[960px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] min-[960px]:gap-18 min-[960px]:pt-14 min-[960px]:pb-28">
           <div>
             <OutlineTag>Tu historial de alquiler, confirmado</OutlineTag>
-            <h1 className="mt-6 mb-[22px] font-serif text-[clamp(44px,6vw,76px)] leading-[1.03] font-semibold tracking-[-0.025em]">
-              Pagaste puntual durante años. <em className="text-green-ink">Ahora demostralo.</em>
+            <h1 className="t-display mt-6 mb-5">
+              Pagaste puntual durante años.{" "}
+              <em className="text-primary-ink not-italic">Ahora demostralo.</em>
             </h1>
-            <p className="mt-0 mb-7 max-w-[34em] text-[clamp(18px,1.6vw,21px)] leading-[1.55] text-body">
+            <p className="t-cuerpo mt-0 mb-7 max-w-[34em] text-[19px] text-body">
               Vos y tu dueño confirman cada pago, mes a mes. Ese historial es tuyo y lo llevás a tu
               próximo alquiler para que hable por vos.
             </p>

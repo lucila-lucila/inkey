@@ -67,7 +67,7 @@ async function guardarOnboarding(
 
   if (error) {
     console.error("No se pudo completar el onboarding", error);
-    return { estado: "error", mensaje: "No pudimos guardar tus datos. Probá de nuevo." };
+    return { estado: "error", mensaje: "No se pudieron guardar tus datos. Probá de nuevo en un momento." };
   }
 
   await registrarAuditoria({

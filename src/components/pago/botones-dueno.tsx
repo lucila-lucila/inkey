@@ -14,7 +14,7 @@ const ESTADO_INICIAL: EstadoConfirmacion = { estado: "inicial" };
 function BotonRecibido() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="w-full">
+    <Button type="submit" variant="confirm" disabled={pending} className="w-full">
       {pending ? "Confirmando…" : "Recibido"}
     </Button>
   );
@@ -23,7 +23,7 @@ function BotonRecibido() {
 function BotonNoLlego() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant="outline" disabled={pending} className="w-full">
+    <Button type="submit" variant="secondary" disabled={pending} className="w-full">
       {pending ? "Guardando…" : "Todavía no me llegó"}
     </Button>
   );
@@ -48,7 +48,7 @@ export function BotonesDueño({ pagoId }: { pagoId: string }) {
   return (
     <div className="flex flex-col gap-3">
       {error && (
-        <p role="alert" className="m-0 rounded-control bg-terra-tint p-3 text-[15px] text-terra-ink">
+        <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
           {error}
         </p>
       )}
@@ -56,7 +56,7 @@ export function BotonesDueño({ pagoId }: { pagoId: string }) {
       {explicando ? (
         <form action={accionNoRecibido} className="flex flex-col gap-3">
           <input type="hidden" name="pago_id" value={pagoId} />
-          <label htmlFor={`nota-${pagoId}`} className="text-[14px] font-semibold">
+          <label htmlFor={`nota-${pagoId}`} className="text-[15px] font-medium">
             ¿Querés contarle algo? (opcional)
           </label>
           <textarea
@@ -65,9 +65,9 @@ export function BotonesDueño({ pagoId }: { pagoId: string }) {
             rows={3}
             maxLength={500}
             placeholder="Por ejemplo: no me figura en la cuenta al día de hoy."
-            className="w-full rounded-control border-[1.5px] border-line bg-bg p-3 text-[16px] text-ink"
+            className="w-full rounded-campo border border-line bg-surface-sunk p-3 text-[16px] text-ink"
           />
-          <p className="m-0 text-[14px] text-muted">
+          <p className="m-0 text-[15px] text-muted">
             Esto queda entre ustedes dos. No aparece en ningún perfil público ni deja ninguna marca:
             tu inquilino va a poder volver a reportarlo.
           </p>
@@ -84,7 +84,7 @@ export function BotonesDueño({ pagoId }: { pagoId: string }) {
             <input type="hidden" name="pago_id" value={pagoId} />
             <BotonRecibido />
           </form>
-          <Button type="button" variant="outline" onClick={() => setExplicando(true)}>
+          <Button type="button" variant="secondary" onClick={() => setExplicando(true)}>
             Todavía no me llegó
           </Button>
         </div>

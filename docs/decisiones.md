@@ -3,6 +3,46 @@
 Lo que fuimos acordando, con el motivo. Si algo cambia, se edita acá y se
 explica por qué.
 
+## Identidad visual (Vecindario)
+
+La identidad provisoria de la Fase 1 quedó reemplazada por la definitiva, que
+vive en [`docs/identidad.md`](identidad.md). **Ese documento manda sobre
+`reference/landing.html`**, que queda como registro de lo aprobado en la Fase 1
+y ya no es la fuente de verdad visual. (`CLAUDE.md` todavía apunta a la landing
+de referencia para el sistema visual: cuando se actualice, tiene que apuntar a
+`identidad.md`.)
+
+Qué cambió: paleta nueva (crema cálido, terracota de marca, verde solo para
+confirmado), Bricolage Grotesque + DM Sans en lugar de Fraunces + Instrument
+Sans, tarjetas sin sombra ni borde separadas por color, botones redondos, logo
+de dos llaves enganchadas y textos pasados por la tabla de tono de voz.
+
+**Un desvío del documento, por accesibilidad.** La identidad propone `muted`
+`#8B8179`, pero sobre los fondos claros da 3,56:1 y el mínimo que pide el mismo
+documento es 4,5:1. Lo bajamos a `#786F68`, que es el ajuste más chico que
+cumple sin cambiar el matiz. En modo oscuro el token quedó como está. Además,
+dentro de las zonas hundidas las etiquetas usan `body` en lugar de `muted`,
+porque ahí `muted` tampoco llegaba.
+
+**Dos tokens que el documento no nombra pero el sistema necesita.**
+`--on-sun` (tinta oscura fija, en los dos modos: el amarillo nunca lleva texto
+claro) y el par `--invertido-bg` / `--invertido-ink` para el bloque oscuro de la
+landing, que en modo oscuro pasa a superficie porque la página ya es oscura.
+
+**Los botones llenos en modo oscuro** usan el tono claro del token con texto
+oscuro, como indica el documento: en oscuro `primary` es `#E59B78` y el texto va
+en `#1A1815`.
+
+**El recibo en PDF** también cambió: paleta nueva, símbolo del logo dibujado con
+las primitivas de react-pdf y etiquetas en mayúsculas. Sigue con tipografías
+estándar del PDF (Helvetica, la más parecida a DM Sans de las que trae el
+formato) por el mismo motivo de antes: incrustar las fuentes de la marca haría
+más lento y más frágil cada render.
+
+**Hay un test que cuida esto.** `tests/unit/identidad.test.ts` lee los tokens
+reales del CSS y verifica el contraste de cada par en los dos modos: si alguien
+toca un color y rompe AA, falla el build.
+
 ## Producto
 
 **La landing sigue siendo lista de espera.** El formulario del hero guarda mail

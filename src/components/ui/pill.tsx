@@ -1,14 +1,18 @@
 import { cn } from "@/lib/cn";
 
-type Tone = "green" | "terra" | "neutral";
+type Tone = "confirm" | "primary" | "neutral" | "sun";
 
+/*
+ * Estados. "Sin confirmar" es deliberadamente neutro: nunca rojo, nunca
+ * alarma. Un mes sin confirmar no suma, pero tampoco acusa a nadie.
+ */
 const tones: Record<Tone, string> = {
-  green: "text-green-ink bg-green-tint",
-  terra: "text-terra-ink bg-terra-tint",
-  neutral: "text-muted bg-pill",
+  confirm: "bg-confirm-soft text-confirm-ink",
+  primary: "bg-primary-soft text-primary-ink",
+  neutral: "bg-surface-sunk text-body",
+  sun: "bg-sun text-on-sun",
 };
 
-/** Pastilla de estado: "Confirmado", "Pendiente", "Con comprobante". */
 export function Pill({
   tone = "neutral",
   className,
@@ -21,7 +25,7 @@ export function Pill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-3 py-[7px] text-[13px] font-semibold whitespace-nowrap",
+        "inline-flex items-center gap-1.5 rounded-chip px-3 py-1.5 text-[13px] font-medium whitespace-nowrap",
         tones[tone],
         className,
       )}
@@ -31,12 +35,18 @@ export function Pill({
   );
 }
 
-/** Etiqueta con borde, como el "Tu historial de alquiler, confirmado" del hero. */
-export function OutlineTag({ className, children }: { className?: string; children: React.ReactNode }) {
+/** Etiqueta con borde, para encabezar una sección. */
+export function OutlineTag({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
     <span
       className={cn(
-        "inline-block rounded-full border-[1.5px] border-current px-3.5 py-[7px] text-[15px] font-semibold text-green-ink",
+        "t-etiqueta inline-block rounded-chip bg-primary-soft px-3 py-2 text-primary-ink",
         className,
       )}
     >

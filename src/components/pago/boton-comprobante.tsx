@@ -24,11 +24,11 @@ export function BotonComprobante({ pagoId }: { pagoId: string }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <Button type="button" variant="outline" size="md" onClick={abrir} disabled={cargando}>
+      <Button type="button" variant="secondary" size="md" onClick={abrir} disabled={cargando}>
         {cargando ? "Abriendo…" : "Ver el comprobante"}
       </Button>
       {error && (
-        <p role="alert" className="m-0 text-[15px] text-terra-ink">
+        <p role="alert" className="m-0 text-[15px] text-primary-ink">
           {error}
         </p>
       )}

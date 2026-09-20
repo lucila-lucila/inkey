@@ -55,7 +55,7 @@ async function regenerarInvitacion(
     .maybeSingle();
 
   if (!alquiler || alquiler.status !== "pending" || alquiler.created_by !== user.id) {
-    return { estado: "error", mensaje: "Este alquiler ya no está esperando confirmación." };
+    return { estado: "error", mensaje: "Este alquiler ya no está esperando que lo confirmen." };
   }
 
   await supabase
@@ -77,7 +77,7 @@ async function regenerarInvitacion(
 
   if (error) {
     console.error("No se pudo regenerar la invitación", error);
-    return { estado: "error", mensaje: "No pudimos armar el link. Probá de nuevo." };
+    return { estado: "error", mensaje: "No se pudo armar el link. Probá de nuevo en un momento." };
   }
 
   await registrarAuditoria({
@@ -161,7 +161,7 @@ export async function verContrato(rentalId: string): Promise<{ url: string } | {
   if (!alquiler?.contract_path) return { error: "Este alquiler no tiene contrato adjunto." };
 
   const url = await urlFirmada(alquiler.contract_path, 60);
-  return url ? { url } : { error: "No pudimos abrir el contrato. Probá de nuevo." };
+  return url ? { url } : { error: "No se pudo abrir el contrato. Probá de nuevo en un momento." };
 }
 
 export type EstadoReporte =
@@ -241,7 +241,7 @@ async function guardarReporteDePago(
     const ref = registrarFalla("reportarPago: rpc payment_report", error);
     return {
       estado: "error",
-      mensaje: `No pudimos guardar el pago. Probá de nuevo; si sigue pasando, pasanos este código: ${ref}`,
+      mensaje: `No se pudo guardar el pago. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
     };
   }
 
@@ -249,7 +249,7 @@ async function guardarReporteDePago(
   if (!respuesta.ok) {
     return {
       estado: "error",
-      mensaje: (respuesta.error && MENSAJES_PAGO[respuesta.error]) ?? "No pudimos guardar el pago.",
+      mensaje: (respuesta.error && MENSAJES_PAGO[respuesta.error]) ?? "No se pudo guardar el pago.",
     };
   }
 
@@ -305,7 +305,7 @@ async function guardarContrato(
     .eq("id", rentalId)
     .maybeSingle();
 
-  if (!alquiler) return { estado: "error", mensaje: "No encontramos el alquiler." };
+  if (!alquiler) return { estado: "error", mensaje: "No encontramos ese alquiler." };
 
   const subida = await subirDocumento({ rentalId, archivo, prefijo: "contrato" });
   if (!subida.ok) return { estado: "error", mensaje: subida.mensaje };
@@ -317,7 +317,7 @@ async function guardarContrato(
 
   if (error) {
     console.error("No se pudo guardar el contrato", error);
-    return { estado: "error", mensaje: "Subimos el archivo pero no pudimos guardarlo. Probá de nuevo." };
+    return { estado: "error", mensaje: "El archivo se subió pero no se pudo guardar. Probá de nuevo en un momento." };
   }
 
   revalidatePath(`/alquileres/${rentalId}`);

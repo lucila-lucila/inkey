@@ -47,7 +47,7 @@ export async function sumarseALista(
       );
       return {
         estado: "error",
-        mensaje: "No pudimos guardar tu mail. Ya estamos viéndolo: probá en un rato.",
+        mensaje: "No se pudo guardar tu mail. Probá de nuevo en un rato.",
       };
     }
 

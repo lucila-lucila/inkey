@@ -2,7 +2,7 @@ const PASOS = [
   {
     titulo: "Invitás a tu dueño",
     texto:
-      "Le mandás un link por WhatsApp. Confirma el alquiler con un toque, sin crear cuenta ni contraseña.",
+      "Le mandás un link por WhatsApp. Lo abre, ve el alquiler y lo confirma con un toque. No tiene que crear contraseña.",
   },
   {
     titulo: "Cada mes, confirman el pago",
@@ -12,22 +12,20 @@ const PASOS = [
   {
     titulo: "Compartís tu historial",
     texto:
-      "Cuando buscás tu próximo alquiler, mandás tu perfil. Meses confirmados, reseñas y todo verificado.",
+      "Cuando buscás tu próximo alquiler, mandás tu perfil. Meses confirmados, reseñas y todo confirmado por la otra parte.",
   },
 ];
 
 export function Steps() {
   return (
-    <section id="como" className="bg-dark py-16 text-on-dark min-[860px]:py-[104px]">
-      <div className="wrap">
-        <h2 className="mb-13 max-w-[15em] font-serif text-[clamp(34px,4.4vw,56px)] leading-[1.08] font-semibold tracking-[-0.02em]">
-          Tres pasos. Cero garantes nerviosos.
-        </h2>
+    <section id="como" className="wrap">
+      <div className="rounded-tarjeta bg-invertido px-6 py-14 text-invertido-ink min-[860px]:px-12 min-[860px]:py-20">
+        <h2 className="t-titulo mb-12 max-w-[15em]">Tres pasos. Cero garantes nerviosos.</h2>
         <ol className="step-list grid list-none grid-cols-1 gap-9 p-0 min-[860px]:grid-cols-3 min-[860px]:gap-8">
           {PASOS.map((paso) => (
-            <li key={paso.titulo} className="border-t-2 border-on-dark pt-[22px]">
-              <h3 className="mb-3 text-[25px] font-semibold">{paso.titulo}</h3>
-              <p className="m-0 leading-[1.55] text-on-dark-muted">{paso.texto}</p>
+            <li key={paso.titulo} className="border-t-2 border-invertido-ink/30 pt-5">
+              <h3 className="t-subtitulo mb-3">{paso.titulo}</h3>
+              <p className="t-cuerpo m-0 text-invertido-ink/75">{paso.texto}</p>
             </li>
           ))}
         </ol>

@@ -1,26 +1,25 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "dark" | "outline" | "quiet";
+type Variant = "primary" | "confirm" | "secondary" | "quiet";
 type Size = "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 font-semibold no-underline " +
+  "inline-flex items-center justify-center gap-2 rounded-full font-medium no-underline " +
   "disabled:opacity-60 disabled:cursor-not-allowed";
 
 const variants: Record<Variant, string> = {
-  // Verde = acción primaria y confirmación.
-  primary: "bg-green text-white rounded-control hover:brightness-110",
-  // Tinta con forma de pastilla: el botón del header de la landing.
-  dark: "bg-ink text-bg! rounded-full hover:brightness-125",
-  outline:
-    "border-[1.5px] border-ink text-ink rounded-control bg-transparent hover:bg-pill",
-  quiet: "text-ink rounded-control bg-transparent hover:bg-pill",
+  // La marca: registrar, invitar, compartir.
+  primary: "bg-primary text-on-primary hover:brightness-110",
+  // El verde es solo confirmación: nunca decorativo.
+  confirm: "bg-confirm text-on-confirm hover:brightness-110",
+  secondary: "bg-surface-sunk text-ink hover:brightness-[0.97]",
+  quiet: "bg-transparent text-body hover:bg-surface-sunk",
 };
 
 // 44px es el objetivo táctil mínimo; 52px para los botones de formulario.
 const sizes: Record<Size, string> = {
-  md: "min-h-[44px] px-[22px] text-[16px]",
+  md: "min-h-[44px] px-5 text-[15px]",
   lg: "min-h-[52px] px-6 text-[17px]",
 };
 
@@ -55,8 +54,7 @@ export function ButtonLink({
   href,
   children,
   ...props
-}: CommonProps &
-  Omit<React.ComponentProps<typeof Link>, "children" | "className">) {
+}: CommonProps & Omit<React.ComponentProps<typeof Link>, "children" | "className">) {
   return (
     <Link href={href} className={cn(base, variants[variant], sizes[size], className)} {...props}>
       {children}

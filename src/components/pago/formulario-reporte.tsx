@@ -44,7 +44,7 @@ export function FormularioReporte({
       </p>
 
       {error && (
-        <p role="alert" className="m-0 rounded-control bg-terra-tint p-3 text-[15px] text-terra-ink">
+        <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
           {error.mensaje}
         </p>
       )}
@@ -73,7 +73,7 @@ export function FormularioReporte({
           name="comprobante"
           type="file"
           accept="application/pdf,image/jpeg,image/png,image/webp"
-          className="min-h-[52px] w-full rounded-control border-[1.5px] border-line bg-bg p-3 text-[15px] file:mr-3 file:min-h-[36px] file:rounded-lg file:border-0 file:bg-pill file:px-3 file:font-semibold file:text-ink"
+          className="min-h-[52px] w-full rounded-campo border border-line bg-surface-sunk p-3 text-[15px] file:mr-3 file:min-h-[36px] file:rounded-lg file:border-0 file:bg-surface-sunk file:px-3 file:font-medium file:text-ink"
         />
       </Field>
 

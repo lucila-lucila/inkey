@@ -16,7 +16,7 @@ import { Button } from "@/components/ui";
 function BotonEnvio({ texto, enCurso }: { texto: string; enCurso: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} variant="outline">
+    <Button type="submit" disabled={pending} variant="secondary">
       {pending ? enCurso : texto}
     </Button>
   );
@@ -51,12 +51,12 @@ export function NuevoLink({
         enCurso="Generando…"
       />
       {hayInvitacionViva && (
-        <p className="m-0 text-[14px] text-muted">
+        <p className="m-0 text-[15px] text-muted">
           El link anterior deja de funcionar apenas generás uno nuevo.
         </p>
       )}
       {estado.estado === "error" && (
-        <p role="alert" className="m-0 text-[15px] text-terra-ink">
+        <p role="alert" className="m-0 text-[15px] text-primary-ink">
           {estado.mensaje}
         </p>
       )}
@@ -84,11 +84,11 @@ export function BotonContrato({ rentalId }: { rentalId: string }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <Button type="button" variant="outline" onClick={abrir} disabled={cargando}>
+      <Button type="button" variant="secondary" onClick={abrir} disabled={cargando}>
         {cargando ? "Abriendo…" : "Ver el contrato"}
       </Button>
       {error && (
-        <p role="alert" className="m-0 text-[15px] text-terra-ink">
+        <p role="alert" className="m-0 text-[15px] text-primary-ink">
           {error}
         </p>
       )}
@@ -100,13 +100,13 @@ export function SubirContrato({ rentalId }: { rentalId: string }) {
   const [estado, accion] = useActionState(subirContrato, { estado: "inicial" } as EstadoContrato);
 
   if (estado.estado === "listo") {
-    return <p className="m-0 text-[15px] text-green-ink">Contrato guardado.</p>;
+    return <p className="m-0 text-[15px] text-confirm-ink">Contrato guardado.</p>;
   }
 
   return (
     <form action={accion} className="flex flex-col gap-3">
       <input type="hidden" name="rental_id" value={rentalId} />
-      <label htmlFor="contrato" className="text-[14px] font-semibold">
+      <label htmlFor="contrato" className="text-[15px] font-medium">
         Adjuntar el contrato
       </label>
       <input
@@ -114,14 +114,14 @@ export function SubirContrato({ rentalId }: { rentalId: string }) {
         name="contrato"
         type="file"
         accept="application/pdf,image/jpeg,image/png,image/webp"
-        className="min-h-[52px] w-full rounded-control border-[1.5px] border-line bg-bg p-3 text-[15px] file:mr-3 file:min-h-[36px] file:rounded-lg file:border-0 file:bg-pill file:px-3 file:font-semibold file:text-ink"
+        className="min-h-[52px] w-full rounded-campo border border-line bg-surface-sunk p-3 text-[15px] file:mr-3 file:min-h-[36px] file:rounded-lg file:border-0 file:bg-surface-sunk file:px-3 file:font-medium file:text-ink"
       />
-      <p className="m-0 text-[14px] text-muted">
+      <p className="m-0 text-[15px] text-muted">
         PDF o foto, hasta 10 MB. Queda privado: solo lo ven vos y la otra parte.
       </p>
       <BotonEnvio texto="Subir" enCurso="Subiendo…" />
       {estado.estado === "error" && (
-        <p role="alert" className="m-0 text-[15px] text-terra-ink">
+        <p role="alert" className="m-0 text-[15px] text-primary-ink">
           {estado.mensaje}
         </p>
       )}

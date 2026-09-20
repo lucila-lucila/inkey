@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 function Dato({ etiqueta, valor }: { etiqueta: string; valor: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-[14px] text-muted">{etiqueta}</dt>
+      <dt className="t-etiqueta text-muted">{etiqueta}</dt>
       <dd className="m-0 text-[17px] font-medium">{valor}</dd>
     </div>
   );
@@ -67,19 +67,19 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
       <div>
         <Link
           href={`/alquileres/${alquiler.id}`}
-          className="text-[15px] font-medium text-green-ink no-underline"
+          className="text-[15px] font-medium text-confirm-ink no-underline"
         >
           ← {alquiler.neighborhood_label}
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="m-0 font-serif text-[clamp(28px,5vw,38px)] leading-[1.1] font-semibold capitalize">
+          <h1 className="m-0 t-titulo capitalize">
             {nombrePeriodo(String(pago.period).slice(0, 10))}
           </h1>
           <Pill tone={estado.tono}>{estado.texto}</Pill>
         </div>
       </div>
 
-      <Card hero className="p-6">
+      <Card hero >
         <dl className="m-0 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Dato
             etiqueta="Monto"
@@ -91,7 +91,7 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
             etiqueta="Puntualidad"
             valor={
               pago.on_time ? (
-                <span className="text-green-ink">En fecha</span>
+                <span className="text-confirm-ink">En fecha</span>
               ) : (
                 <span className="text-muted">Después del vencimiento</span>
               )
@@ -107,9 +107,9 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
       </Card>
 
       {pago.status === "reported" && soyDueño && (
-        <Card className="flex flex-col gap-4 p-6">
+        <Card className="flex flex-col gap-4">
           <div>
-            <h2 className="mt-0 mb-1 font-serif text-[22px] font-semibold">
+            <h2 className="mt-0 mb-1 t-subtitulo">
               ¿Te llegó este pago?
             </h2>
             <p className="m-0 text-body">
@@ -123,7 +123,7 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
       )}
 
       {pago.status === "reported" && !soyDueño && (
-        <Card className="p-6">
+        <Card >
           <p className="m-0 text-body">
             Esperando que {nombreContraparte} lo confirme. Cuando lo haga, los dos van a tener el
             recibo y este mes suma a tu historial.
@@ -132,8 +132,8 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
       )}
 
       {pago.status === "not_received" && (
-        <Card className="flex flex-col gap-3 p-6">
-          <h2 className="mt-0 mb-0 font-serif text-[22px] font-semibold">
+        <Card className="flex flex-col gap-3">
+          <h2 className="mt-0 mb-0 t-subtitulo">
             {soyDueño ? "Dijiste que todavía no te llegó" : "Tu dueño todavía no lo recibió"}
           </h2>
           {pago.owner_note && (
@@ -150,7 +150,7 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
           </p>
           {!soyDueño && (
             <div>
-              <ButtonLink href={`/alquileres/${alquiler.id}`} variant="outline" size="md">
+              <ButtonLink href={`/alquileres/${alquiler.id}`} variant="secondary" size="md">
                 Volver a reportarlo
               </ButtonLink>
             </div>
@@ -159,9 +159,9 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
       )}
 
       {pago.status === "confirmed" && (
-        <Card className="flex flex-col gap-4 p-6">
+        <Card className="flex flex-col gap-4">
           <div>
-            <h2 className="mt-0 mb-1 font-serif text-[22px] font-semibold">Mes confirmado</h2>
+            <h2 className="mt-0 mb-1 t-subtitulo">Mes confirmado</h2>
             <p className="m-0 text-body">
               {soyDueño ? "Confirmaste" : `${nombreContraparte} confirmó`} este pago el{" "}
               {formatearFecha(String(pago.confirmed_at).slice(0, 10))}. Los dos tienen el recibo.

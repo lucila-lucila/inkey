@@ -7,7 +7,8 @@ historial es del inquilino: lo comparte con un link cuando busca su próximo
 alquiler. Sin datos crediticios, sin listas de morosos, nada público por
 defecto.
 
-La especificación completa está en [`CLAUDE.md`](CLAUDE.md) y las decisiones
+La especificación completa está en [`CLAUDE.md`](CLAUDE.md), la identidad
+visual vigente en [`docs/identidad.md`](docs/identidad.md) y las decisiones
 tomadas (con su motivo) en [`docs/decisiones.md`](docs/decisiones.md).
 
 ## Estado
@@ -88,7 +89,8 @@ src/
 └── styles/tokens.css    los tokens de diseño, una sola vez
 supabase/migrations/     el esquema, versionado
 tests/                   unit · rls · e2e
-reference/landing.html   la landing aprobada: define el look & feel
+reference/landing.html   la landing de la Fase 1 (registro; la identidad
+                         vigente es docs/identidad.md)
 ```
 
 ## Deploy

@@ -17,7 +17,7 @@ export default async function NuevoAlquilerPage({
   const rol: RolAlquiler = params.rol === "propietario" ? "propietario" : "inquilino";
 
   return (
-    <Card hero className="max-w-[640px] p-6 sm:p-8">
+    <Card hero className="max-w-[640px]">
       <NuevoAlquilerForm rol={rol} />
     </Card>
   );

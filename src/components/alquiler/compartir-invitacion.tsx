@@ -43,7 +43,7 @@ export function CompartirInvitacion({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h2 className="mt-0 mb-1.5 font-serif text-[24px] font-semibold">
+        <h2 className="mt-0 mb-1.5 t-subtitulo">
           Invitá a tu {rol}
         </h2>
         <p className="m-0 text-body">
@@ -56,13 +56,13 @@ export function CompartirInvitacion({
         href={enlaceWhatsApp(mensaje)}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex min-h-[52px] items-center justify-center rounded-control bg-green px-6 text-[17px] font-semibold text-white no-underline hover:brightness-110"
+        className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-primary px-6 text-[17px] font-medium text-on-primary no-underline hover:brightness-110"
       >
         Enviar por WhatsApp
       </a>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="link-invitacion" className="text-[14px] font-semibold">
+        <label htmlFor="link-invitacion" className="text-[15px] font-medium">
           O copiá el link
         </label>
         <div className="flex gap-2.5 max-[560px]:flex-col">
@@ -71,9 +71,9 @@ export function CompartirInvitacion({
             readOnly
             value={url}
             onFocus={(evento) => evento.currentTarget.select()}
-            className="min-h-[52px] w-full min-w-0 flex-1 rounded-control border-[1.5px] border-line bg-bg px-4 text-[15px] text-ink"
+            className="min-h-[52px] w-full min-w-0 flex-1 rounded-campo border border-line bg-surface-sunk px-4 text-[15px] text-ink"
           />
-          <Button type="button" variant="outline" onClick={copiar}>
+          <Button type="button" variant="secondary" onClick={copiar}>
             {copiado ? "¡Copiado!" : "Copiar"}
           </Button>
         </div>
@@ -84,12 +84,12 @@ export function CompartirInvitacion({
 
       <a
         href={enlaceMail({ asunto: `Confirmá el alquiler de ${barrio} en Inkey`, mensaje })}
-        className="text-[15px] font-medium text-green-ink"
+        className="text-[15px] font-medium text-confirm-ink"
       >
         Prefiero mandarlo por mail
       </a>
 
-      <p className="m-0 rounded-control bg-terra-tint p-3 text-[14px] text-terra-ink">
+      <p className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
         Guardalo ahora: por seguridad, este link no se vuelve a mostrar. Si lo perdés, generá uno
         nuevo desde el alquiler. Vence en 7 días.
       </p>

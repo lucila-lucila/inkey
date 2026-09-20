@@ -44,3 +44,29 @@ test.describe("landing", () => {
     await expect(page.locator("#lista-error")).toContainText("nombre@mail.com");
   });
 });
+
+test.describe("identidad", () => {
+  test("la página usa las fuentes y el fondo de la marca", async ({ page }) => {
+    await page.goto("/");
+
+    const estilos = await page.evaluate(() => {
+      const cuerpo = getComputedStyle(document.body);
+      const titulo = getComputedStyle(document.querySelector("h1")!);
+      return {
+        fuenteTexto: cuerpo.fontFamily,
+        fuenteTitulo: titulo.fontFamily,
+        fondo: cuerpo.backgroundColor,
+      };
+    });
+
+    expect(estilos.fuenteTexto).toContain("DM Sans");
+    expect(estilos.fuenteTitulo).toContain("Bricolage Grotesque");
+    // #FFF6EA, el crema de la marca.
+    expect(estilos.fondo).toBe("rgb(255, 246, 234)");
+  });
+
+  test("el logo está y se anuncia como Inkey", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("link", { name: "Inkey, inicio" }).first()).toBeVisible();
+  });
+});

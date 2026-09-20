@@ -95,7 +95,7 @@ async function guardarAlquiler(
     const ref = registrarFalla("crearAlquiler: insert en rentals", errorAlta);
     return {
       estado: "error",
-      mensaje: `No pudimos guardar el alquiler (${errorAlta?.code ?? "sin código"}). Probá de nuevo; si sigue pasando, pasanos este código: ${ref}`,
+      mensaje: `No se pudo guardar el alquiler (${errorAlta?.code ?? "sin código"}). Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
     };
   }
 
@@ -112,7 +112,7 @@ async function guardarAlquiler(
     if (subida.ok) {
       await supabase.from("rentals").update({ contract_path: subida.ruta }).eq("id", alquiler.id);
     } else {
-      avisoArchivo = `${subida.mensaje} El alquiler quedó guardado: podés subir el contrato después.`;
+      avisoArchivo = `${subida.mensaje} El alquiler quedó guardado igual: podés subir el contrato después.`;
     }
   }
 
@@ -130,7 +130,7 @@ async function guardarAlquiler(
     const ref = registrarFalla("crearAlquiler: insert en invitations", errorInvitacion);
     return {
       estado: "error",
-      mensaje: `Guardamos el alquiler, pero no pudimos armar el link de invitación. Abrilo desde el panel y generá el link ahí. Código: ${ref}`,
+      mensaje: `El alquiler quedó guardado, pero no se pudo armar el link. Abrilo desde el panel y generá uno nuevo ahí. Código: ${ref}`,
     };
   }
 

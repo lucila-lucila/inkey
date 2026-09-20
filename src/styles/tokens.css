@@ -1,71 +1,110 @@
 /*
  * Tokens de diseño de Inkey.
- * Portados uno a uno desde reference/landing.html: esta es la única fuente de
- * verdad de color y tipografía. Si cambia algo acá, cambia en toda la app.
+ *
+ * Identidad "Vecindario" (ver docs/identidad.md). Tres reglas mandan acá:
+ *   - cálido antes que serio: crema, nada de gris azulado;
+ *   - el verde solo significa confirmado, nunca es decorativo;
+ *   - nada acusa a nadie: no hay rojo de error para la conducta de la gente.
  */
 
 :root {
   /* superficies y texto */
-  --bg: #f5efe4;
-  --surface: #fffdf8;
-  --ink: #1d1a15;
-  --body: #4f493f;
-  --muted: #5e574b;
-  --line: #cfc5b3;
+  --bg: #fff6ea;
+  --surface: #ffffff;
+  --surface-sunk: #f1e7d8;
+  --ink: #23201c;
+  --body: #57504a;
+  /*
+   * La identidad propone #8B8179, pero sobre los fondos claros da 3,56:1 y el
+   * mínimo que pide el mismo documento es 4,5:1. Este es el ajuste más chico
+   * que lo cumple sin cambiar el matiz. En oscuro el token queda igual.
+   */
+  --muted: #786f68;
+  --line: #e6daca;
 
-  /* verde: confianza y confirmación (acciones primarias, estado confirmado) */
-  --green: #1e5b47;
-  --green-ink: #1e5b47;
-  --green-tint: #e4efe9;
+  /* marca */
+  --primary: #b8451a;
+  --primary-soft: #f7e2d6;
+  --primary-ink: #8e340f;
 
-  /* terracota: secundario cálido (reseñas, éxito, lo del dueño) */
-  --terra: #b8502a;
-  --terra-ink: #9a4322;
-  --terra-tint: #f6e3d8;
+  /* confirmado */
+  --confirm: #2f7a5f;
+  --confirm-soft: #e8f0eb;
+  --confirm-ink: #24614b;
 
-  /* superficies auxiliares */
-  --pill-bg: #efe7d8;
-  --dark: #1d1a15;
-  --on-dark: #f5efe4;
-  --on-dark-muted: #cfc7b8;
-  --peach: #e9b89a;
-  --avatar: #e3d6bf;
+  /* destaque */
+  --sun: #f2d06b;
+
+  /* El amarillo de destaque nunca lleva texto claro: siempre tinta oscura. */
+  --on-sun: #23201c;
+
+  /* Texto sobre los botones llenos. */
+  --on-primary: #fff6ea;
+  --on-confirm: #ffffff;
+
+  /*
+   * Bloque invertido de la landing. En claro es tinta con texto crema; en
+   * oscuro pasa a superficie, porque la página ya es oscura.
+   */
+  --invertido-bg: #23201c;
+  --invertido-ink: #fff6ea;
 
   /* tipografía */
-  --serif: Fraunces, Georgia, "Times New Roman", serif;
-  --sans: "Instrument Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --display: "Bricolage Grotesque", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --sans: "DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #16140f;
-    --surface: #211e17;
-    --ink: #f2ece0;
-    --body: #cfc7b8;
-    --muted: #b3aa99;
-    --line: #3f392e;
-    --green-ink: #7fc3a6;
-    --green-tint: #1b2b24;
-    --terra-ink: #e59b78;
-    --terra-tint: #33221a;
-    --pill-bg: #2b271f;
-    --dark: #0e0d09;
-    --avatar: #3a3328;
+    --bg: #1a1815;
+    --surface: #262320;
+    --surface-sunk: #322e29;
+    --ink: #f5efe4;
+    --body: #c2b9ac;
+    --muted: #9a9084;
+    --line: #3b362f;
+
+    --primary: #e59b78;
+    --primary-soft: #3a241a;
+    --primary-ink: #f0bfa4;
+
+    --confirm: #7fc3a6;
+    --confirm-soft: #1c2e26;
+    --confirm-ink: #a5d9c2;
+
+    --sun: #e8c765;
+
+    /* En oscuro los botones llenos van con el tono claro y texto oscuro. */
+    --on-primary: #1a1815;
+    --on-confirm: #1a1815;
+
+    --invertido-bg: #262320;
+    --invertido-ink: #f5efe4;
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #16140f;
-  --surface: #211e17;
-  --ink: #f2ece0;
-  --body: #cfc7b8;
-  --muted: #b3aa99;
-  --line: #3f392e;
-  --green-ink: #7fc3a6;
-  --green-tint: #1b2b24;
-  --terra-ink: #e59b78;
-  --terra-tint: #33221a;
-  --pill-bg: #2b271f;
-  --dark: #0e0d09;
-  --avatar: #3a3328;
+  --bg: #1a1815;
+  --surface: #262320;
+  --surface-sunk: #322e29;
+  --ink: #f5efe4;
+  --body: #c2b9ac;
+  --muted: #9a9084;
+  --line: #3b362f;
+
+  --primary: #e59b78;
+  --primary-soft: #3a241a;
+  --primary-ink: #f0bfa4;
+
+  --confirm: #7fc3a6;
+  --confirm-soft: #1c2e26;
+  --confirm-ink: #a5d9c2;
+
+  --sun: #e8c765;
+
+  --on-primary: #1a1815;
+  --on-confirm: #1a1815;
+
+  --invertido-bg: #262320;
+  --invertido-ink: #f5efe4;
 }

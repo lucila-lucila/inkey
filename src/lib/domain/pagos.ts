@@ -63,10 +63,14 @@ export function periodosDelAlquiler(
   return periodos;
 }
 
+/*
+ * "Todavía no lo confirmó" va en neutro a propósito: no es un incumplimiento
+ * ni una alarma, es un mes que todavía no suma.
+ */
 export const ESTADOS_PAGO = {
-  confirmed: { texto: "Confirmado", tono: "green" },
-  reported: { texto: "Esperando confirmación", tono: "neutral" },
-  not_received: { texto: "El dueño no lo recibió", tono: "terra" },
+  confirmed: { texto: "Confirmado", tono: "confirm" },
+  reported: { texto: "Falta que lo confirme", tono: "primary" },
+  not_received: { texto: "Todavía no le llegó", tono: "neutral" },
 } as const;
 
 export type EstadoPago = keyof typeof ESTADOS_PAGO;

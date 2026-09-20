@@ -16,7 +16,8 @@ export function registrarFalla(contexto: string, error: unknown): string {
 }
 
 export function mensajeInesperado(ref: string): string {
-  return `Algo se rompió de nuestro lado y no pudimos guardarlo. Probá de nuevo; si sigue pasando, pasanos este código: ${ref}`;
+  // El error explica qué pasó y qué hacer, sin culpar a nadie.
+  return `No se pudo guardar. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`;
 }
 
 /**

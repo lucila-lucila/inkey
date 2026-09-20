@@ -42,7 +42,7 @@ export async function confirmarPago(
         const ref = registrarFalla("confirmarPago: rpc payment_confirm", error);
         return {
           estado: "error" as const,
-          mensaje: `No pudimos confirmar el pago. Probá de nuevo; si sigue pasando, pasanos este código: ${ref}`,
+          mensaje: `No se pudo confirmar el pago. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
         };
       }
 
@@ -50,7 +50,7 @@ export async function confirmarPago(
       if (!respuesta.ok) {
         return {
           estado: "error" as const,
-          mensaje: mensajeDe(respuesta.error, "No pudimos confirmar el pago."),
+          mensaje: mensajeDe(respuesta.error, "No se pudo confirmar el pago."),
         };
       }
 
@@ -92,7 +92,7 @@ export async function marcarNoRecibido(
         const ref = registrarFalla("marcarNoRecibido: rpc payment_not_received", error);
         return {
           estado: "error" as const,
-          mensaje: `No pudimos guardarlo. Probá de nuevo; si sigue pasando, pasanos este código: ${ref}`,
+          mensaje: `No se pudo guardar. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
         };
       }
 
@@ -100,7 +100,7 @@ export async function marcarNoRecibido(
       if (!respuesta.ok) {
         return {
           estado: "error" as const,
-          mensaje: mensajeDe(respuesta.error, "No pudimos guardarlo."),
+          mensaje: mensajeDe(respuesta.error, "No se pudo guardar."),
         };
       }
 
@@ -132,5 +132,5 @@ export async function verComprobante(
   if (!pago?.receipt_path) return { error: "Este pago no tiene comprobante adjunto." };
 
   const url = await urlFirmada(pago.receipt_path, 60);
-  return url ? { url } : { error: "No pudimos abrir el comprobante. Probá de nuevo." };
+  return url ? { url } : { error: "No se pudo abrir el comprobante. Probá de nuevo en un momento." };
 }

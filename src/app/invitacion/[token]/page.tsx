@@ -38,7 +38,7 @@ const MENSAJES_ERROR: Record<string, string> = {
   sos_vos: "No podés confirmar tu propia invitación: este link es para la otra parte.",
   inexistente: "No encontramos esta invitación.",
   demasiados_intentos: "Probaste varias veces seguidas. Esperá unos minutos.",
-  servidor: "Algo salió mal de nuestro lado. Probá de nuevo en un rato.",
+  servidor: "Algo se rompió de nuestro lado. Probá de nuevo en un rato.",
 };
 
 const MENSAJES_ESTADO: Record<string, string> = {
@@ -74,8 +74,8 @@ export default async function InvitacionPage({
   if (resultado === "rechazada") {
     return (
       <Marco>
-        <Card hero className="p-6 sm:p-8">
-          <h1 className="mt-0 mb-2 font-serif text-[30px] leading-[1.1] font-semibold">Listo, gracias</h1>
+        <Card hero >
+          <h1 className="mt-0 mb-2 t-titulo">Listo, gracias</h1>
           <p className="mt-0 mb-0 text-body">
             Le avisamos a quien te mandó el link que se equivocó de contacto. No vas a recibir nada
             más de este alquiler.
@@ -88,14 +88,14 @@ export default async function InvitacionPage({
   if (!pareceToken(token)) {
     return (
       <Marco>
-        <Card hero className="p-6 sm:p-8">
-          <h1 className="mt-0 mb-2 font-serif text-[30px] leading-[1.1] font-semibold">
+        <Card hero >
+          <h1 className="mt-0 mb-2 t-titulo">
             Ese link no parece válido
           </h1>
           <p className="mt-0 mb-5 text-body">
             Revisá que lo hayas copiado completo, o pedile a quien te invitó que te mande uno nuevo.
           </p>
-          <ButtonLink href="/" variant="outline">
+          <ButtonLink href="/" variant="secondary">
             Ir a Inkey
           </ButtonLink>
         </Card>
@@ -118,14 +118,14 @@ export default async function InvitacionPage({
   if (resumen.estado !== "valida" || !resumen.alquiler) {
     return (
       <Marco>
-        <Card hero className="p-6 sm:p-8">
-          <h1 className="mt-0 mb-2 font-serif text-[30px] leading-[1.1] font-semibold">
+        <Card hero >
+          <h1 className="mt-0 mb-2 t-titulo">
             Este link ya no está disponible
           </h1>
           <p className="mt-0 mb-5 text-body">
             {MENSAJES_ESTADO[resumen.estado] ?? MENSAJES_ESTADO.inexistente}
           </p>
-          <ButtonLink href="/" variant="outline">
+          <ButtonLink href="/" variant="secondary">
             Conocer Inkey
           </ButtonLink>
         </Card>
@@ -143,8 +143,8 @@ export default async function InvitacionPage({
     <Marco>
       <div className="flex flex-col gap-5">
         <div>
-          <p className="m-0 text-[15px] font-semibold text-green-ink">Invitación a confirmar</p>
-          <h1 className="mt-1.5 mb-2 font-serif text-[clamp(28px,5vw,36px)] leading-[1.1] font-semibold">
+          <p className="t-etiqueta m-0 text-confirm-ink">Invitación a confirmar</p>
+          <h1 className="mt-1.5 mb-2 t-titulo">
             {quien} te invita a confirmar este alquiler
           </h1>
           <p className="m-0 text-body">
@@ -153,37 +153,37 @@ export default async function InvitacionPage({
           </p>
         </div>
 
-        <Card hero className="flex flex-col gap-5 p-6">
+        <Card hero className="flex flex-col gap-5">
           <div>
-            <p className="m-0 text-[14px] text-muted">La propiedad</p>
-            <p className="m-0 text-[19px] font-semibold">{alquiler.direccion}</p>
+            <p className="t-etiqueta m-0 text-muted">La propiedad</p>
+            <p className="m-0 text-[19px] font-medium">{alquiler.direccion}</p>
             <p className="m-0 text-[15px] text-muted">{alquiler.barrio}</p>
           </div>
 
           <dl className="m-0 grid grid-cols-1 gap-4 border-t-[1.5px] border-dashed border-line pt-5 sm:grid-cols-2">
             <div>
-              <dt className="text-[14px] text-muted">Alquiler mensual</dt>
+              <dt className="t-etiqueta text-muted">Alquiler mensual</dt>
               <dd className="m-0 text-[17px] font-medium">
                 {formatearMonto(alquiler.monto, alquiler.moneda)}
               </dd>
             </div>
             <div>
-              <dt className="text-[14px] text-muted">Vencimiento</dt>
+              <dt className="t-etiqueta text-muted">Vencimiento</dt>
               <dd className="m-0 text-[17px] font-medium">
                 {textoVencimiento(alquiler.dia_vencimiento)}
               </dd>
             </div>
             <div>
-              <dt className="text-[14px] text-muted">Desde</dt>
+              <dt className="t-etiqueta text-muted">Desde</dt>
               <dd className="m-0 text-[17px] font-medium">{formatearFecha(alquiler.desde)}</dd>
             </div>
             <div>
-              <dt className="text-[14px] text-muted">Hasta</dt>
+              <dt className="t-etiqueta text-muted">Hasta</dt>
               <dd className="m-0 text-[17px] font-medium">{formatearFecha(alquiler.hasta)}</dd>
             </div>
             {alquiler.indice_ajuste && (
               <div>
-                <dt className="text-[14px] text-muted">Ajuste</dt>
+                <dt className="t-etiqueta text-muted">Ajuste</dt>
                 <dd className="m-0 text-[17px] font-medium">
                   {alquiler.indice_ajuste}, cada {alquiler.ajuste_cada_meses}{" "}
                   {alquiler.ajuste_cada_meses === 1 ? "mes" : "meses"}
@@ -194,7 +194,7 @@ export default async function InvitacionPage({
         </Card>
 
         {error && (
-          <p role="alert" className="m-0 rounded-control bg-terra-tint p-3 text-[15px] text-terra-ink">
+          <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
             {MENSAJES_ERROR[error] ?? MENSAJES_ERROR.servidor}
           </p>
         )}
@@ -207,7 +207,7 @@ export default async function InvitacionPage({
               <ButtonLink href={`/ingresar?volver_a=/invitacion/${token}`} className="w-full">
                 Entrar para confirmar
               </ButtonLink>
-              <p className="m-0 text-center text-[14px] text-muted">
+              <p className="m-0 text-center text-[15px] text-muted">
                 Entrás con tu mail o con Google. Sin contraseñas.
               </p>
             </>
@@ -215,10 +215,10 @@ export default async function InvitacionPage({
           <Rechazar token={token} rol={rol} />
         </div>
 
-        <p className="m-0 text-[14px] text-muted">
+        <p className="m-0 text-[15px] text-muted">
           Al confirmar quedás como {textoRol(rol)} de este alquiler. Vos también vas a poder dejar y
           recibir reseñas al final del contrato.{" "}
-          <Link href="/" className="font-medium text-green-ink">
+          <Link href="/" className="font-medium text-confirm-ink">
             Cómo funciona Inkey
           </Link>
         </p>

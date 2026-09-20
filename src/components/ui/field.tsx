@@ -21,17 +21,17 @@ export function Field({
 }) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <label htmlFor={htmlFor} className="text-[14px] font-semibold">
+      <label htmlFor={htmlFor} className="text-[15px] font-medium">
         {label}
       </label>
       {children}
       {hint && !error && (
-        <p id={`${htmlFor}-hint`} className="text-[14px] text-muted">
+        <p id={`${htmlFor}-hint`} className="t-etiqueta text-muted">
           {hint}
         </p>
       )}
       {error && (
-        <p id={`${htmlFor}-error`} className="text-[15px] text-terra-ink" role="alert">
+        <p id={`${htmlFor}-error`} className="text-[15px] text-primary-ink" role="alert">
           {error}
         </p>
       )}
@@ -43,7 +43,7 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
   return (
     <input
       className={cn(
-        "min-h-[52px] w-full min-w-0 rounded-control border-[1.5px] border-line bg-bg",
+        "min-h-[52px] w-full min-w-0 rounded-campo border border-line bg-surface-sunk",
         "px-4 py-3.5 text-[17px] text-ink placeholder:text-muted",
         className,
       )}

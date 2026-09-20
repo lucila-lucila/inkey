@@ -5,29 +5,36 @@
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface-sunk: var(--surface-sunk);
   --color-ink: var(--ink);
   --color-body: var(--body);
   --color-muted: var(--muted);
   --color-line: var(--line);
-  --color-green: var(--green);
-  --color-green-ink: var(--green-ink);
-  --color-green-tint: var(--green-tint);
-  --color-terra: var(--terra);
-  --color-terra-ink: var(--terra-ink);
-  --color-terra-tint: var(--terra-tint);
-  --color-pill: var(--pill-bg);
-  --color-dark: var(--dark);
-  --color-on-dark: var(--on-dark);
-  --color-on-dark-muted: var(--on-dark-muted);
-  --color-peach: var(--peach);
-  --color-avatar: var(--avatar);
 
-  --font-serif: var(--serif);
+  --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-ink: var(--primary-ink);
+
+  --color-confirm: var(--confirm);
+  --color-confirm-soft: var(--confirm-soft);
+  --color-confirm-ink: var(--confirm-ink);
+
+  --color-sun: var(--sun);
+  --color-on-sun: var(--on-sun);
+
+  --color-on-primary: var(--on-primary);
+  --color-on-confirm: var(--on-confirm);
+
+  --color-invertido: var(--invertido-bg);
+  --color-invertido-ink: var(--invertido-ink);
+
+  --font-display: var(--display);
   --font-sans: var(--sans);
 
-  --radius-control: 12px;
-  --radius-card: 28px;
-  --radius-panel: 20px;
+  /* 12 chips · 16 campos y bloques · 24 tarjetas · botones, redondos */
+  --radius-chip: 12px;
+  --radius-campo: 16px;
+  --radius-tarjeta: 24px;
 }
 
 @layer base {
@@ -54,8 +61,9 @@
     background: var(--bg);
     color: var(--ink);
     font-family: var(--sans);
+    /* Cuerpo: 17/1.6. Nunca bajamos de 15px en texto corrido. */
     font-size: 17px;
-    line-height: 1.5;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -65,14 +73,14 @@
   }
 
   a {
-    color: var(--green-ink);
+    color: var(--primary-ink);
   }
 
   /* Foco siempre visible: es un requisito de accesibilidad, no decoración. */
   :focus-visible {
-    outline: 3px solid var(--terra);
+    outline: 3px solid var(--primary);
     outline-offset: 3px;
-    border-radius: 6px;
+    border-radius: 8px;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -89,14 +97,89 @@
 }
 
 @layer components {
-  /* Contenedor de página, igual que .wrap en la landing. */
+  /* Contenedor de página. */
   .wrap {
     max-width: 1200px;
     margin: 0 auto;
     padding-inline: 24px;
   }
 
-  /* Numeración 01 / 02 / 03 de los pasos: no se puede expresar con utilidades. */
+  /* --------------------------------------------------- escala tipográfica */
+  .t-display {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 40px;
+    line-height: 1.02;
+    letter-spacing: -1.4px;
+  }
+  @media (min-width: 640px) {
+    .t-display {
+      font-size: 52px;
+      letter-spacing: -1.8px;
+    }
+  }
+
+  .t-titulo {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 28px;
+    line-height: 1.08;
+    letter-spacing: -0.9px;
+  }
+  @media (min-width: 640px) {
+    .t-titulo {
+      font-size: 34px;
+      letter-spacing: -1.1px;
+    }
+  }
+
+  .t-subtitulo {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.2;
+    letter-spacing: -0.4px;
+  }
+
+  .t-cuerpo {
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .t-secundario {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .t-etiqueta {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+
+  /* Números y montos: siempre en la familia display. */
+  .t-numero {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+  @media (min-width: 640px) {
+    .t-numero {
+      font-size: 34px;
+    }
+  }
+
+  .t-monto {
+    font-family: var(--display);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  /* Numeración 01 / 02 / 03 de los pasos. */
   .step-list {
     counter-reset: step;
   }
@@ -105,14 +188,14 @@
   }
   .step-list > li::before {
     content: "0" counter(step);
-    font-family: var(--serif);
+    font-family: var(--display);
+    font-weight: 700;
     font-size: 20px;
-    color: var(--peach);
+    color: var(--sun);
     display: block;
     margin-bottom: 14px;
   }
 
-  /* Comillas tipográficas de las reseñas. */
   .quote {
     quotes: "\201C" "\201D";
   }

@@ -30,14 +30,9 @@ export function WaitlistForm() {
 
   if (estado.estado === "ok") {
     return (
-      <div
-        id="lista"
-        className="max-w-[560px] rounded-panel border-[1.5px] border-ink bg-surface p-[22px]"
-      >
+      <div id="lista" className="max-w-[560px] rounded-tarjeta bg-surface p-6">
         <div ref={listoRef} tabIndex={-1} className="outline-none">
-          <h3 className="mt-1 mb-1.5 font-serif text-[30px] font-semibold text-terra-ink">
-            ¡Listo, estás adentro!
-          </h3>
+          <h3 className="t-subtitulo mt-1 mb-1.5 text-confirm-ink">Listo, estás adentro.</h3>
           <p className="m-0 text-body">
             Te anotamos como {estado.rol === "inquilino" ? "inquilino/a" : "propietario/a"}. Te
             escribimos apenas abramos.
@@ -48,10 +43,7 @@ export function WaitlistForm() {
   }
 
   return (
-    <div
-      id="lista"
-      className="max-w-[560px] rounded-panel border-[1.5px] border-ink bg-surface p-[22px]"
-    >
+    <div id="lista" className="max-w-[560px] rounded-tarjeta bg-surface p-6">
       <form action={accion} noValidate>
         <input type="hidden" name="rol" value={rol} />
         {/* Trampa para bots: invisible y fuera del alcance del teclado. */}
@@ -65,7 +57,7 @@ export function WaitlistForm() {
         <div
           role="group"
           aria-label="¿Quién sos?"
-          className="mb-4 inline-grid grid-cols-2 gap-1.5 rounded-full bg-pill p-[5px] max-[560px]:grid max-[560px]:w-full"
+          className="mb-4 inline-grid grid-cols-2 gap-1.5 rounded-full bg-surface-sunk p-1.5 max-[560px]:grid max-[560px]:w-full"
         >
           {(
             [
@@ -79,9 +71,9 @@ export function WaitlistForm() {
               aria-pressed={rol === valor}
               onClick={() => setRol(valor)}
               className={cn(
-                "min-h-[44px] cursor-pointer rounded-full border-0 px-[18px] py-2.5 text-[15px] font-semibold",
-                "max-[560px]:px-2 max-[560px]:text-[14px]",
-                rol === valor ? "bg-green text-white" : "bg-transparent text-ink",
+                "min-h-[44px] cursor-pointer rounded-full border-0 px-[18px] py-2.5 text-[15px] font-medium",
+                "max-[560px]:px-2",
+                rol === valor ? "bg-primary text-on-primary" : "bg-transparent text-body",
               )}
             >
               {texto}
@@ -107,12 +99,12 @@ export function WaitlistForm() {
         </Field>
 
         {estado.estado === "error" && (
-          <p id="lista-error" role="alert" className="mt-3 text-[15px] text-terra-ink">
+          <p id="lista-error" role="alert" className="mt-3 text-[15px] text-primary-ink">
             {estado.mensaje}
           </p>
         )}
 
-        <p className="mt-3 text-[14px] text-muted">
+        <p className="mt-3 text-[15px] text-muted">
           Gratis. Sin datos crediticios. Te avisamos cuando abramos.
         </p>
       </form>

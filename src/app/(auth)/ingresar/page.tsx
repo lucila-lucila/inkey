@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 };
 
 const ERRORES: Record<string, string> = {
-  link: "Ese link ya no sirve: puede haber vencido o haberse usado. Pedí uno nuevo.",
-  google: "No pudimos abrir Google. Probá con el mail.",
+  link: "Ese link ya no sirve: venció o ya se usó. Pedí uno nuevo.",
+  google: "No se pudo abrir Google. Probá con tu mail.",
 };
 
 export default async function IngresarPage({
@@ -23,15 +23,15 @@ export default async function IngresarPage({
   const error = params.error ? ERRORES[params.error] : undefined;
 
   return (
-    <Card hero className="p-6 sm:p-8">
-      <h1 className="mt-0 mb-2 font-serif text-[clamp(30px,5vw,38px)] leading-[1.1] font-semibold">
+    <Card hero >
+      <h1 className="mt-0 mb-2 t-titulo">
         Entrá a Inkey
       </h1>
       <p className="mt-0 mb-6 text-body">
         Tu historial de alquiler, siempre a mano. Entrás con tu mail o con Google.
       </p>
       {error && (
-        <p role="alert" className="mb-5 rounded-control bg-terra-tint p-3 text-[15px] text-terra-ink">
+        <p role="alert" className="mb-5 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
           {error}
         </p>
       )}

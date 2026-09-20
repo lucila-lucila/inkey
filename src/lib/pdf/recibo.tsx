@@ -1,5 +1,5 @@
 import "server-only";
-import { Document, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import { Circle, Document, Page, Path, StyleSheet, Svg, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import { formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
 import { nombrePeriodo } from "@/lib/domain/pagos";
 import type { Moneda } from "@/lib/validation/rental";
@@ -7,24 +7,28 @@ import type { Moneda } from "@/lib/validation/rental";
 /*
  * Recibo de pago.
  *
- * Usa los colores de la marca pero tipografías estándar del PDF: incrustar
- * Fraunces obligaría a traer los archivos de fuente en cada render, y un
- * recibo tiene que salir rápido y siempre igual.
+ * Usa la paleta de la marca (docs/identidad.md) con las tipografías estándar
+ * del PDF: incrustar Bricolage y DM Sans obligaría a traer los archivos de
+ * fuente en cada render, y un recibo tiene que salir rápido y siempre igual.
+ * Helvetica es la que más se parece a DM Sans de las que trae el formato.
  */
 
 const COLORES = {
-  tinta: "#1D1A15",
-  cuerpo: "#4F493F",
-  apagado: "#5E574B",
-  linea: "#CFC5B3",
-  verde: "#1E5B47",
-  verdeTinte: "#E4EFE9",
-  fondo: "#FFFDF8",
+  tinta: "#23201C",
+  cuerpo: "#57504A",
+  apagado: "#8B8179",
+  linea: "#E6DACA",
+  confirmado: "#2F7A5F",
+  confirmadoTinte: "#E8F0EB",
+  confirmadoTinta: "#24614B",
+  marca: "#B8451A",
+  fondo: "#FFF6EA",
+  superficie: "#FFFFFF",
 };
 
 const estilos = StyleSheet.create({
   pagina: {
-    backgroundColor: COLORES.fondo,
+    backgroundColor: COLORES.superficie,
     color: COLORES.tinta,
     fontFamily: "Helvetica",
     fontSize: 11,
@@ -34,29 +38,39 @@ const estilos = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    borderBottomWidth: 1.5,
-    borderBottomColor: COLORES.tinta,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORES.linea,
     paddingBottom: 16,
     marginBottom: 24,
   },
-  logo: { fontFamily: "Times-Bold", fontSize: 22 },
-  etiquetaRecibo: { fontSize: 10, color: COLORES.apagado, textAlign: "right" },
+  logo: { fontFamily: "Helvetica-Bold", fontSize: 22, letterSpacing: -1, color: COLORES.tinta },
+  marca: { flexDirection: "row", alignItems: "center", gap: 6 },
+  etiquetaRecibo: { fontFamily: "Helvetica-Bold", fontSize: 8, letterSpacing: 1.2, color: COLORES.apagado, textAlign: "right" },
   numeroRecibo: { fontFamily: "Helvetica-Bold", fontSize: 12, textAlign: "right" },
-  titulo: { fontFamily: "Times-Bold", fontSize: 26, marginBottom: 4 },
+  titulo: { fontFamily: "Helvetica-Bold", fontSize: 26, letterSpacing: -1, marginBottom: 4 },
   subtitulo: { color: COLORES.cuerpo, marginBottom: 24 },
   destacado: {
-    backgroundColor: COLORES.verdeTinte,
-    borderWidth: 1.5,
-    borderColor: COLORES.verde,
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: COLORES.confirmadoTinte,
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 24,
   },
-  montoEtiqueta: { fontSize: 10, color: COLORES.verde, marginBottom: 4 },
-  monto: { fontFamily: "Times-Bold", fontSize: 28, color: COLORES.verde },
+  montoEtiqueta: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 9,
+    letterSpacing: 1.2,
+    color: COLORES.confirmadoTinta,
+    marginBottom: 6,
+  },
+  monto: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 28,
+    letterSpacing: -0.5,
+    color: COLORES.confirmadoTinta,
+  },
   grilla: { flexDirection: "row", flexWrap: "wrap", marginBottom: 8 },
   celda: { width: "50%", marginBottom: 16, paddingRight: 12 },
-  etiqueta: { fontSize: 9, color: COLORES.apagado, marginBottom: 3 },
+  etiqueta: { fontFamily: "Helvetica-Bold", fontSize: 8, letterSpacing: 1.2, color: COLORES.apagado, marginBottom: 4 },
   valor: { fontSize: 12 },
   separador: { borderTopWidth: 1, borderTopColor: COLORES.linea, marginVertical: 16 },
   nota: { fontSize: 9, color: COLORES.apagado, lineHeight: 1.5 },
@@ -94,7 +108,7 @@ export type DatosRecibo = {
 function Celda({ etiqueta, valor }: { etiqueta: string; valor: string }) {
   return (
     <View style={estilos.celda}>
-      <Text style={estilos.etiqueta}>{etiqueta}</Text>
+      <Text style={estilos.etiqueta}>{etiqueta.toUpperCase()}</Text>
       <Text style={estilos.valor}>{valor}</Text>
     </View>
   );
@@ -109,9 +123,25 @@ function Recibo({ datos }: { datos: DatosRecibo }) {
     >
       <Page size="A4" style={estilos.pagina}>
         <View style={estilos.encabezado}>
-          <Text style={estilos.logo}>inkey.</Text>
+          <View style={estilos.marca}>
+            {/* Las dos llaves enganchadas, en una sola tinta. */}
+            <Svg viewBox="0 0 124 52" width={52} height={22}>
+              <Circle cx="52" cy="26" r="15" stroke={COLORES.marca} strokeWidth={6} />
+              <Path d="M37 26H14M21 26v-7" stroke={COLORES.marca} strokeWidth={6} strokeLinecap="round" />
+              <Path
+                d="M60 13.3a15 15 0 0 1 0 25.4"
+                stroke={COLORES.superficie}
+                strokeWidth={10}
+                strokeLinecap="round"
+              />
+              <Circle cx="68" cy="26" r="15" stroke={COLORES.marca} strokeWidth={6} />
+              <Path d="M83 26h23M99 26v7" stroke={COLORES.marca} strokeWidth={6} strokeLinecap="round" />
+              <Path d="M60 13.3a15 15 0 0 1 0 25.4" stroke={COLORES.marca} strokeWidth={6} />
+            </Svg>
+            <Text style={estilos.logo}>inkey</Text>
+          </View>
           <View>
-            <Text style={estilos.etiquetaRecibo}>Recibo</Text>
+            <Text style={estilos.etiquetaRecibo}>RECIBO</Text>
             <Text style={estilos.numeroRecibo}>{datos.numero}</Text>
           </View>
         </View>
@@ -122,7 +152,7 @@ function Recibo({ datos }: { datos: DatosRecibo }) {
         </Text>
 
         <View style={estilos.destacado}>
-          <Text style={estilos.montoEtiqueta}>Monto confirmado</Text>
+          <Text style={estilos.montoEtiqueta}>MONTO CONFIRMADO</Text>
           <Text style={estilos.monto}>{formatearMonto(datos.monto, datos.moneda)}</Text>
         </View>
 

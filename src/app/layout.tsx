@@ -25,10 +25,10 @@ export default function RootLayout({
     <html lang="es">
       <head>
         {/*
-          Mismas fuentes y misma forma de cargarlas que reference/landing.html.
-          Con next/font el archivo que sirve Google es otro corte óptico de
-          Fraunces y los títulos rompen en distinto lugar: el diseño aprobado
-          manda.
+          Bricolage Grotesque para display y DM Sans para texto (ver
+          docs/identidad.md). Se cargan con <link> y no con next/font: Google
+          sirve a next/font otros cortes de las variables, y ya nos costó una
+          vez que los títulos rompieran en distinto lugar.
         */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -36,7 +36,7 @@ export default function RootLayout({
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Instrument+Sans:wght@400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap"
         />
       </head>
       <body>{children}</body>

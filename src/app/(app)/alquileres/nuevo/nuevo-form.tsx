@@ -60,8 +60,8 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
   if (estado.estado === "creado") {
     return (
       <div className="flex flex-col gap-6">
-        <Card hero className="p-6 sm:p-8">
-          <p className="mt-0 mb-1 text-[15px] font-semibold text-green-ink">Alquiler guardado</p>
+        <Card hero >
+          <p className="t-etiqueta mt-0 mb-2 text-confirm-ink">Alquiler guardado</p>
           <CompartirInvitacion
             url={estado.url}
             barrio={estado.barrio}
@@ -71,16 +71,16 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
         </Card>
 
         {estado.avisoArchivo && (
-          <p role="alert" className="m-0 rounded-control bg-terra-tint p-3 text-[15px] text-terra-ink">
+          <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
             {estado.avisoArchivo}
           </p>
         )}
 
         <div className="flex flex-wrap gap-3">
-          <ButtonLink href={`/alquileres/${estado.rentalId}`} variant="outline">
+          <ButtonLink href={`/alquileres/${estado.rentalId}`} variant="secondary">
             Ver el alquiler
           </ButtonLink>
-          <Link href="/panel" className="self-center text-[15px] font-medium text-green-ink">
+          <Link href="/panel" className="self-center text-[15px] font-medium text-confirm-ink">
             Volver al panel
           </Link>
         </div>
@@ -102,13 +102,13 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
       {errorDelServidor && (
         <div
           role="alert"
-          className="flex flex-col items-start gap-3 rounded-control bg-terra-tint p-4 text-[15px] text-terra-ink"
+          className="flex flex-col items-start gap-3 rounded-campo bg-primary-soft p-4 text-[15px] text-primary-ink"
         >
           <p className="m-0">{errorDelServidor.mensaje}</p>
           {pasoDelError !== null && pasoDelError !== paso && (
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               size="md"
               onClick={() => {
                 setErrores({ [errorDelServidor.campo!]: errorDelServidor.mensaje });
@@ -122,10 +122,10 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
       )}
 
       <div>
-        <p className="m-0 text-[14px] font-semibold text-muted">
+        <p className="t-etiqueta m-0 text-muted">
           Paso {paso + 1} de {PASOS_ALQUILER.length}
         </p>
-        <h1 className="mt-1 mb-0 font-serif text-[clamp(28px,5vw,36px)] leading-[1.1] font-semibold">
+        <h1 className="mt-1 mb-0 t-titulo">
           {PASOS_ALQUILER[paso].titulo}
         </h1>
       </div>
@@ -184,7 +184,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
               id="currency"
               name="currency"
               defaultValue="ARS"
-              className="min-h-[52px] w-full rounded-control border-[1.5px] border-line bg-bg px-4 text-[17px] text-ink"
+              className="min-h-[52px] w-full rounded-campo border border-line bg-surface-sunk px-4 text-[17px] text-ink"
             >
               <option value="ARS">Pesos</option>
               <option value="USD">Dólares</option>
@@ -244,7 +244,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
             name="contrato"
             type="file"
             accept="application/pdf,image/jpeg,image/png,image/webp"
-            className="min-h-[52px] w-full rounded-control border-[1.5px] border-line bg-bg p-3 text-[15px] file:mr-3 file:min-h-[36px] file:rounded-lg file:border-0 file:bg-pill file:px-3 file:font-semibold file:text-ink"
+            className="min-h-[52px] w-full rounded-campo border border-line bg-surface-sunk p-3 text-[15px] file:mr-3 file:min-h-[36px] file:rounded-lg file:border-0 file:bg-surface-sunk file:px-3 file:font-medium file:text-ink"
           />
         </Field>
 

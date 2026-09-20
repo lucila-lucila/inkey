@@ -46,8 +46,8 @@ export default async function OnboardingPage({
       : "inquilino";
 
   return (
-    <Card hero className="p-6 sm:p-8">
-      <h1 className="mt-0 mb-2 font-serif text-[clamp(30px,5vw,38px)] leading-[1.1] font-semibold">
+    <Card hero >
+      <h1 className="mt-0 mb-2 t-titulo">
         Contanos quién sos
       </h1>
       <p className="mt-0 mb-6 text-body">

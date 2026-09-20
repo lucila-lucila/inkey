@@ -73,7 +73,7 @@ export async function subirDocumento(opciones: {
 
   if (error) {
     console.error("No se pudo subir el documento", error);
-    return { ok: false, mensaje: "No pudimos subir el archivo. Probá de nuevo." };
+    return { ok: false, mensaje: "No se pudo subir el archivo. Probá de nuevo en un momento." };
   }
 
   return { ok: true, ruta };

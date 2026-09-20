@@ -5,4 +5,4 @@ export { Field, Input, Checkbox } from "./field";
 export { Stat } from "./stat";
 export { Avatar } from "./avatar";
 export { CheckIcon } from "./check-icon";
-export { Logo } from "./logo";
+export { Logo, Simbolo } from "./logo";

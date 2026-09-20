@@ -75,7 +75,7 @@ export function OnboardingForm({
       </Field>
 
       <fieldset className="m-0 border-0 p-0">
-        <legend className="mb-2 text-[14px] font-semibold">¿Qué querés hacer primero?</legend>
+        <legend className="mb-2 text-[15px] font-medium">¿Qué querés hacer primero?</legend>
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {OPCIONES.map((opcion) => (
             <button
@@ -84,18 +84,18 @@ export function OnboardingForm({
               aria-pressed={intencion === opcion.valor}
               onClick={() => setIntencion(opcion.valor)}
               className={cn(
-                "min-h-[44px] cursor-pointer rounded-control border-[1.5px] p-3.5 text-left",
+                "min-h-[44px] cursor-pointer rounded-campo border p-3.5 text-left",
                 intencion === opcion.valor
-                  ? "border-green bg-green-tint"
+                  ? "border-confirm bg-confirm-soft"
                   : "border-line bg-transparent",
               )}
             >
-              <span className="block text-[16px] font-semibold text-ink">{opcion.titulo}</span>
-              <span className="block text-[14px] text-muted">{opcion.detalle}</span>
+              <span className="block text-[16px] font-medium text-ink">{opcion.titulo}</span>
+              <span className="block text-[15px] text-muted">{opcion.detalle}</span>
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[14px] text-muted">
+        <p className="mt-2 text-[15px] text-muted">
           Es solo para saber por dónde empezar: después podés hacer las dos cosas.
         </p>
       </fieldset>
@@ -118,12 +118,12 @@ export function OnboardingForm({
       </div>
 
       {error && !error.campo && (
-        <p role="alert" className="text-[15px] text-terra-ink">
+        <p role="alert" className="text-[15px] text-primary-ink">
           {error.mensaje}
         </p>
       )}
       {error?.campo?.startsWith("acepta") && (
-        <p role="alert" className="text-[15px] text-terra-ink">
+        <p role="alert" className="text-[15px] text-primary-ink">
           {error.mensaje}
         </p>
       )}

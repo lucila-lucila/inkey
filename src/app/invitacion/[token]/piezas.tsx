@@ -8,7 +8,7 @@ import { Button } from "@/components/ui";
 function BotonAceptar() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="w-full">
+    <Button type="submit" variant="confirm" disabled={pending} className="w-full">
       {pending ? "Confirmando…" : "Sí, lo confirmo"}
     </Button>
   );
@@ -17,7 +17,7 @@ function BotonAceptar() {
 function BotonRechazar() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant="outline" disabled={pending} className="w-full">
+    <Button type="submit" variant="secondary" disabled={pending} className="w-full">
       {pending ? "Enviando…" : "No, no es mía"}
     </Button>
   );
@@ -38,7 +38,7 @@ export function Rechazar({ token, rol }: { token: string; rol: string }) {
 
   if (!confirmando) {
     return (
-      <Button type="button" variant="outline" className="w-full" onClick={() => setConfirmando(true)}>
+      <Button type="button" variant="secondary" className="w-full" onClick={() => setConfirmando(true)}>
         No soy {rol === "owner" ? "el dueño" : "el inquilino"} de esta propiedad
       </Button>
     );

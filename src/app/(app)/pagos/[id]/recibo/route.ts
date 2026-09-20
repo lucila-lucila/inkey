@@ -29,7 +29,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!pago) return new NextResponse("No encontramos ese pago.", { status: 404 });
 
   if (pago.status !== "confirmed") {
-    return new NextResponse("El recibo se genera cuando el dueño confirma el pago.", {
+    return new NextResponse("El recibo sale cuando tu dueño confirma el pago.", {
       status: 409,
     });
   }
@@ -83,7 +83,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   } catch (error) {
     const ref = registrarFalla(`recibo pdf ${id}`, error);
     return new NextResponse(
-      `No pudimos generar el recibo. Si sigue pasando, pasanos este código: ${ref}`,
+      `No se pudo generar el recibo. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
       { status: 500 },
     );
   }

@@ -1,3 +1,4 @@
+/** Ícono de trazo, ancho 2.2 y puntas redondeadas, como el logo. */
 export function CheckIcon({ size = 22, className }: { size?: number; className?: string }) {
   return (
     <svg
@@ -6,7 +7,7 @@ export function CheckIcon({ size = 22, className }: { size?: number; className?:
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={size <= 14 ? 3 : 2.5}
+      strokeWidth={2.2}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"

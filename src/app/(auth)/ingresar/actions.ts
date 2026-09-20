@@ -56,7 +56,7 @@ async function mandarMagicLink(
     console.error("signInWithOtp falló", error);
     return {
       estado: "error",
-      mensaje: "No pudimos mandarte el mail. Esperá un momento y probá de nuevo.",
+      mensaje: "No se pudo mandar el mail. Probá de nuevo en un momento.",
     };
   }
 
