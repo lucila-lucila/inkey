@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ButtonLink, Card, Logo } from "@/components/ui";
+import { ButtonLink, Cabecera, Card } from "@/components/ui";
 import { TarjetaPerfil } from "@/components/perfil/tarjeta-perfil";
 import { nombreVisible, resumenParaCompartir } from "@/lib/domain/perfil";
 import { perfilDelToken } from "./datos";
@@ -37,9 +37,7 @@ export async function generateMetadata({
 function Marco({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="wrap py-6">
-        <Logo size="sm" />
-      </header>
+      <Cabecera />
       <main className="wrap flex w-full flex-1 flex-col items-center py-4">
         <div className="w-full max-w-[560px]">{children}</div>
       </main>

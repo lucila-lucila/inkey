@@ -184,17 +184,25 @@ en el PDF; hoy muestra métricas y niveles de verificación.
 
 ## Identidad: el lockup del header
 
-El header del sitio y de la app usan el lockup con el símbolo como punto final:
-wordmark grande, símbolo a la derecha, a la mitad de la altura de las mayúsculas
-y apoyado en la base del texto, separado por medio radio. Va en versión media
-(un diente por llave) porque al lado del texto dos dientes hacen ruido, y se
-recorta al contorno real del dibujo: si se deja el aire del `viewBox`, esa
+**Todos los headers llevan el mismo lockup**: wordmark grande y símbolo chico a
+la derecha, como punto final, apoyado en la línea de base y separado por medio
+radio. El símbolo no crece con el wordmark: quedó en unos dos quintos de la
+altura de las mayúsculas. Va en versión media (un diente por llave) y recortado
+al contorno real del dibujo, porque si se deja el aire del `viewBox` esa
 separación de medio radio se pierde.
 
-El lockup con el símbolo a la izquierda sigue en el pie, en el recibo, en el
-perfil en PDF y en las pantallas de ingreso e invitación. Está documentado en
-`docs/identidad.md` y hay un test end to end que mide la proporción y la
-separación, para que no se desarme sin que nos enteremos.
+**El lockup de header es el valor por defecto del componente `Logo`.** Una
+pantalla nueva que escriba `<Logo />` ya queda con el orden correcto: para el
+otro lockup hay que pedirlo explícitamente. Además, las pantallas simples
+(ingreso, onboarding, invitación, perfil público) comparten el componente
+`Cabecera`, así que no hay cuatro headers distintos que se puedan desincronizar.
+
+El lockup con el símbolo a la izquierda quedó solo para lo que no es header:
+pie, recibo, perfil en PDF y mails.
+
+Hay un test end to end que recorre las cuatro pantallas con header alcanzables
+sin sesión y verifica, en cada una, que el símbolo esté a la derecha del
+nombre, con la proporción, la separación y la línea de base correctas.
 
 ## Fallas y diagnóstico
 

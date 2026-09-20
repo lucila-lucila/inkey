@@ -104,32 +104,34 @@ export function Simbolo({
   );
 }
 
+/*
+ * Dos medidas por tamaño, según el lockup:
+ *   - `pie`: símbolo a la izquierda, wordmark a 1R;
+ *   - `header`: wordmark grande y símbolo chico de remate.
+ * En el header el símbolo NO crece con el wordmark: es un punto final.
+ */
 const TAMANIOS = {
-  sm: { simbolo: 96, fuente: 22 },
-  lg: { simbolo: 124, fuente: 28 },
+  sm: { simboloPie: 96, fuentePie: 22, fuenteHeader: 34, simboloHeader: 27 },
+  lg: { simboloPie: 124, fuentePie: 28, fuenteHeader: 44, simboloHeader: 34 },
 } as const;
-
-/** Cuánto de la fuente ocupa una mayúscula en Bricolage Grotesque. */
-const ALTURA_MAYUSCULA = 0.72;
 
 /**
  * Lockup.
  *
- * - `simbolo-izquierda` (por defecto): símbolo a la izquierda y wordmark a 1R.
- *   Es el que va en el pie, en los mails, en el recibo y en las pantallas de
- *   ingreso e invitación.
- * - `punto`: wordmark grande y el símbolo chico a la derecha, apoyado en la
- *   base del texto y ocupando el lugar del punto final. Es el del header del
- *   sitio y de la app. El símbolo mide la mitad de la altura de las mayúsculas
- *   y va en versión media: al lado del texto, dos dientes por llave hacen
- *   ruido.
+ * - `punto` (por defecto): wordmark grande y el símbolo chico a la derecha,
+ *   apoyado en la base del texto, ocupando el lugar del punto final. Es el de
+ *   TODOS los headers, del sitio y de la app. Va en versión media: al lado del
+ *   texto, dos dientes por llave hacen ruido. Es el valor por defecto a
+ *   propósito, para que una pantalla nueva no pueda quedar con el orden viejo.
+ * - `simbolo-izquierda`: símbolo a la izquierda y wordmark a 1R. Solo para lo
+ *   que no es header: pie, recibo, perfil en PDF y mails.
  */
 export function Logo({
   href = "/",
   className,
   size = "lg",
   unaTinta,
-  variante = "simbolo-izquierda",
+  variante = "punto",
 }: {
   href?: string;
   className?: string;
@@ -137,19 +139,13 @@ export function Logo({
   unaTinta?: { color: string; fondo: string };
   variante?: "simbolo-izquierda" | "punto";
 }) {
-  const { simbolo, fuente } = TAMANIOS[size];
+  const medidas = TAMANIOS[size];
   const esPunto = variante === "punto";
 
-  // En el header el wordmark manda: el símbolo se dimensiona a partir de él.
-  const fuenteUsada = esPunto ? Math.round(fuente * 1.3) : fuente;
+  const fuenteUsada = esPunto ? medidas.fuenteHeader : medidas.fuentePie;
+  const anchoSimbolo = esPunto ? medidas.simboloHeader : medidas.simboloPie;
 
-  // El símbolo mide la mitad de la altura de las mayúsculas del wordmark.
-  const altoSimbolo = fuenteUsada * ALTURA_MAYUSCULA * 0.5;
-  const anchoSimbolo = esPunto
-    ? Math.round((altoSimbolo * CAJA_AJUSTADA.medio.ancho) / CAJA_AJUSTADA.medio.alto)
-    : simbolo;
-
-  // 1R de aire en el lockup normal; medio radio cuando hace de punto final.
+  // 1R de aire en el lockup del pie; medio radio cuando hace de punto final.
   const radio = esPunto
     ? (15 * anchoSimbolo) / CAJA_AJUSTADA.medio.ancho
     : (15 * anchoSimbolo) / 124;

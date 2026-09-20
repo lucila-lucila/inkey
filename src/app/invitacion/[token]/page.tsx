@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ButtonLink, Card, Logo } from "@/components/ui";
+import { ButtonLink, Cabecera, Card } from "@/components/ui";
 import { formatearFecha, formatearMonto, textoRol, textoVencimiento } from "@/lib/domain/alquiler";
 import type { Moneda } from "@/lib/validation/rental";
 import { hashearToken, pareceToken } from "@/lib/tokens";
@@ -51,9 +51,7 @@ const MENSAJES_ESTADO: Record<string, string> = {
 function Marco({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="wrap py-6">
-        <Logo />
-      </header>
+      <Cabecera />
       <main className="wrap flex w-full flex-1 flex-col items-center justify-center py-8">
         <div className="w-full max-w-[560px]">{children}</div>
       </main>

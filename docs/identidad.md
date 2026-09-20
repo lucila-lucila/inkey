@@ -123,16 +123,16 @@ Geometría: R es el radio del aro; los centros están a 1R; las paletas miden 2R
 
 **Versión mínima** (menos de 40px, favicon): `stroke-width="8"`, sin dientes (`M37 26H18` y `M83 26h19`).
 
-**Lockup principal:** símbolo a la izquierda, wordmark "inkey" en Bricolage 800 con tracking -1.6px, separados por 1R. El wordmark va en `ink`. Se usa en el pie, en los mails, en el recibo y en las pantallas de ingreso e invitación.
+**Lockup del header:** el wordmark manda y el símbolo va a la derecha, ocupando el lugar del punto final. **Es el de todos los headers, sin excepción**: landing, panel, perfil, perfil público, ingreso, onboarding, invitación y cualquier pantalla nueva. El orden es siempre nombre primero, símbolo después.
 
-**Lockup del header** (sitio y app): el wordmark manda y el símbolo va a la derecha, ocupando el lugar del punto final.
-
-- El wordmark es más grande que en el lockup principal.
-- El símbolo mide **la mitad de la altura de las mayúsculas** del wordmark.
-- Va **apoyado en la base del texto**, no centrado.
+- El wordmark es el elemento dominante: bien más grande que en el otro lockup.
+- El símbolo **no crece con el wordmark**: es un remate chico, de alrededor de **dos quintos de la altura de las mayúsculas** del wordmark.
+- Va **apoyado en la línea de base del texto**, no centrado.
 - La separación entre el final de la palabra y el símbolo es de **medio radio**: bien ajustada, como un punto.
 - Se dibuja en **versión media** (un diente por llave): al lado del texto, dos dientes hacen ruido.
 - El símbolo se recorta al contorno real del dibujo, sin el aire del `viewBox`, o esa separación de medio radio se pierde.
+
+**Lockup con el símbolo a la izquierda:** símbolo a la izquierda, wordmark "inkey" en Bricolage 800 con tracking -1.6px, separados por 1R. El wordmark va en `ink`. Se usa **solo fuera de los headers**: pie, recibo, perfil en PDF y mails.
 
 **Una sola tinta:** ambos trazos del mismo color, y el aro de atrás se interrumpe en el cruce con un trazo del color del fondo, de ancho `stroke-width + 4`, dibujado antes del arco de adelante.
 

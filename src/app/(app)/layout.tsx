@@ -27,7 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="border-b-[1.5px] border-line">
         <div className="wrap flex items-center justify-between gap-4 py-4">
           <div className="flex items-center gap-7">
-            <Logo href="/panel" variante="punto" size="sm" />
+            <Logo href="/panel" size="sm" />
             <nav className="flex gap-5 text-[15px] font-medium">
               <Link href="/panel" className="text-ink no-underline hover:underline hover:underline-offset-4">
                 Panel

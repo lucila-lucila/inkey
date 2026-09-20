@@ -70,42 +70,65 @@ test.describe("identidad", () => {
     await expect(page.getByRole("link", { name: "Inkey, inicio" }).first()).toBeVisible();
   });
 
-  test("en el header, el símbolo hace de punto final del wordmark", async ({ page }) => {
-    await page.goto("/");
+  // Todos los headers del producto llevan el mismo lockup: nombre primero y
+  // símbolo después. Si alguna pantalla nueva queda al revés, esto falla.
+  const PANTALLAS_CON_HEADER = [
+    ["landing", "/"],
+    ["ingreso", "/ingresar"],
+    ["invitación", "/invitacion/no-es-un-token"],
+    ["perfil público", "/p/no-es-un-token"],
+  ] as const;
 
-    const medida = await page.evaluate(() => {
-      // En el celular y en escritorio se muestran lockups distintos: medimos el
-      // que está visible.
-      const enlace = [...document.querySelectorAll("header a[aria-label='Inkey, inicio']")].find(
-        (candidato) => (candidato as HTMLElement).offsetParent !== null,
-      )!;
-      const palabra = enlace.querySelector("span")!;
-      const simbolo = enlace.querySelector("svg")!;
-      const estilos = getComputedStyle(palabra);
+  for (const [nombre, ruta] of PANTALLAS_CON_HEADER) {
+    test(`el header de ${nombre} lleva el nombre primero y el símbolo de remate`, async ({
+      page,
+    }) => {
+      await page.goto(ruta);
 
-      // Altura real de una mayúscula en la fuente cargada.
-      const lienzo = document.createElement("canvas").getContext("2d")!;
-      lienzo.font = `${estilos.fontWeight} ${estilos.fontSize} ${estilos.fontFamily}`;
-      const mayuscula = lienzo.measureText("H").actualBoundingBoxAscent;
+      const medida = await page.evaluate(() => {
+        // En el celular y en escritorio se muestran lockups distintos: medimos
+        // el que está visible.
+        const enlace = [...document.querySelectorAll("header a[aria-label='Inkey, inicio']")].find(
+          (candidato) => (candidato as HTMLElement).offsetParent !== null,
+        )!;
+        const palabra = enlace.querySelector("span")!;
+        const simbolo = enlace.querySelector("svg")!;
+        const estilos = getComputedStyle(palabra);
 
-      const cajaSimbolo = simbolo.getBoundingClientRect();
-      const cajaPalabra = palabra.getBoundingClientRect();
+        // Medidas reales de la fuente cargada.
+        const lienzo = document.createElement("canvas").getContext("2d")!;
+        lienzo.font = `${estilos.fontWeight} ${estilos.fontSize} ${estilos.fontFamily}`;
+        const medidas = lienzo.measureText("Hinkey");
+        const mayuscula = medidas.actualBoundingBoxAscent;
 
-      return {
-        proporcion: cajaSimbolo.height / mayuscula,
-        separacion: cajaSimbolo.left - cajaPalabra.right,
-        // El símbolo va después de la palabra, no antes.
-        aLaDerecha: cajaSimbolo.left > cajaPalabra.left,
-        // Y apoyado en la base del texto.
-        distanciaALaBase: Math.abs(cajaSimbolo.bottom - cajaPalabra.bottom),
-      };
+        const cajaSimbolo = simbolo.getBoundingClientRect();
+        const cajaPalabra = palabra.getBoundingClientRect();
+
+        // La línea de base dentro de la caja del texto: la caja incluye el
+        // espacio del descendente, así que hay que calcularla.
+        const alto = medidas.fontBoundingBoxAscent + medidas.fontBoundingBoxDescent;
+        const lineaDeBase =
+          cajaPalabra.top +
+          (cajaPalabra.height - alto) / 2 +
+          medidas.fontBoundingBoxAscent;
+
+        return {
+          proporcion: cajaSimbolo.height / mayuscula,
+          separacion: cajaSimbolo.left - cajaPalabra.right,
+          aLaDerecha: cajaSimbolo.left >= cajaPalabra.right,
+          distanciaALaBase: Math.abs(cajaSimbolo.bottom - lineaDeBase),
+        };
+      });
+
+      // El símbolo va después de la palabra, nunca antes.
+      expect(medida.aLaDerecha).toBe(true);
+      // Es un remate: alrededor de dos quintos de la altura de las mayúsculas.
+      expect(medida.proporcion).toBeGreaterThan(0.33);
+      expect(medida.proporcion).toBeLessThan(0.48);
+      // Ajustado, como un punto final.
+      expect(medida.separacion).toBeLessThan(6);
+      // Y apoyado en la línea de base del texto, no centrado.
+      expect(medida.distanciaALaBase).toBeLessThan(3);
     });
-
-    expect(medida.aLaDerecha).toBe(true);
-    // La mitad de la altura de las mayúsculas.
-    expect(medida.proporcion).toBeGreaterThan(0.45);
-    expect(medida.proporcion).toBeLessThan(0.55);
-    // Ajustado, como un punto final.
-    expect(medida.separacion).toBeLessThan(6);
-  });
+  }
 });
