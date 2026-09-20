@@ -10,6 +10,8 @@ import {
   type EstadoAlquiler,
 } from "@/lib/domain/alquiler";
 import { nombrePublico } from "@/lib/validation/profile";
+import { periodosDelAlquiler, vencimientoDe } from "@/lib/domain/pagos";
+import { SeccionPagos, type FilaPeriodo, type PagoDelPeriodo } from "@/components/pago/seccion-pagos";
 import type { Moneda } from "@/lib/validation/rental";
 import { createClient } from "@/lib/supabase/server";
 import { BotonContrato, CancelarAlquiler, NuevoLink, SubirContrato } from "./piezas";
@@ -58,6 +60,14 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
         .maybeSingle()
     : { data: null };
 
+  const { data: pagos } = await supabase
+    .from("payments")
+    .select(
+      "id, period, status, amount, currency, paid_on, due_date, on_time, owner_note, receipt_path",
+    )
+    .eq("rental_id", id)
+    .order("period", { ascending: false });
+
   const { data: invitacion } = await supabase
     .from("invitations")
     .select("id, created_at, expires_at")
@@ -67,6 +77,17 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
     .maybeSingle();
 
   const estado = ESTADOS_ALQUILER[alquiler.status as EstadoAlquiler];
+
+  // Un renglón por mes del contrato, con su pago si ya existe.
+  const porPeriodo = new Map<string, PagoDelPeriodo>(
+    (pagos ?? []).map((pago) => [String(pago.period).slice(0, 10), pago as PagoDelPeriodo]),
+  );
+  const filas: FilaPeriodo[] = periodosDelAlquiler(alquiler).map((periodo) => ({
+    periodo,
+    vence: vencimientoDe(periodo, alquiler.due_day),
+    pago: porPeriodo.get(periodo) ?? null,
+  }));
+  const hoy = new Date().toISOString().slice(0, 10);
   const invitacionVencida = invitacion ? new Date(invitacion.expires_at) <= new Date() : false;
   const esCreador = alquiler.created_by === user.id;
 
@@ -141,6 +162,21 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
           )}
         </Card>
       </section>
+
+      {alquiler.status === "active" && (
+        <section aria-labelledby="titulo-pagos" className="flex flex-col gap-3">
+          <h2 id="titulo-pagos" className="m-0 font-serif text-[24px] font-semibold">
+            Pagos
+          </h2>
+          <SeccionPagos
+            rentalId={alquiler.id}
+            soyInquilino={soyInquilino}
+            montoSugerido={String(alquiler.monthly_amount)}
+            filas={filas}
+            hoy={hoy}
+          />
+        </section>
+      )}
 
       <section aria-labelledby="titulo-documentos" className="flex flex-col gap-3">
         <h2 id="titulo-documentos" className="m-0 font-serif text-[24px] font-semibold">

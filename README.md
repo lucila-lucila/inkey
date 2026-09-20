@@ -16,7 +16,7 @@ tomadas (con su motivo) en [`docs/decisiones.md`](docs/decisiones.md).
 | --- | --- | --- |
 | 1 | Base: tokens, componentes, auth, onboarding, perfiles, RLS, landing | ✅ |
 | 2 | Alquileres e invitaciones | ✅ |
-| 3 | Pagos, comprobantes y recibo PDF | ⏳ |
+| 3 | Pagos, comprobantes y recibo PDF | ✅ |
 | 4 | Perfil compartible | ⏳ |
 | 5 | Fin de contrato y reseñas | ⏳ |
 | 6 | Notificaciones y recordatorios | ⏳ |

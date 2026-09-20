@@ -12,8 +12,10 @@ ingreso (`/ingresar` ya existe y funciona).
 **El link del mail al dueño no da sesión.** Cuando el dueño recibe el aviso de
 un pago reportado, el link lo lleva directo a confirmar *ese* pago y nada más:
 no abre la cuenta. Un mail reenviado no tiene que darle acceso a un tercero al
-historial completo. (Se implementa en la Fase 5 con la tabla `action_tokens`:
-token de un solo uso, de vida corta y limitado a una acción sobre un pago.)
+historial completo. Se implementa junto con los mails, en la Fase 6, con una
+tabla `action_tokens`: token de un solo uso, de vida corta y limitado a una
+acción sobre un pago. Hasta entonces el dueño confirma desde la app, que ya
+funciona.
 
 **Montos en USD sin conversión.** Se muestran tal cual se cargaron. No
 inventamos cotizaciones.
@@ -73,6 +75,37 @@ las funciones `invitation_accept` e `invitation_reject`, que validan todo antes.
 **"Enviar por mail" abre el cliente de correo (`mailto:`).** Los mails
 transaccionales llegan en la Fase 6 con Resend; hasta entonces esto funciona,
 no es código muerto y se reemplaza sin tocar el resto.
+
+## Pagos (Fase 3)
+
+**La tabla `payments` no tiene políticas de INSERT ni UPDATE.** Todo pasa por
+tres funciones `security definer`: `payment_report`, `payment_confirm` y
+`payment_not_received`. Así hay un solo lugar donde se valida quién puede hacer
+qué, y no hay forma de escribir un pago salteándolo.
+
+**El vencimiento y la moneda los calcula el servidor, no el cliente.** Si el
+inquilino pudiera mandar el `due_date`, cualquier pago sería "en fecha". La
+función los saca del alquiler y guarda `due_date` como una foto: editar el
+alquiler después no cambia la puntualidad de los meses ya registrados.
+
+**`on_time` es una columna generada** (`paid_on <= due_date`). La puntualidad es
+una propiedad del pago, no algo que cada consulta recalcule. La métrica pública
+además exige `status = confirmed`: un mes sin confirmar no suma.
+
+**Volver a reportar está permitido, y limpia la nota.** Si el dueño marca
+"todavía no me llegó", el inquilino puede reportar de nuevo con el comprobante y
+el mes vuelve a quedar pendiente de confirmación. Ese ida y vuelta no deja
+ninguna marca: `not_received` es privado entre las partes.
+
+**El recibo se genera al vuelo, no se guarda.** `/pagos/[id]/recibo` arma el PDF
+en cada pedido. No hay archivo que sincronizar ni que proteger aparte: si RLS no
+te da el pago, no hay recibo. La numeración (`receipt_serial`) se asigna al
+confirmar y es correlativa dentro de cada alquiler.
+
+**El recibo usa tipografías estándar del PDF, no Fraunces.** Incrustar la fuente
+de la marca obligaría a cargar los archivos en cada render. El recibo mantiene
+los colores y la estructura del sistema visual, pero prioriza salir rápido y
+siempre igual.
 
 ## Fallas y diagnóstico
 

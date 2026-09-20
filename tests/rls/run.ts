@@ -9,9 +9,10 @@
 import { UID_A, UID_B, UID_C, type Caso } from "./apoyo";
 import { CASOS_BASE } from "./casos-base";
 import { CASOS_ALQUILERES } from "./casos-alquileres";
+import { CASOS_PAGOS } from "./casos-pagos";
 import { buscarBinariosPg, levantarCluster } from "./cluster";
 
-const CASOS: Caso[] = [...CASOS_BASE, ...CASOS_ALQUILERES];
+const CASOS: Caso[] = [...CASOS_BASE, ...CASOS_ALQUILERES, ...CASOS_PAGOS];
 
 async function main(): Promise<void> {
   if (!buscarBinariosPg()) {

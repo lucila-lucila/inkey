@@ -7,6 +7,7 @@ import {
   formatearMonto,
   type EstadoAlquiler,
 } from "@/lib/domain/alquiler";
+import { nombrePeriodo, periodoActual } from "@/lib/domain/pagos";
 import type { Moneda } from "@/lib/validation/rental";
 import { createClient } from "@/lib/supabase/server";
 
@@ -23,6 +24,14 @@ type Alquiler = {
   neighborhood_label: string;
   monthly_amount: string;
   currency: string;
+  status: string;
+  start_date: string;
+};
+
+type Pago = {
+  id: string;
+  rental_id: string;
+  period: string;
   status: string;
 };
 
@@ -79,11 +88,52 @@ export default async function PanelPage() {
     supabase.from("profiles").select("first_name, initial_intent").eq("id", user.id).maybeSingle(),
     supabase
       .from("rentals")
-      .select("id, tenant_id, owner_id, created_by, neighborhood_label, monthly_amount, currency, status")
+      .select(
+        "id, tenant_id, owner_id, created_by, neighborhood_label, monthly_amount, currency, status, start_date",
+      )
       .order("created_at", { ascending: false }),
   ]);
 
   const todos = (alquileres ?? []) as Alquiler[];
+
+  // Los pagos de todos mis alquileres, para armar las tareas pendientes.
+  const { data: pagosCrudos } = todos.length
+    ? await supabase
+        .from("payments")
+        .select("id, rental_id, period, status")
+        .in(
+          "rental_id",
+          todos.map((alquiler) => alquiler.id),
+        )
+    : { data: [] };
+
+  const pagos = ((pagosCrudos ?? []) as Pago[]).map((pago) => ({
+    ...pago,
+    period: String(pago.period).slice(0, 10),
+  }));
+  const mesActual = periodoActual();
+  const nombreDelAlquiler = new Map(todos.map((alquiler) => [alquiler.id, alquiler.neighborhood_label]));
+
+  // Lo que espera algo del dueño: confirmar un pago que le reportaron.
+  const porConfirmar = pagos.filter((pago) => {
+    const alquiler = todos.find((fila) => fila.id === pago.rental_id);
+    return pago.status === "reported" && alquiler?.owner_id === user.id;
+  });
+
+  // Lo que espera algo del inquilino: reportar el mes en curso, o volver a
+  // reportar lo que el dueño no recibió.
+  const porReportar = todos.filter(
+    (alquiler) =>
+      alquiler.status === "active" &&
+      alquiler.tenant_id === user.id &&
+      alquiler.start_date.slice(0, 7) <= mesActual.slice(0, 7) &&
+      !pagos.some((pago) => pago.rental_id === alquiler.id && pago.period === mesActual),
+  );
+
+  const rebotados = pagos.filter((pago) => {
+    const alquiler = todos.find((fila) => fila.id === pago.rental_id);
+    return pago.status === "not_received" && alquiler?.tenant_id === user.id;
+  });
   const comoInquilino = todos.filter((a) => a.tenant_id === user.id);
   const comoPropietario = todos.filter((a) => a.owner_id === user.id);
 
@@ -160,7 +210,11 @@ export default async function PanelPage() {
         <h2 id="titulo-pendientes" className="mt-0 mb-3 font-serif text-[26px] font-semibold">
           Tareas pendientes
         </h2>
-        {esperandoConfirmacion.length === 0 && rechazados.length === 0 ? (
+        {esperandoConfirmacion.length === 0 &&
+        rechazados.length === 0 &&
+        porConfirmar.length === 0 &&
+        porReportar.length === 0 &&
+        rebotados.length === 0 ? (
           <Card className="p-6">
             <p className="m-0 text-body">
               Nada pendiente por ahora. Cuando haya un pago para reportar o confirmar, te aparece acá
@@ -169,6 +223,45 @@ export default async function PanelPage() {
           </Card>
         ) : (
           <div className="flex flex-col gap-3">
+            {/* Primero lo que traba a otra persona: confirmar un pago. */}
+            {porConfirmar.map((pago) => (
+              <Card key={pago.id} hero className="flex flex-col items-start gap-3 p-5">
+                <p className="m-0 text-[17px]">
+                  Confirmá el pago de <strong className="capitalize">{nombrePeriodo(pago.period)}</strong> en{" "}
+                  <strong>{nombreDelAlquiler.get(pago.rental_id)}</strong>.
+                </p>
+                <ButtonLink href={`/pagos/${pago.id}`} size="md">
+                  Ver y confirmar
+                </ButtonLink>
+              </Card>
+            ))}
+
+            {porReportar.map((alquiler) => (
+              <Card key={`reportar-${alquiler.id}`} hero className="flex flex-col items-start gap-3 p-5">
+                <p className="m-0 text-[17px]">
+                  ¿Ya pagaste <strong className="capitalize">{nombrePeriodo(mesActual)}</strong> en{" "}
+                  <strong>{alquiler.neighborhood_label}</strong>? Reportalo para que tu dueño lo
+                  confirme.
+                </p>
+                <ButtonLink href={`/alquileres/${alquiler.id}`} size="md">
+                  Reportar el pago
+                </ButtonLink>
+              </Card>
+            ))}
+
+            {rebotados.map((pago) => (
+              <Card key={`rebotado-${pago.id}`} className="flex flex-col items-start gap-3 p-5">
+                <p className="m-0 text-[17px]">
+                  Tu dueño todavía no recibió el pago de{" "}
+                  <strong className="capitalize">{nombrePeriodo(pago.period)}</strong> en{" "}
+                  <strong>{nombreDelAlquiler.get(pago.rental_id)}</strong>.
+                </p>
+                <ButtonLink href={`/pagos/${pago.id}`} variant="outline" size="md">
+                  Ver qué pasó
+                </ButtonLink>
+              </Card>
+            ))}
+
             {esperandoConfirmacion.map((alquiler) => (
               <Card key={alquiler.id} hero className="flex flex-col items-start gap-3 p-5">
                 <p className="m-0 text-[17px]">

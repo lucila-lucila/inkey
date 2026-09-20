@@ -100,9 +100,10 @@ export async function crearAlquilerDePrueba(
     rol: "tenant" | "owner";
     estado?: string;
     contraparte?: string | null;
+    diaVencimiento?: number;
   },
 ): Promise<string> {
-  const { creador, rol, estado = "pending", contraparte = null } = opciones;
+  const { creador, rol, estado = "pending", contraparte = null, diaVencimiento = 10 } = opciones;
   const tenant = rol === "tenant" ? creador : contraparte;
   const owner = rol === "owner" ? creador : contraparte;
 
@@ -111,9 +112,9 @@ export async function crearAlquilerDePrueba(
        (tenant_id, owner_id, created_by, neighborhood_label, full_address,
         start_date, monthly_amount, currency, due_day, status)
      values ($1, $2, $3, 'Palermo, CABA', 'Gurruchaga 1234, 3B',
-             '2026-01-01', 450000, 'ARS', 10, $4)
+             '2026-01-01', 450000, 'ARS', $4, $5)
      returning id`,
-    [tenant, owner, creador, estado],
+    [tenant, owner, creador, diaVencimiento, estado],
   );
   return rows[0].id;
 }
