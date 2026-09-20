@@ -41,11 +41,59 @@ create table if not exists auth.users (
   created_at timestamptz not null default now()
 );
 
+-- Versión mínima de storage: buckets, objects y foldername(), que es lo que
+-- usan nuestras políticas de documentos.
+create schema if not exists storage;
+
+create table if not exists storage.buckets (
+  id text primary key,
+  name text not null,
+  public boolean not null default false,
+  file_size_limit bigint,
+  allowed_mime_types text[],
+  created_at timestamptz not null default now()
+);
+
+create table if not exists storage.objects (
+  id uuid primary key default gen_random_uuid(),
+  bucket_id text references storage.buckets (id),
+  name text not null,
+  owner uuid,
+  metadata jsonb,
+  created_at timestamptz not null default now()
+);
+
+alter table storage.objects enable row level security;
+
+grant usage on schema storage to anon, authenticated, service_role;
+grant all on storage.objects to anon, authenticated, service_role;
+grant all on storage.buckets to service_role;
+
+-- Devuelve las carpetas de la ruta (todo menos el nombre del archivo).
+create or replace function storage.foldername(name text)
+returns text[]
+language plpgsql
+immutable
+as $$
+declare
+  _partes text[];
+begin
+  _partes := string_to_array(name, '/');
+  return _partes[1:array_length(_partes, 1) - 1];
+end;
+$$;
+
 -- auth.uid() lee el claim `sub` del JWT, igual que en Supabase.
 create or replace function auth.uid()
 returns uuid
 language sql
 stable
 as $$
-  select nullif(current_setting('request.jwt.claims', true)::json ->> 'sub', '')::uuid;
+  select nullif(
+    coalesce(
+      nullif(current_setting('request.jwt.claim.sub', true), ''),
+      nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'
+    ),
+    ''
+  )::uuid;
 $$;

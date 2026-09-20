@@ -43,6 +43,37 @@ cascada: despersonaliza.
 Antes de la baja, "Descargar mis datos" entrega todo en JSON/CSV.
 Se implementa en la Fase 7.
 
+## Alquileres e invitaciones (Fase 2)
+
+**El link de invitación se muestra una sola vez.** Guardamos el hash del token,
+no el token, así que no se puede recuperar: si se pierde, se genera uno nuevo y
+el anterior deja de funcionar en el acto. Vence a los 7 días.
+
+**El resumen de la invitación muestra la dirección completa.** Es lo que
+necesita el dueño para reconocer si la propiedad es suya; sin eso la pregunta
+"¿confirmás este alquiler?" no se puede responder. El link es la credencial y
+solo lo tiene quien lo recibió.
+
+**Rechazar no pide sesión; aceptar sí.** Quien recibió el link por error tiene
+que poder decir "no soy el dueño" sin crearse una cuenta. Es reversible: el
+alquiler queda `rejected` y quien lo cargó puede volver a empezar con el
+contacto correcto. Aceptar, en cambio, mete a la persona dentro del alquiler:
+para eso se identifica.
+
+**De un alquiler ya confirmado no se edita nada, salvo el contrato.** Un
+trigger compara la fila entera: si cambió algo que no sea `contract_path`, lo
+rechaza. Cambiar el monto o el día de vencimiento después de confirmado sería
+cambiarle el historial a la otra parte. (Editar un alquiler activo es una
+conversación entre las dos partes; si hace falta, se resuelve en una fase
+posterior con acuerdo explícito de ambos.)
+
+**Las partes y el estado no se cambian con un update suelto.** Solo los tocan
+las funciones `invitation_accept` e `invitation_reject`, que validan todo antes.
+
+**"Enviar por mail" abre el cliente de correo (`mailto:`).** Los mails
+transaccionales llegan en la Fase 6 con Resend; hasta entonces esto funciona,
+no es código muerto y se reemplaza sin tocar el resto.
+
 ## Stack
 
 **Rate limiting en Postgres, no en Redis.** Ventana deslizante en

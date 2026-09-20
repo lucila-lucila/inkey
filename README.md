@@ -15,7 +15,7 @@ tomadas (con su motivo) en [`docs/decisiones.md`](docs/decisiones.md).
 | Fase | Qué incluye | Estado |
 | --- | --- | --- |
 | 1 | Base: tokens, componentes, auth, onboarding, perfiles, RLS, landing | ✅ |
-| 2 | Alquileres e invitaciones | ⏳ |
+| 2 | Alquileres e invitaciones | ✅ |
 | 3 | Pagos, comprobantes y recibo PDF | ⏳ |
 | 4 | Perfil compartible | ⏳ |
 | 5 | Fin de contrato y reseñas | ⏳ |
@@ -73,14 +73,18 @@ src/
 ├── app/
 │   ├── (marketing)/     landing
 │   ├── (auth)/          /ingresar y /onboarding
-│   ├── (app)/           pantallas con sesión (/panel, …)
+│   ├── (app)/           pantallas con sesión (/panel, /alquileres, …)
+│   ├── invitacion/      la pantalla que ve quien recibe el link
 │   └── auth/callback/   vuelta del magic link y de Google
 ├── components/ui/       componentes base (Button, Card, Field, …)
 ├── components/landing/  secciones de la landing
 ├── lib/
 │   ├── supabase/        clientes server / browser / admin y sesión
 │   ├── validation/      esquemas Zod (mismos en cliente y servidor)
-│   └── ratelimit/       ventana deslizante en Postgres
+│   ├── domain/          reglas puras: montos, fechas, vencimientos
+│   ├── ratelimit/       ventana deslizante en Postgres
+│   ├── tokens.ts        32 bytes aleatorios; de la base, solo el hash
+│   └── storage.ts       documentos privados y URLs firmadas
 └── styles/tokens.css    los tokens de diseño, una sola vez
 supabase/migrations/     el esquema, versionado
 tests/                   unit · rls · e2e

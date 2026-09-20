@@ -9,9 +9,11 @@ function esRutaPrivada(pathname: string): boolean {
 }
 
 function aIngresar(request: NextRequest): NextResponse {
-  const url = request.nextUrl.clone();
-  url.pathname = "/ingresar";
-  url.searchParams.set("volver_a", request.nextUrl.pathname);
+  // Guardamos a dónde iba, con sus parámetros, para volver exactamente ahí
+  // después de entrar.
+  const destino = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+  const url = new URL("/ingresar", request.nextUrl.origin);
+  url.searchParams.set("volver_a", destino);
   return NextResponse.redirect(url);
 }
 

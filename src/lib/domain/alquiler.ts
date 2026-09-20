@@ -1,0 +1,80 @@
+import type { Moneda, RolAlquiler } from "@/lib/validation/rental";
+
+/** Estados de un alquiler, con el texto que ve la gente. */
+export const ESTADOS_ALQUILER = {
+  pending: { texto: "Esperando confirmación", tono: "neutral" },
+  active: { texto: "Activo", tono: "green" },
+  pending_end: { texto: "Terminando", tono: "terra" },
+  ended: { texto: "Terminado", tono: "neutral" },
+  rejected: { texto: "Rechazado", tono: "terra" },
+} as const;
+
+export type EstadoAlquiler = keyof typeof ESTADOS_ALQUILER;
+
+export function formatearMonto(monto: number | string, moneda: Moneda): string {
+  const numero = typeof monto === "string" ? Number(monto) : monto;
+  const formateado = new Intl.NumberFormat("es-AR", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(numero);
+  // Los dólares se muestran tal cual: no convertimos nada.
+  return moneda === "USD" ? `US$ ${formateado}` : `$ ${formateado}`;
+}
+
+export function formatearFecha(fecha: string | null | undefined): string {
+  if (!fecha) return "—";
+  const [anio, mes, dia] = fecha.split("-").map(Number);
+  return new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "long", year: "numeric" }).format(
+    new Date(Date.UTC(anio, mes - 1, dia)),
+  );
+}
+
+/**
+ * Día de vencimiento de un período. Si el mes no tiene ese día (31 en
+ * febrero), vence el último día del mes.
+ */
+export function vencimientoDelPeriodo(anio: number, mes: number, diaVencimiento: number): Date {
+  const ultimoDia = new Date(Date.UTC(anio, mes, 0)).getUTCDate();
+  return new Date(Date.UTC(anio, mes - 1, Math.min(diaVencimiento, ultimoDia)));
+}
+
+export function textoVencimiento(diaVencimiento: number): string {
+  return diaVencimiento >= 29
+    ? `El ${diaVencimiento} de cada mes (o el último día, si el mes es más corto)`
+    : `El ${diaVencimiento} de cada mes`;
+}
+
+/** Quién falta en el alquiler: a quién hay que invitar. */
+export function rolInvitado(rolDeQuienCrea: RolAlquiler): "owner" | "tenant" {
+  return rolDeQuienCrea === "inquilino" ? "owner" : "tenant";
+}
+
+export function textoRol(rol: "owner" | "tenant"): string {
+  return rol === "owner" ? "dueño" : "inquilino";
+}
+
+/** Mensaje armado para mandar por WhatsApp. */
+export function mensajeInvitacion(opciones: {
+  rolInvitado: "owner" | "tenant";
+  nombre: string;
+  barrio: string;
+  url: string;
+}): string {
+  const { rolInvitado: rol, nombre, barrio, url } = opciones;
+  const presentacion = nombre ? `Soy ${nombre}. ` : "";
+
+  const cuerpo =
+    rol === "owner"
+      ? `${presentacion}Registré en Inkey el alquiler de ${barrio} para que quede constancia de los pagos. ¿Me lo confirmás? Es un toque, no hace falta crear contraseña.`
+      : `${presentacion}Registré en Inkey el alquiler de ${barrio} para llevar juntos el historial de pagos. ¿Lo confirmás? Es un toque, no hace falta crear contraseña.`;
+
+  return `${cuerpo}\n\n${url}`;
+}
+
+export function enlaceWhatsApp(mensaje: string): string {
+  return `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+}
+
+export function enlaceMail(opciones: { asunto: string; mensaje: string }): string {
+  return `mailto:?subject=${encodeURIComponent(opciones.asunto)}&body=${encodeURIComponent(opciones.mensaje)}`;
+}
