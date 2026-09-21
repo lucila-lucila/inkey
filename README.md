@@ -307,6 +307,18 @@ Actions salen por ahí, no por la consola del navegador:
 Los logs de runtime se guardan por poco tiempo, así que conviene mirarlos
 mientras el problema está pasando.
 
+## Pendiente antes de abrir al público
+
+**CSP con nonce.** Hoy `script-src` incluye `'unsafe-inline'`, porque Next
+inyecta su script de arranque sin nonce. Hay que generar un nonce por request
+en `src/proxy.ts` y pasarlo a la cabecera y a los scripts de Next, para que la
+CSP frene de verdad un XSS en vez de solo impedir que entre código de otro
+dominio. Está acordado hacerlo antes de la apertura, no antes.
+
+El resto de lo que quedó abierto en
+[`docs/auditoria-seguridad.md`](docs/auditoria-seguridad.md) son decisiones
+conscientes, con su motivo escrito.
+
 ## Reglas que no se negocian
 
 - El historial es del inquilino: nada es público por defecto.

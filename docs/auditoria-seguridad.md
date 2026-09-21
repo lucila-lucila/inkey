@@ -59,6 +59,23 @@ era reconocimiento servido en bandeja.
 **✅ arreglado**: el detalle lo ve quien tiene sesión o quien manda
 `Authorization: Bearer $CRON_SECRET`. Para el resto queda solo `ok`.
 
+### 🟡 Baja · Faltaban límites de frecuencia en tres acciones
+
+Había rate limiting en el ingreso, la lista de espera, las invitaciones y el
+reporte de pagos, pero no en confirmar un pago, escribir una reseña ni exportar
+los datos —la más pesada de todas, porque arma el historial completo en cada
+llamada—.
+
+**✅ arreglado**: se sumaron `confirmacion_pago` (30/hora), `resena` (10/hora) y
+`export_datos` (5/hora), y el límite de confirmación cubre también las dos
+acciones del link del mail, que son las únicas de pagos que se pueden tocar sin
+sesión. El export devuelve 429 con `Retry-After`.
+
+Queda una excepción deliberada: **darse de baja no tiene límite**. Es un
+derecho, y un limitador no puede dejar a nadie encerrado en su cuenta.
+`tests/unit/limites.test.ts` lee el código y exige que toda acción que escriba
+pase por el limitador, o que la excepción tenga un motivo escrito.
+
 ### 🟡 Baja · Inyección de fórmulas en el CSV exportado
 
 Una celda que empieza con `=`, `+`, `-` o `@` la ejecuta Excel al abrir el
@@ -70,7 +87,7 @@ archivo. El export incluye texto escrito por la otra parte (reseñas, notas).
 
 ## Abierto
 
-### 🟠 Media · La CSP permite scripts en línea
+### 🟠 Media · La CSP permite scripts en línea · **acordado para antes de abrir al público**
 
 `script-src` incluye `'unsafe-inline'` porque Next inyecta el script de
 arranque sin nonce. Si alguna vez entrara un XSS, la CSP no lo frenaría.
@@ -79,7 +96,8 @@ Mitiga hoy: no hay ningún `dangerouslySetInnerHTML` en el repo, React escapa
 todo lo que renderiza, y `default-src 'self'` impide traer código de afuera.
 
 Para cerrarlo: generar un nonce por request en `src/proxy.ts` y pasarlo a la
-CSP y a los scripts de Next.
+CSP y a los scripts de Next. **Decidido: se hace antes de abrir al público**,
+no ahora.
 
 ### 🟠 Media · Quien tenga el link del mail puede responder ese pago
 
@@ -91,16 +109,6 @@ confirmación.
 
 Para cerrarlo, si alguna vez importa más que la fricción: pedir los últimos
 dígitos del monto antes de confirmar.
-
-### 🟡 Baja · Faltan límites de frecuencia en tres acciones
-
-Hay rate limiting en el ingreso, la lista de espera, las invitaciones y el
-reporte de pagos. No lo hay en confirmar un pago, escribir una reseña ni
-exportar los datos. El riesgo real es bajo (todas exigen sesión y RLS las
-limita a lo propio), pero el export es la más pesada de todas: pide el
-historial completo en cada llamada.
-
-Para cerrarlo: sumar `export_datos` a `LIMITES` y consumirlo en la ruta.
 
 ### 🟡 Baja · El secreto de los links de perfil es una sola llave
 

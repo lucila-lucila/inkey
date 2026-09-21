@@ -15,6 +15,11 @@ export const LIMITES = {
   ingreso: { limite: 5, ventanaSegundos: 15 * 60 },
   invitacion: { limite: 10, ventanaSegundos: 60 * 60 },
   reporte_pago: { limite: 20, ventanaSegundos: 60 * 60 },
+  // Un dueño con varias propiedades confirma varios pagos seguidos.
+  confirmacion_pago: { limite: 30, ventanaSegundos: 60 * 60 },
+  resena: { limite: 10, ventanaSegundos: 60 * 60 },
+  // El más pesado de todos: arma el historial completo en cada llamada.
+  export_datos: { limite: 5, ventanaSegundos: 60 * 60 },
 } satisfies Record<string, ReglaLimite>;
 
 export type AccionLimitada = keyof typeof LIMITES;

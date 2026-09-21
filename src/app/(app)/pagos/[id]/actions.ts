@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
+import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { MENSAJES_PAGO } from "@/lib/domain/pagos";
 import { notaDueñoSchema } from "@/lib/validation/pago";
 import { avisarPagoConfirmado } from "@/lib/email/avisos";
@@ -36,6 +37,9 @@ export async function confirmarPago(
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) redirect(`/ingresar?volver_a=/pagos/${pagoId}`);
+
+      const limite = await consumirIntento("confirmacion_pago", await identificadorCliente());
+      if (!limite.permitido) return { estado: "error" as const, mensaje: MENSAJE_LIMITE };
 
       const { data, error } = await supabase.rpc("payment_confirm", { p_payment_id: pagoId });
 
@@ -85,6 +89,9 @@ export async function marcarNoRecibido(
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) redirect(`/ingresar?volver_a=/pagos/${pagoId}`);
+
+      const limite = await consumirIntento("confirmacion_pago", await identificadorCliente());
+      if (!limite.permitido) return { estado: "error" as const, mensaje: MENSAJE_LIMITE };
 
       const { data, error } = await supabase.rpc("payment_not_received", {
         p_payment_id: pagoId,

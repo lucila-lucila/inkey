@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
+import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { MENSAJES_RESENA } from "@/lib/domain/resenas";
 import { resenaSchema } from "@/lib/validation/resena";
 import { avisarFinDeContrato } from "@/lib/email/avisos";
@@ -104,6 +105,9 @@ export async function dejarResena(
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) redirect(`/ingresar?volver_a=/alquileres/${parsed.data.rental_id}`);
+
+      const limite = await consumirIntento("resena", await identificadorCliente());
+      if (!limite.permitido) return { estado: "error" as const, mensaje: MENSAJE_LIMITE };
 
       const { data, error } = await supabase.rpc("review_submit", {
         p_rental_id: parsed.data.rental_id,

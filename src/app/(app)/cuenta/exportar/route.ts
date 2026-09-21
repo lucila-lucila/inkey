@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { registrarAuditoria } from "@/lib/audit";
 import { registrarFalla } from "@/lib/errores";
+import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { aCsv, nombreDeArchivo, type DatosExportados } from "@/lib/exportar";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,6 +22,26 @@ export async function GET(request: NextRequest) {
 
   if (!user) {
     return NextResponse.redirect(new URL("/ingresar?volver_a=/cuenta", request.nextUrl.origin));
+  }
+
+  /*
+   * Es la consulta más pesada de la app: arma el historial completo en cada
+   * llamada. Con límite, bajarse los datos sigue siendo un derecho y deja de
+   * ser una forma barata de hacer trabajar al servidor.
+   */
+  const limite = await consumirIntento("export_datos", await identificadorCliente());
+  if (!limite.permitido) {
+    return NextResponse.json(
+      { error: MENSAJE_LIMITE },
+      {
+        status: 429,
+        headers: {
+          "retry-after": String(limite.esperaSegundos),
+          "cache-control": "no-store",
+          "x-robots-tag": "noindex",
+        },
+      },
+    );
   }
 
   const formato = request.nextUrl.searchParams.get("formato") === "csv" ? "csv" : "json";

@@ -422,6 +422,21 @@ sesión de verdad necesitaría un Supabase real corriendo, que en este entorno n
 hay: lo que se puede probar sin backend se prueba con Playwright, y el recorrido
 completo del negocio se prueba contra la base.
 
+## Límites de frecuencia (cierre de la auditoría)
+
+**Toda acción que escribe pasa por el limitador, salvo una.** Se sumaron
+confirmar un pago, dejar una reseña y exportar los datos. La excepción es
+darse de baja: es un derecho, y un limitador no puede dejar a nadie encerrado
+en su cuenta. La excepción está escrita en el test, con su motivo.
+
+**El límite de confirmación cubre también el link del mail.** Ahí no hay
+sesión, así que es la única parte de los pagos expuesta a cualquiera con el
+link: es donde más falta hacía.
+
+**El test lee el código, no la intención.** `tests/unit/limites.test.ts`
+recorre `src/app`, busca quién llama a una función que escribe y exige el
+limitador o una excepción con motivo. Acordarse no es un mecanismo.
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting

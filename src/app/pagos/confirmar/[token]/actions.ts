@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
+import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { avisarPagoConfirmado } from "@/lib/email/avisos";
 import { hashearToken, pareceToken } from "@/lib/tokens";
 import { createClient } from "@/lib/supabase/server";
@@ -33,6 +34,9 @@ export async function confirmarDesdeMail(
     "confirmarDesdeMail",
     async () => {
       if (!pareceToken(token)) return { estado: "error" as const, mensaje: MENSAJES.inexistente };
+
+      const limite = await consumirIntento("confirmacion_pago", await identificadorCliente());
+      if (!limite.permitido) return { estado: "error" as const, mensaje: MENSAJE_LIMITE };
 
       const supabase = await createClient();
       const { data, error } = await supabase.rpc("payment_confirm_with_token", {

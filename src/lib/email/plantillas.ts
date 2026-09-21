@@ -46,7 +46,6 @@ function esc(valor: string): string {
 
 /** Sin saltos de línea ni caracteres de control: van al asunto y al texto. */
 function limpio(valor: string): string {
-  // eslint-disable-next-line no-control-regex
   return String(valor ?? "").replace(/[\u0000-\u001f\u007f]+/g, " ").trim();
 }
 
