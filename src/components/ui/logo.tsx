@@ -23,6 +23,22 @@ const CAJA_AJUSTADA: Record<Version, { viewBox: string; ancho: number; alto: num
   minimo: { viewBox: "13 6 98 40", ancho: 98, alto: 40 },
 };
 
+/*
+ * Los dos cruces, como dos eslabones enganchados de verdad: arriba pasa por
+ * delante la llave izquierda y abajo la derecha.
+ *
+ * `ARCO_DE_ADELANTE` es un tramo del aro izquierdo que se dibuja último, así
+ * queda por encima del derecho en el cruce de arriba. El de abajo sale solo,
+ * porque el aro derecho se dibuja después del izquierdo.
+ *
+ * Con una sola tinta el cruce no se lee por color: ahí hacen falta además dos
+ * muescas cortas del color del fondo, una en cada cruce, para separar el aro
+ * de atrás del de adelante.
+ */
+const ARCO_DE_ADELANTE = "M49.40 11.23A15 15 0 0 1 66.10 20.87";
+const MUESCA_ARRIBA = "M57.17 15.62A15 15 0 0 1 63.31 11.75";
+const MUESCA_ABAJO = "M62.83 36.38A15 15 0 0 1 56.69 40.25";
+
 const DIENTES: Record<Version, { izquierda: string; derecha: string; trazo: number }> = {
   completo: {
     izquierda: "M37 26H6M14 26v-8M23.5 26v-5.5",
@@ -87,19 +103,29 @@ export function Simbolo({
       <circle cx="52" cy="26" r="15" stroke={colorIzquierda} strokeWidth={trazo} />
       <path d={izquierda} stroke={colorIzquierda} strokeWidth={trazo} strokeLinecap="round" />
 
-      {/* De una tinta, el cruce se lee por el corte en el aro de atrás. */}
+      {/* Abajo pasa por delante la llave derecha: se muesca el aro izquierdo. */}
       {unaTinta && (
         <path
-          d="M60 13.3a15 15 0 0 1 0 25.4"
+          d={MUESCA_ABAJO}
           stroke={unaTinta.fondo}
           strokeWidth={trazo + 4}
-          strokeLinecap="round"
+          strokeLinecap="butt"
         />
       )}
 
       <circle cx="68" cy="26" r="15" stroke={colorDerecha} strokeWidth={trazo} />
       <path d={derecha} stroke={colorDerecha} strokeWidth={trazo} strokeLinecap="round" />
-      <path d="M60 13.3a15 15 0 0 1 0 25.4" stroke={colorIzquierda} strokeWidth={trazo} />
+
+      {/* Y arriba pasa la izquierda: se muesca el aro derecho. */}
+      {unaTinta && (
+        <path
+          d={MUESCA_ARRIBA}
+          stroke={unaTinta.fondo}
+          strokeWidth={trazo + 4}
+          strokeLinecap="butt"
+        />
+      )}
+      <path d={ARCO_DE_ADELANTE} stroke={colorIzquierda} strokeWidth={trazo} />
     </svg>
   );
 }

@@ -133,15 +133,17 @@ function Simbolo() {
     <Svg viewBox="0 0 124 52" width={52} height={22}>
       <Circle cx="52" cy="26" r="15" stroke={COLORES.marca} strokeWidth={6} />
       <Path d="M37 26H14M21 26v-7" stroke={COLORES.marca} strokeWidth={6} strokeLinecap="round" />
+      {/* Una sola tinta: la llave de adelante se separa con un corte del fondo. */}
+      <Path d="M62.83 36.38A15 15 0 0 1 56.69 40.25" stroke={COLORES.superficie} strokeWidth={10} strokeLinecap="round" />
+      <Circle cx="68" cy="26" r="15" stroke={COLORES.marca} strokeWidth={6} />
+      <Path d="M83 26h23M99 26v7" stroke={COLORES.marca} strokeWidth={6} strokeLinecap="round" />
       <Path
-        d="M60 13.3a15 15 0 0 1 0 25.4"
+        d="M57.17 15.62A15 15 0 0 1 63.31 11.75"
         stroke={COLORES.superficie}
         strokeWidth={10}
         strokeLinecap="round"
       />
-      <Circle cx="68" cy="26" r="15" stroke={COLORES.marca} strokeWidth={6} />
-      <Path d="M83 26h23M99 26v7" stroke={COLORES.marca} strokeWidth={6} strokeLinecap="round" />
-      <Path d="M60 13.3a15 15 0 0 1 0 25.4" stroke={COLORES.marca} strokeWidth={6} />
+      <Path d="M49.40 11.23A15 15 0 0 1 66.10 20.87" stroke={COLORES.marca} strokeWidth={6} />
     </Svg>
   );
 }

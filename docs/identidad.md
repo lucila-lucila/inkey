@@ -115,9 +115,11 @@ Geometría: R es el radio del aro; los centros están a 1R; las paletas miden 2R
   <path d="M37 26H6M14 26v-8M23.5 26v-5.5" stroke="var(--primary)" stroke-width="4.5" stroke-linecap="round"/>
   <circle cx="68" cy="26" r="15" stroke="var(--confirm)" stroke-width="4.5"/>
   <path d="M83 26h31M106 26v8M96.5 26v5.5" stroke="var(--confirm)" stroke-width="4.5" stroke-linecap="round"/>
-  <path d="M60 13.3a15 15 0 0 1 0 25.4" stroke="var(--primary)" stroke-width="4.5"/>
+  <path d="M49.40 11.23A15 15 0 0 1 66.10 20.87" stroke="var(--primary)" stroke-width="4.5"/>
 </svg>
 ```
+
+**El cruce: dos eslabones de verdad.** El último `path` es un tramo del aro izquierdo que se dibuja por encima del derecho, así que **arriba pasa por delante la llave terracota y abajo la verde**. Es el mismo arco en las tres versiones: lo único que cambia con el tamaño es el grosor del trazo.
 
 **Versión media** (40–120px): mismo dibujo con `stroke-width="6"`, un solo diente por llave (`M37 26H14M21 26v-7` y `M83 26h23M99 26v7`).
 
@@ -134,7 +136,12 @@ Geometría: R es el radio del aro; los centros están a 1R; las paletas miden 2R
 
 **Lockup con el símbolo a la izquierda:** símbolo a la izquierda, wordmark "inkey" en Bricolage 800 con tracking -1.6px, separados por 1R. El wordmark va en `ink`. Se usa **solo fuera de los headers**: pie, recibo, perfil en PDF y mails.
 
-**Una sola tinta:** ambos trazos del mismo color, y el aro de atrás se interrumpe en el cruce con un trazo del color del fondo, de ancho `stroke-width + 4`, dibujado antes del arco de adelante.
+**Una sola tinta:** ambos trazos del mismo color. Como el cruce no se lee por color, cada aro que queda atrás se interrumpe con una **muesca corta** del color del fondo, de ancho `stroke-width + 4`, y el orden de los eslabones es el mismo que con dos tintas:
+
+- en el cruce de **abajo** se muesca el aro izquierdo (`M62.83 36.38A15 15 0 0 1 56.69 40.25`), porque ahí pasa por delante la llave derecha;
+- en el de **arriba** se muesca el aro derecho (`M57.17 15.62A15 15 0 0 1 63.31 11.75`), porque ahí pasa la izquierda.
+
+Cada muesca cubre unos 14° a cada lado del punto de cruce: lo justo para que se vea la separación sin comerse el aro.
 
 **Favicon y app icon:** símbolo mínimo en `#FFF6EA` y `#F2D06B` sobre cuadrado `ink` con radio 26.
 
