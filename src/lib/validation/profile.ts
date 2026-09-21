@@ -41,3 +41,28 @@ export function nombrePublico(firstName: string, lastName: string): string {
 export function iniciales(firstName: string, lastName: string): string {
   return `${firstName.trim().charAt(0)}${lastName.trim().charAt(0)}`.toUpperCase();
 }
+
+/** Editar mis datos en /cuenta. Los mismos campos del onboarding, sin las casillas. */
+export const datosPersonalesSchema = onboardingSchema.pick({
+  first_name: true,
+  last_name: true,
+  phone: true,
+});
+
+export type DatosPersonales = z.infer<typeof datosPersonalesSchema>;
+
+/**
+ * Cómo se llama alguien que se dio de baja. El historial de la otra parte
+ * sigue existiendo, así que el lugar de esa persona no puede quedar vacío.
+ */
+export const NOMBRE_DADO_DE_BAJA = "Usuario dado de baja";
+
+export function nombreDeContraparte(
+  perfil: { first_name?: string | null; last_name?: string | null; deleted_at?: string | null } | null,
+  siNoHay = "La otra parte",
+): string {
+  if (!perfil) return siNoHay;
+  if (perfil.deleted_at) return NOMBRE_DADO_DE_BAJA;
+  if (!perfil.first_name) return siNoHay;
+  return nombrePublico(perfil.first_name, perfil.last_name ?? "");
+}

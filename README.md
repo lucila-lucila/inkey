@@ -8,8 +8,9 @@ alquiler. Sin datos crediticios, sin listas de morosos, nada público por
 defecto.
 
 La especificación completa está en [`CLAUDE.md`](CLAUDE.md), la identidad
-visual vigente en [`docs/identidad.md`](docs/identidad.md) y las decisiones
-tomadas (con su motivo) en [`docs/decisiones.md`](docs/decisiones.md).
+visual vigente en [`docs/identidad.md`](docs/identidad.md), las decisiones
+tomadas (con su motivo) en [`docs/decisiones.md`](docs/decisiones.md) y la
+revisión de seguridad en [`docs/auditoria-seguridad.md`](docs/auditoria-seguridad.md).
 
 ## Estado
 
@@ -21,7 +22,7 @@ tomadas (con su motivo) en [`docs/decisiones.md`](docs/decisiones.md).
 | 4 | Perfil compartible | ✅ |
 | 5 | Fin de contrato y reseñas | ✅ |
 | 6 | Notificaciones y recordatorios | ✅ |
-| 7 | Cierre: e2e, seed, seguridad, deploy | ⏳ |
+| 7 | Cierre: cuenta y privacidad, seed, flujos completos, auditoría | ✅ |
 
 ## Correrlo en tu máquina
 
@@ -59,6 +60,11 @@ Supabase.
    dominio con `www` y el de sin `www`.
 7. En **Authentication → Emails → Templates**, cargá las plantillas de
    `supabase/templates/` (ver más abajo).
+8. Opcional, **solo en un proyecto de prueba**: pegá `supabase/seed.sql` en el
+   SQL Editor para tener datos de ejemplo (tres personas, tres alquileres con
+   sus estados, 18 pagos confirmados y dos reseñas publicadas). Es idempotente
+   y no le manda mail a nadie. **Nunca contra producción**: crea usuarios y
+   escribe saltando RLS.
 
 ### Conectar Resend (mails)
 
@@ -181,16 +187,26 @@ entrando en Hobby y no tenga propiedades que Vercel rechace.
 ## Tests
 
 ```bash
-pnpm test        # Vitest: validaciones y lógica
-pnpm test:rls    # Row Level Security contra un Postgres real
-pnpm test:e2e    # Playwright: landing e ingreso, en celular y escritorio
+pnpm test        # Vitest: validaciones, lógica, plantillas, identidad
+pnpm test:rls    # Postgres real: seguridad y flujos completos
+pnpm test:e2e    # Playwright: las pantallas, en celular y escritorio
 pnpm check       # typecheck + lint + tests unitarios
 ```
 
 `pnpm test:rls` levanta un cluster de Postgres efímero (necesita los binarios de
-`postgresql-16`; no usa Docker), aplica las migraciones y prueba que nadie pueda
-leer ni modificar datos ajenos. Si alguno de esos tests se pone en rojo, hay un
-agujero de seguridad: no lo dejes pasar.
+`postgresql-16`; no usa Docker), aplica las migraciones y corre dos familias de
+casos:
+
+- los de **RLS**, que preguntan si alguien puede leer o tocar algo ajeno. Si uno
+  se pone en rojo, hay un agujero de seguridad: no lo dejes pasar.
+- los de **FLUJO**, que recorren el camino completo de una persona usando la app
+  (registrar el alquiler, invitar, aceptar, pagar mes a mes, compartir el
+  historial, terminar el contrato, reseñar y darse de baja) con las mismas
+  funciones que llama el código.
+
+Lo que **no** cubren los tests automáticos: el ingreso con Supabase de verdad
+(magic link, Google, el código del mail) necesita un proyecto real, así que esa
+parte se prueba a mano. El resto del recorrido sí está cubierto.
 
 ## Cómo está organizado
 
@@ -217,6 +233,9 @@ src/
 │   └── storage.ts       documentos privados y URLs firmadas
 └── styles/tokens.css    los tokens de diseño, una sola vez
 supabase/migrations/     el esquema, versionado
+supabase/seed.sql        datos de ejemplo (solo para desarrollo)
+supabase/verificar.sql   ¿están todas las migraciones aplicadas?
+supabase/templates/      los mails de ingreso que manda Supabase
 tests/                   unit · rls · e2e
 reference/landing.html   la landing de la Fase 1 (registro; la identidad
                          vigente es docs/identidad.md)

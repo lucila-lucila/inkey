@@ -1,10 +1,15 @@
 /*
- * Tests de Row Level Security contra un Postgres de verdad.
+ * Tests contra un Postgres de verdad.
  *
  *   pnpm test:rls
  *
- * Cada caso responde a una pregunta concreta: ¿puede esta persona leer o
- * tocar algo que no es suyo? Si alguno falla, hay un agujero de seguridad.
+ * Dos familias de casos, sobre la misma base efímera:
+ *
+ *   - los de RLS responden "¿puede esta persona leer o tocar algo que no es
+ *     suyo?". Si alguno falla, hay un agujero de seguridad.
+ *   - los de FLUJO recorren el camino completo de alguien usando la app
+ *     (registrar, invitar, pagar, compartir, terminar, reseñar, darse de
+ *     baja) con las mismas funciones que llama el código.
  */
 import { UID_A, UID_B, UID_C, UID_D, type Caso } from "./apoyo";
 import { CASOS_BASE } from "./casos-base";
@@ -13,6 +18,7 @@ import { CASOS_PAGOS } from "./casos-pagos";
 import { CASOS_PERFIL } from "./casos-perfil";
 import { CASOS_RESENAS } from "./casos-resenas";
 import { CASOS_AVISOS } from "./casos-avisos";
+import { CASOS_FLUJOS } from "./casos-flujos";
 import { buscarBinariosPg, levantarCluster } from "./cluster";
 
 const CASOS: Caso[] = [
@@ -22,6 +28,7 @@ const CASOS: Caso[] = [
   ...CASOS_PERFIL,
   ...CASOS_RESENAS,
   ...CASOS_AVISOS,
+  ...CASOS_FLUJOS,
 ];
 
 async function main(): Promise<void> {
@@ -85,8 +92,8 @@ async function main(): Promise<void> {
 
   console.log(
     fallidos === 0
-      ? `\n${CASOS.length} pruebas de RLS en verde.`
-      : `\n${fallidos} de ${CASOS.length} pruebas de RLS fallaron.`,
+      ? `\n${CASOS.length} pruebas contra Postgres en verde (RLS y flujos).`
+      : `\n${fallidos} de ${CASOS.length} pruebas contra Postgres fallaron.`,
   );
   process.exit(fallidos === 0 ? 0 : 1);
 }

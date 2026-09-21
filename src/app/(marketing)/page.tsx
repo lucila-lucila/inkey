@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { AvisoDeBaja } from "@/components/landing/aviso-de-baja";
 import { Audiences } from "@/components/landing/audiences";
 import { ExampleProfile } from "@/components/landing/example-profile";
 import { FinalCta } from "@/components/landing/final-cta";
@@ -36,6 +38,10 @@ export default function LandingPage() {
     <>
       <SiteHeader />
       <main id="top">
+        {/* Vuelta de una baja de cuenta: que no quede en la nada. */}
+        <Suspense fallback={null}>
+          <AvisoDeBaja />
+        </Suspense>
         <section className="wrap grid grid-cols-1 items-center gap-14 pt-6 pb-18 min-[960px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] min-[960px]:gap-18 min-[960px]:pt-14 min-[960px]:pb-28">
           <div>
             <OutlineTag>Tu historial de alquiler, confirmado</OutlineTag>

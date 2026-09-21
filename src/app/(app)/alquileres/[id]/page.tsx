@@ -9,7 +9,7 @@ import {
   textoVencimiento,
   type EstadoAlquiler,
 } from "@/lib/domain/alquiler";
-import { nombrePublico } from "@/lib/validation/profile";
+import { nombreDeContraparte } from "@/lib/validation/profile";
 import { periodosDelAlquiler, vencimientoDe } from "@/lib/domain/pagos";
 import { SeccionPagos, type FilaPeriodo, type PagoDelPeriodo } from "@/components/pago/seccion-pagos";
 import { ConfirmarFin, ProponerFin } from "@/components/resena/fin-de-contrato";
@@ -65,7 +65,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
   const { data: contraparte } = idContraparte
     ? await supabase
         .from("profiles")
-        .select("first_name, last_name")
+        .select("first_name, last_name, deleted_at")
         .eq("id", idContraparte)
         .maybeSingle()
     : { data: null };
@@ -121,11 +121,10 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
         .order("orden")
     : { data: [] };
 
-  const nombreContraparte = contraparte
-    ? nombrePublico(contraparte.first_name ?? "", contraparte.last_name ?? "")
-    : soyInquilino
-      ? "tu dueño"
-      : "tu inquilino";
+  const nombreContraparte = nombreDeContraparte(
+    contraparte,
+    soyInquilino ? "tu dueño" : "tu inquilino",
+  );
 
   const sePublicaEl = alquiler.ended_at
     ? fechaDePublicacion(alquiler.ended_at).toISOString().slice(0, 10)
@@ -178,7 +177,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
         <Card className="flex flex-col gap-4">
           {contraparte ? (
             <p className="m-0 text-[17px]">
-              <strong>{nombrePublico(contraparte.first_name ?? "", contraparte.last_name ?? "")}</strong>{" "}
+              <strong>{nombreDeContraparte(contraparte)}</strong>{" "}
               confirmó el alquiler. Desde acá van a ir confirmando los pagos mes a mes.
             </p>
           ) : alquiler.status === "rejected" ? (

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { serverEnv, variablesFaltantes } from "@/lib/env";
 import { createAdminClient, createAnonClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { estadoDeConsulta } from "@/lib/diagnostico";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +39,17 @@ async function conTiempoLimite<T>(promesa: PromiseLike<T>, ms = 3000): Promise<T
 }
 
 export async function GET(request: Request) {
+  /*
+   * El detalle (qué tablas fallan, con qué error, qué variable falta) es
+   * reconocimiento servido en bandeja para cualquiera que pase. Lo ve quien
+   * tiene sesión —abrirlo en el navegador donde ya entraste sigue funcionando—
+   * o quien manda el secreto del cron. Para el resto, solo si está sano.
+   */
+  const secreto = serverEnv.cronSecret;
+  const conSecreto = Boolean(secreto) && request.headers.get("authorization") === `Bearer ${secreto}`;
+  const conSesion = await haySesion();
+  const detallado = conSecreto || conSesion;
+
   const faltan = variablesFaltantes();
 
   const revisiones: Record<string, string> = {};
@@ -174,19 +186,36 @@ export async function GET(request: Request) {
     faltan.secundarias.length === 0 &&
     Object.values(revisiones).every((valor) => valor === "ok");
 
-  return NextResponse.json(
-    {
-      ok: todoOk,
-      sitio: sitioInfo,
-      variables_faltantes: faltan,
-      revisiones,
-      ayuda: todoOk
-        ? undefined
-        : "Cargá lo que falte en las variables de entorno del proyecto y volvé a deployar. Las tablas que den error suelen ser migraciones sin aplicar: probá con `notify pgrst, 'reload schema';` en el SQL Editor.",
-    },
-    {
-      status: todoOk ? 200 : 503,
-      headers: { "cache-control": "no-store", "x-robots-tag": "noindex" },
-    },
-  );
+  const cuerpo = detallado
+    ? {
+        ok: todoOk,
+        sitio: sitioInfo,
+        variables_faltantes: faltan,
+        revisiones,
+        ayuda: todoOk
+          ? undefined
+          : "Cargá lo que falte en las variables de entorno del proyecto y volvé a deployar. Las tablas que den error suelen ser migraciones sin aplicar: probá con `notify pgrst, 'reload schema';` en el SQL Editor.",
+      }
+    : {
+        ok: todoOk,
+        ayuda: "Entrá a Inkey o mandá el secreto del cron para ver el detalle.",
+      };
+
+  return NextResponse.json(cuerpo, {
+    status: todoOk ? 200 : 503,
+    headers: { "cache-control": "no-store", "x-robots-tag": "noindex" },
+  });
+}
+
+/** ¿Quien pregunta entró a Inkey? No hace falta saber quién es, solo que entró. */
+async function haySesion(): Promise<boolean> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return Boolean(user);
+  } catch {
+    return false;
+  }
 }

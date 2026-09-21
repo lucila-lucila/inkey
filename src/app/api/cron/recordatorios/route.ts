@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 /*
  * Lo que corre una vez por día:
  *   - recordarle al dueño los pagos que no respondió en 3 días;
- *   - publicar las reseñas que ya cumplieron sus 14 días.
+ *   - publicar las reseñas que ya cumplieron sus 14 días;
+ *   - borrar los archivos de las cuentas dadas de baja, pasados los 30 días.
  *
  * Es idempotente: cada aviso se reserva con una clave, así que si el cron
  * corre dos veces no se manda nada dos veces.
@@ -42,7 +43,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "sin_service_role" }, { status: 503 });
   }
 
-  const resumen = { recordatorios: 0, resenas_publicadas: 0, errores: [] as string[] };
+  const resumen = {
+    recordatorios: 0,
+    resenas_publicadas: 0,
+    archivos_borrados: 0,
+    errores: [] as string[],
+  };
 
   try {
     const { data: pendientes, error } = await supabase.rpc("pagos_sin_respuesta", { p_dias: 3 });
@@ -72,6 +78,37 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     const ref = registrarFalla("cron: reseñas", error);
     resumen.errores.push(`reseñas (${ref})`);
+  }
+
+  /*
+   * Los archivos de las cuentas dadas de baja. El plazo de 30 días es para que
+   * la contraparte pueda descargar lo que necesite (ver docs/decisiones.md);
+   * cumplido, se borran de verdad del Storage.
+   */
+  try {
+    const { data, error } = await supabase.rpc("archivos_por_borrar");
+
+    if (error) {
+      const ref = registrarFalla("cron: archivos_por_borrar", error);
+      resumen.errores.push(`archivos_por_borrar (${ref})`);
+    } else {
+      for (const archivo of (data ?? []) as Array<{ id: string; bucket: string; path: string }>) {
+        const { error: errorBorrado } = await supabase.storage
+          .from(archivo.bucket)
+          .remove([archivo.path]);
+
+        if (errorBorrado) {
+          // Si el archivo ya no está, igual hay que cerrar la tarea.
+          registrarFalla("cron: borrar archivo", errorBorrado);
+        }
+
+        await supabase.rpc("archivo_borrado", { p_id: archivo.id });
+        resumen.archivos_borrados += 1;
+      }
+    }
+  } catch (error) {
+    const ref = registrarFalla("cron: archivos", error);
+    resumen.errores.push(`archivos (${ref})`);
   }
 
   return NextResponse.json(

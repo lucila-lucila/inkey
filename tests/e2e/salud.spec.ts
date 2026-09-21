@@ -1,8 +1,21 @@
 import { expect, test } from "@playwright/test";
 
+/* El detalle solo con el secreto del cron o con sesión (ver la ruta). */
+const CON_SECRETO = { headers: { authorization: "Bearer cron-de-prueba" } };
+
 test.describe("diagnóstico", () => {
+  test("sin permiso no cuenta nada de la instalación", async ({ request }) => {
+    const cuerpo = await (await request.get("/api/salud")).json();
+
+    expect(cuerpo).toHaveProperty("ok");
+    // Ni los nombres de las tablas ni qué variable falta.
+    expect(cuerpo).not.toHaveProperty("revisiones");
+    expect(cuerpo).not.toHaveProperty("variables_faltantes");
+    expect(JSON.stringify(cuerpo)).not.toContain("rentals");
+  });
+
   test("/api/salud dice qué falta sin revelar ningún valor", async ({ request }) => {
-    const respuesta = await request.get("/api/salud");
+    const respuesta = await request.get("/api/salud", CON_SECRETO);
     const cuerpo = await respuesta.json();
 
     expect(cuerpo).toHaveProperty("variables_faltantes");
@@ -19,7 +32,7 @@ test.describe("diagnóstico", () => {
   });
 
   test("ninguna revisión se queda sin explicar", async ({ request }) => {
-    const cuerpo = await (await request.get("/api/salud")).json();
+    const cuerpo = await (await request.get("/api/salud", CON_SECRETO)).json();
     const revisiones = Object.entries(cuerpo.revisiones) as Array<[string, string]>;
 
     expect(revisiones.length).toBeGreaterThan(0);

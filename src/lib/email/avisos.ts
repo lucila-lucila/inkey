@@ -1,10 +1,11 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { serverEnv } from "@/lib/env";
-import { nombrePublico } from "@/lib/validation/profile";
+import { nombreDeContraparte } from "@/lib/validation/profile";
 import type { Moneda } from "@/lib/validation/rental";
 import { crearLinkDePago, enviarMail, mailDe } from "./enviar";
 import {
+  comprobantesPorBorrar,
   contratoTerminado,
   invitacion,
   invitacionRespondida,
@@ -26,13 +27,11 @@ async function nombreDe(userId: string | null): Promise<string> {
 
   const { data } = await supabase
     .from("profiles")
-    .select("first_name, last_name")
+    .select("first_name, last_name, deleted_at")
     .eq("id", userId)
     .maybeSingle();
 
-  return data?.first_name
-    ? nombrePublico(data.first_name, data.last_name ?? "")
-    : "La otra parte";
+  return nombreDeContraparte(data ?? null);
 }
 
 /** Al dueño: le reportaron un pago. Incluye el link para responder sin entrar. */
@@ -236,5 +235,43 @@ export async function avisarFinDeContrato(rentalId: string): Promise<void> {
     }
   } catch (error) {
     console.error("avisarFinDeContrato falló", error);
+  }
+}
+
+/**
+ * A la contraparte de quien se dio de baja: tiene 30 días para descargar los
+ * comprobantes antes de que se borren.
+ *
+ * Como todos los avisos, no puede tirar una excepción: la baja ya está hecha y
+ * no se deshace porque un mail no salga.
+ */
+export async function avisarBajaDeCuenta(
+  aQuienes: Array<{ user_id: string; rental_id: string; barrio: string }>,
+  venceISO: string | null,
+): Promise<void> {
+  try {
+    if (aQuienes.length === 0 || !venceISO) return;
+    const vence = venceISO.slice(0, 10);
+
+    for (const aviso of aQuienes) {
+      const para = await mailDe(aviso.user_id);
+      if (!para) continue;
+
+      await enviarMail({
+        tipo: "cuenta.baja",
+        para,
+        dedupeKey: `cuenta.baja:${aviso.rental_id}:${aviso.user_id}`,
+        mail: comprobantesPorBorrar({
+          barrio: aviso.barrio,
+          url: new URL(`/alquileres/${aviso.rental_id}`, serverEnv.siteUrl).toString(),
+          vence,
+          siteUrl: serverEnv.siteUrl,
+        }),
+        rentalId: aviso.rental_id,
+        destinatarioId: aviso.user_id,
+      });
+    }
+  } catch (error) {
+    console.error("avisarBajaDeCuenta falló", error);
   }
 }

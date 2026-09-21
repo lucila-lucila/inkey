@@ -166,3 +166,55 @@ describe("insistirle al dueño", () => {
     expect(mensaje).toContain("septiembre de 2026");
   });
 });
+
+/*
+ * Los nombres y los barrios los escribe la gente. Un cliente de correo no
+ * corre JavaScript, pero sí dibuja etiquetas: sin escapar, alguien podría
+ * llamarse `<a href="...">` y meter su link dentro de un mail nuestro.
+ */
+describe("lo que escribe la gente, dentro de un mail", () => {
+  const NOMBRE_HOSTIL = '<a href="http://phishing.test">Banco</a>';
+  const BARRIO_HOSTIL = 'Palermo" onmouseover="robar()';
+
+  it("no deja pasar etiquetas de nadie", () => {
+    const mail = pagoReportado({
+      ...PAGO,
+      nombreInquilino: NOMBRE_HOSTIL,
+      barrio: BARRIO_HOSTIL,
+    });
+
+    expect(mail.html).not.toContain("<a href=\"http://phishing.test\">");
+    expect(mail.html).toContain("&lt;a href=&quot;http://phishing.test&quot;&gt;");
+    expect(mail.html).not.toContain('onmouseover="robar()"');
+  });
+
+  it("tampoco en la invitación ni en el fin de contrato", () => {
+    const invita = invitacion({
+      quien: NOMBRE_HOSTIL,
+      barrio: "Palermo, CABA",
+      rol: "owner",
+      url: `${SITE}/invitacion/xyz`,
+      siteUrl: SITE,
+    });
+    const fin = contratoTerminado({
+      barrio: BARRIO_HOSTIL,
+      quien: NOMBRE_HOSTIL,
+      url: `${SITE}/alquileres/1`,
+      siteUrl: SITE,
+    });
+
+    for (const mail of [invita, fin]) {
+      expect(mail.html).not.toContain("<a href=\"http://phishing.test\">");
+    }
+  });
+
+  it("el asunto no se parte en dos con un salto de línea", () => {
+    const mail = pagoReportado({
+      ...PAGO,
+      nombreInquilino: "Ana\nBcc: alguien@otro.test",
+    });
+
+    expect(mail.asunto).not.toContain("\n");
+    expect(mail.asunto).toContain("Ana Bcc: alguien@otro.test");
+  });
+});

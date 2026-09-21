@@ -6,7 +6,7 @@ import { BotonComprobante } from "@/components/pago/boton-comprobante";
 import { BotonesDueño } from "@/components/pago/botones-dueno";
 import { formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
 import { ESTADOS_PAGO, nombrePeriodo, type EstadoPago } from "@/lib/domain/pagos";
-import { nombrePublico } from "@/lib/validation/profile";
+import { nombreDeContraparte } from "@/lib/validation/profile";
 import type { Moneda } from "@/lib/validation/rental";
 import { createClient } from "@/lib/supabase/server";
 
@@ -50,17 +50,16 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
   const { data: contraparte } = idContraparte
     ? await supabase
         .from("profiles")
-        .select("first_name, last_name")
+        .select("first_name, last_name, deleted_at")
         .eq("id", idContraparte)
         .maybeSingle()
     : { data: null };
 
   const estado = ESTADOS_PAGO[pago.status as EstadoPago];
-  const nombreContraparte = contraparte
-    ? nombrePublico(contraparte.first_name ?? "", contraparte.last_name ?? "")
-    : soyDueño
-      ? "tu inquilino"
-      : "tu dueño";
+  const nombreContraparte = nombreDeContraparte(
+    contraparte,
+    soyDueño ? "tu inquilino" : "tu dueño",
+  );
 
   return (
     <div className="flex max-w-[640px] flex-col gap-6">

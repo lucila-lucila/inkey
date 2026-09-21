@@ -389,6 +389,39 @@ geometría de la versión media, y un test compara caja, dientes, arco del cruce
 grosor y colores contra el componente. Se corrigieron de paso las cajas
 ajustadas: estaban calculadas a ojo y sobraba aire a la derecha.
 
+## Cuenta y privacidad (Fase 7)
+
+**La baja despersonaliza, no borra.** Es la política acordada en su sección de
+arriba, ya implementada: `account_delete()` limpia el perfil, revoca los links,
+oculta las reseñas recibidas y programa los archivos para dentro de 30 días.
+Los alquileres y los pagos confirmados siguen existiendo para la contraparte,
+que no pidió nada y cuyo historial también es suyo.
+
+**La fila de `auth.users` sobrevive a la baja.** Es lo que sostiene el historial
+de la otra parte. Lo que se libera es el mail: se cambia por uno inválido con la
+API de administración, así esa persona puede volver a registrarse con su
+dirección de siempre y empezar de cero. Borrar la fila habría sido más prolijo
+en apariencia y destructivo en los hechos.
+
+**El borrado de los archivos lo hace el cron, no la baja.** La baja solo
+programa; el cron diario borra lo que ya cumplió los 30 días. Así el plazo se
+respeta aunque nadie esté mirando, y la contraparte recibe su aviso apenas la
+baja ocurre.
+
+**El export no incluye datos personales de la otra parte.** Están los alquileres
+compartidos, los pagos y las reseñas, pero no el nombre ni el teléfono de la
+contraparte: los datos personales de otro no son datos de quien exporta.
+
+**El CSV se arma por secciones.** Los datos no son una sola tabla. Un archivo
+con un encabezado por sección, con BOM para que Excel no rompa los acentos y con
+las celdas que empiezan con `=` neutralizadas, se abre en cualquier planilla.
+
+**Los tests de flujo viven en el mismo arnés que los de RLS.** Levantan el mismo
+Postgres efímero y llaman a las mismas funciones que la app. Un Playwright con
+sesión de verdad necesitaría un Supabase real corriendo, que en este entorno no
+hay: lo que se puede probar sin backend se prueba con Playwright, y el recorrido
+completo del negocio se prueba contra la base.
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting
