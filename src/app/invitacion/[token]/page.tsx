@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ButtonLink, Cabecera, Card } from "@/components/ui";
+import { ButtonLink, Cabecera, Card, Pie } from "@/components/ui";
 import { formatearFecha, formatearMonto, textoRol, textoVencimiento } from "@/lib/domain/alquiler";
 import type { Moneda } from "@/lib/validation/rental";
 import { hashearToken, pareceToken } from "@/lib/tokens";
@@ -55,6 +55,7 @@ function Marco({ children }: { children: React.ReactNode }) {
       <main className="wrap flex w-full flex-1 flex-col items-center justify-center py-8">
         <div className="w-full max-w-[560px]">{children}</div>
       </main>
+      <Pie />
     </div>
   );
 }

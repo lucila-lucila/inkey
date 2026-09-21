@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { completarOnboarding, type EstadoOnboarding } from "./actions";
@@ -104,14 +106,26 @@ export function OnboardingForm({
         <Checkbox
           id="acepta_terminos"
           name="acepta_terminos"
-          label={<>Acepto los <strong>[TÉRMINOS Y CONDICIONES]</strong>.</>}
+          label={
+            <>
+              Acepto los{" "}
+              <Link href="/terminos" target="_blank" className="font-medium text-confirm-ink">
+                términos y condiciones
+              </Link>
+              .
+            </>
+          }
         />
         <Checkbox
           id="acepta_privacidad"
           name="acepta_privacidad"
           label={
             <>
-              Leí la <strong>[POLÍTICA DE PRIVACIDAD]</strong> y acepto el tratamiento de mis datos.
+              Leí la{" "}
+              <Link href="/privacidad" target="_blank" className="font-medium text-confirm-ink">
+                política de privacidad
+              </Link>{" "}
+              y acepto el tratamiento de mis datos.
             </>
           }
         />

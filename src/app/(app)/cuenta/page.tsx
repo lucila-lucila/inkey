@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
@@ -109,7 +110,13 @@ export default async function CuentaPage() {
           </li>
         </ul>
         <p className="m-0 border-t-[1.5px] border-dashed border-line pt-4 text-[15px] text-muted">
-          [POLÍTICA DE PRIVACIDAD] · [TÉRMINOS Y CONDICIONES]
+          <Link href="/privacidad" className="font-medium text-confirm-ink">
+            Política de privacidad
+          </Link>{" "}
+          ·{" "}
+          <Link href="/terminos" className="font-medium text-confirm-ink">
+            Términos y condiciones
+          </Link>
         </p>
       </Seccion>
 

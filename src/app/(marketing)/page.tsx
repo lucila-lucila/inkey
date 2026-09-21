@@ -5,11 +5,10 @@ import { Audiences } from "@/components/landing/audiences";
 import { ExampleProfile } from "@/components/landing/example-profile";
 import { FinalCta } from "@/components/landing/final-cta";
 import { HouseRules } from "@/components/landing/house-rules";
-import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
 import { Steps } from "@/components/landing/steps";
 import { WaitlistForm } from "@/components/landing/waitlist-form";
-import { OutlineTag } from "@/components/ui";
+import { OutlineTag, Pie } from "@/components/ui";
 
 /** La landing es la única pantalla indexable de todo el sitio. */
 export const metadata: Metadata = {
@@ -63,7 +62,7 @@ export default function LandingPage() {
         <HouseRules />
         <FinalCta />
       </main>
-      <SiteFooter />
+      <Pie conLogo />
     </>
   );
 }

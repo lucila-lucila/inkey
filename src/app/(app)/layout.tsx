@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cerrarSesion } from "@/app/(auth)/ingresar/actions";
-import { Avatar, Button, Logo } from "@/components/ui";
+import { Avatar, Button, Logo, Pie } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { iniciales } from "@/lib/validation/profile";
 
@@ -52,7 +52,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </header>
 
       <main className="wrap w-full flex-1 py-8">{children}</main>
-
+      <Pie />
     </div>
   );
 }

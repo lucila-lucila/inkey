@@ -54,8 +54,11 @@ test.describe("el dominio", () => {
     expect(texto).toContain("Sitemap:");
   });
 
-  test("el sitemap tiene solo la landing", async ({ request }) => {
+  test("el sitemap tiene solo lo público", async ({ request }) => {
     const texto = await (await request.get("/sitemap.xml")).text();
-    expect((texto.match(/<url>/g) ?? []).length).toBe(1);
+    // La landing y los dos textos legales: nada que pida sesión.
+    expect((texto.match(/<url>/g) ?? []).length).toBe(3);
+    expect(texto).not.toContain("/panel");
+    expect(texto).not.toContain("/cuenta");
   });
 });

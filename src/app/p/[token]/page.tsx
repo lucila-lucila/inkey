@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ButtonLink, Cabecera, Card } from "@/components/ui";
+import { ButtonLink, Cabecera, Card, Pie } from "@/components/ui";
 import { TarjetaPerfil } from "@/components/perfil/tarjeta-perfil";
 import { ListaResenas } from "@/components/resena/lista-resenas";
 import { nombreVisible, resumenParaCompartir } from "@/lib/domain/perfil";
@@ -42,6 +42,7 @@ function Marco({ children }: { children: React.ReactNode }) {
       <main className="wrap flex w-full flex-1 flex-col items-center py-4">
         <div className="w-full max-w-[560px]">{children}</div>
       </main>
+      <Pie />
     </div>
   );
 }

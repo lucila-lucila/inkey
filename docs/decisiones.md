@@ -466,6 +466,30 @@ sería estado mutable durante el render —lo rechaza el linter de React, y con
 razón: se rompe con render concurrente— y un valor al azar no sobreviviría a la
 hidratación. El tipo exige el id, así la unicidad queda a la vista.
 
+## Textos legales
+
+**Las páginas se arman del markdown, no de una copia.** Los textos viven en
+`docs/legales/*.md` y `/terminos` y `/privacidad` los renderizan. Con dos
+copias, tarde o temprano una dice algo distinto de la otra, y en un texto legal
+eso es exactamente lo que no puede pasar.
+
+**Un parser chico en vez de una dependencia.** El markdown que usan estos
+textos es títulos, párrafos, listas con un nivel de anidado, negritas y links.
+Traer `react-markdown` para eso sería sumar una dependencia y perder el control
+de la tipografía. El parser está en `src/lib/legales.ts` y tiene sus tests.
+
+**Son las dos únicas pantallas indexables además de la landing.** Alguien tiene
+que poder leer qué hacemos con sus datos sin crear una cuenta. Están en el
+sitemap y no llevan `noindex`.
+
+**El pie es uno solo, en todas las pantallas.** Antes solo la landing tenía pie.
+El contacto y los legales tienen que estar a un toque desde cualquier lado: es
+lo que pide la ley y lo que espera cualquiera que quiera saber algo.
+
+**Un test falla si queda un placeholder.** Un texto legal publicado con un
+`[CORCHETE]` sin completar dice que nadie lo leyó antes de publicarlo. Hay un
+test sobre los archivos y otro que mira las pantallas renderizadas.
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting

@@ -221,7 +221,8 @@ src/
 │   ├── pagos/confirmar/ confirmar un pago desde el mail, sin sesión
 │   ├── api/cron/        los recordatorios diarios
 │   └── auth/callback/   vuelta del magic link y de Google
-├── components/ui/       componentes base (Button, Card, Field, …)
+├── components/ui/       componentes base (Button, Card, Field, Pie, …)
+├── components/legal/    cómo se ve un texto legal
 ├── components/landing/  secciones de la landing
 ├── lib/
 │   ├── supabase/        clientes server / browser / admin y sesión
@@ -232,6 +233,7 @@ src/
 │   ├── tokens.ts        32 bytes aleatorios; de la base, solo el hash
 │   └── storage.ts       documentos privados y URLs firmadas
 └── styles/tokens.css    los tokens de diseño, una sola vez
+docs/legales/            términos y privacidad (de acá salen las páginas)
 supabase/migrations/     el esquema, versionado
 supabase/seed.sql        datos de ejemplo (solo para desarrollo)
 supabase/verificar.sql   ¿están todas las migraciones aplicadas?
@@ -314,6 +316,21 @@ inyecta su script de arranque sin nonce. Hay que generar un nonce por request
 en `src/proxy.ts` y pasarlo a la cabecera y a los scripts de Next, para que la
 CSP frene de verdad un XSS en vez de solo impedir que entre código de otro
 dominio. Está acordado hacerlo antes de la apertura, no antes.
+
+**Los textos legales, terminados de completar.** Están en `docs/legales/` y se
+publican en `/terminos` y `/privacidad`, pero antes de abrir faltan tres cosas
+que no son de programación:
+
+1. **Identificar al responsable de los datos.** Hoy los textos dicen "Inkey, un
+   servicio desarrollado en la República Argentina". La Ley 25.326 pide una
+   persona humana o jurídica identificable, con domicilio: hay que poner el
+   nombre o la razón social y la dirección.
+2. **Inscribir la base en el Registro Nacional de Bases de Datos** de la
+   Agencia de Acceso a la Información Pública. Es obligatorio para quien trata
+   datos personales y es gratuito.
+3. **Que un abogado revise los dos textos.** Están escritos para que se
+   entiendan y para describir lo que la app hace de verdad, pero nadie de este
+   lado es abogado.
 
 El resto de lo que quedó abierto en
 [`docs/auditoria-seguridad.md`](docs/auditoria-seguridad.md) son decisiones

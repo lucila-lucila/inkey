@@ -1,4 +1,4 @@
-import { Cabecera } from "@/components/ui";
+import { Cabecera, Pie } from "@/components/ui";
 
 /** Pantallas de ingreso y onboarding: una sola columna, sin distracciones. */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -8,6 +8,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <main className="wrap flex w-full flex-1 flex-col items-center justify-center py-8">
         <div className="w-full max-w-[520px]">{children}</div>
       </main>
+      <Pie />
     </div>
   );
 }
