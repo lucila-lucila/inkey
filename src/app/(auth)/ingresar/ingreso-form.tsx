@@ -10,6 +10,7 @@ import {
   type EstadoIngreso,
 } from "./actions";
 import { Button, Field, Input } from "@/components/ui";
+import { LARGO_CODIGO } from "@/lib/validation/codigo";
 
 const ESTADO_INICIAL: EstadoIngreso = { estado: "inicial" };
 
@@ -75,7 +76,8 @@ function Revisa({ email, volverA }: { email: string; volverA: string }) {
             inputMode="numeric"
             autoComplete="one-time-code"
             pattern="[0-9]*"
-            maxLength={7}
+            maxLength={LARGO_CODIGO.maximo + 2}
+            minLength={LARGO_CODIGO.minimo}
             placeholder="123456"
             required
             className="text-center text-[24px] tracking-[0.4em]"

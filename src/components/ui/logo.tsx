@@ -16,11 +16,16 @@ type Version = "completo" | "medio" | "minimo";
  * Caja ajustada de cada versión: el viewBox completo deja aire a los lados, y
  * cuando el símbolo hace de punto final ese aire se nota como un espacio de
  * más entre la palabra y el símbolo.
+ *
+ * Son los extremos reales del dibujo (contando el grosor del trazo) más medio
+ * punto de aire. La de `medio` es, carácter por carácter, la del archivo de
+ * marca `public/brand/inkey-simbolo-medio.svg`; el test de identidad compara
+ * las dos.
  */
 const CAJA_AJUSTADA: Record<Version, { viewBox: string; ancho: number; alto: number }> = {
-  completo: { viewBox: "3 8 118 36", ancho: 118, alto: 36 },
-  medio: { viewBox: "10 7 100 38", ancho: 100, alto: 38 },
-  minimo: { viewBox: "13 6 98 40", ancho: 98, alto: 40 },
+  completo: { viewBox: "3.25 8.25 113.5 35.5", ancho: 113.5, alto: 35.5 },
+  medio: { viewBox: "10.5 7.5 99 37", ancho: 99, alto: 37 },
+  minimo: { viewBox: "13.5 6.5 93 39", ancho: 93, alto: 39 },
 };
 
 /*

@@ -1,10 +1,15 @@
 import { z } from "zod";
 
 /**
- * El código de 6 dígitos que va en el mail además del link. Existe porque
- * algunos servicios de correo abren los links solos para revisarlos y los
- * gastan: el código siempre funciona, se escriba donde se escriba.
+ * El código que va en el mail además del link. Existe porque algunos
+ * servicios de correo abren los links solos para revisarlos y los gastan.
+ *
+ * El largo lo decide Supabase (Authentication → "Email OTP Length"), así que
+ * acá se acepta un rango: si alguien cambia esa opción, la pantalla sigue
+ * andando en vez de rechazar un código legítimo.
  */
+export const LARGO_CODIGO = { minimo: 6, maximo: 10 } as const;
+
 export const codigoSchema = z.object({
   email: z
     .string()
@@ -20,7 +25,10 @@ export const codigoSchema = z.object({
     .pipe(
       z
         .string()
-        .regex(/^\d{6}$/, "El código son los 6 números que te llegaron por mail."),
+        .regex(
+          new RegExp(`^\\d{${LARGO_CODIGO.minimo},${LARGO_CODIGO.maximo}}$`),
+          "El código son los números que te llegaron por mail.",
+        ),
     ),
 });
 

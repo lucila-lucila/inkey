@@ -366,6 +366,29 @@ tiraba abajo la compilación entera, no solo los links. Ahora `serverEnv.siteUrl
 normaliza (completa el protocolo, saca la barra final) y, si no hay nada
 usable, cae a localhost avisando por consola.
 
+## Ajustes después de la primera prueba real
+
+**El largo del código lo decide Supabase, no nosotros.** Llegó uno de 7 dígitos
+y la pantalla lo rechazó siendo válido: el campo pedía exactamente 6. Ahora
+acepta de 6 a 10 (`LARGO_CODIGO`), que es el rango que permite "Email OTP
+Length". Una opción del panel no puede dejar a nadie afuera.
+
+**El encabezado de los mails también es un encabezado.** Tenía el símbolo a la
+izquierda, como el pie. La regla de identidad no distingue soportes: en un
+encabezado va siempre el nombre primero y el símbolo de remate. Se corrigieron
+las cinco plantillas de Supabase y las de la app, y un test lo verifica en las
+seis, para que una plantilla nueva no nazca al revés.
+
+**En los mails el símbolo es PNG, no SVG.** Gmail y Outlook no muestran SVG. Se
+exporta del mismo archivo de marca con Chromium, al triple de tamaño para
+pantallas retina, y se muestra a 24 × 9. El wordmark sigue siendo texto: si el
+cliente bloquea las imágenes, la marca se lee igual.
+
+**El archivo de marca manda sobre el componente.** `public/brand/` guarda la
+geometría de la versión media, y un test compara caja, dientes, arco del cruce,
+grosor y colores contra el componente. Se corrigieron de paso las cajas
+ajustadas: estaban calculadas a ojo y sobraba aire a la derecha.
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting

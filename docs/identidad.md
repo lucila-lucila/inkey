@@ -125,7 +125,7 @@ Geometría: R es el radio del aro; los centros están a 1R; las paletas miden 2R
 
 **Versión mínima** (menos de 40px, favicon): `stroke-width="8"`, sin dientes (`M37 26H18` y `M83 26h19`).
 
-**Lockup del header:** el wordmark manda y el símbolo va a la derecha, ocupando el lugar del punto final. **Es el de todos los headers, sin excepción**: landing, panel, perfil, perfil público, ingreso, onboarding, invitación y cualquier pantalla nueva. El orden es siempre nombre primero, símbolo después.
+**Lockup del header:** el wordmark manda y el símbolo va a la derecha, ocupando el lugar del punto final. **Es el de todos los encabezados, sin excepción**: landing, panel, perfil, perfil público, ingreso, onboarding, invitación, el encabezado de los mails —los de la app y los de ingreso— y cualquier pantalla nueva. El orden es siempre nombre primero, símbolo después.
 
 - El wordmark es el elemento dominante: bien más grande que en el otro lockup.
 - El símbolo **no crece con el wordmark**: es un remate chico, de alrededor de **dos quintos de la altura de las mayúsculas** del wordmark.
@@ -134,7 +134,22 @@ Geometría: R es el radio del aro; los centros están a 1R; las paletas miden 2R
 - Se dibuja en **versión media** (un diente por llave): al lado del texto, dos dientes hacen ruido.
 - El símbolo se recorta al contorno real del dibujo, sin el aire del `viewBox`, o esa separación de medio radio se pierde.
 
-**Lockup con el símbolo a la izquierda:** símbolo a la izquierda, wordmark "inkey" en Bricolage 800 con tracking -1.6px, separados por 1R. El wordmark va en `ink`. Se usa **solo fuera de los headers**: pie, recibo, perfil en PDF y mails.
+**Lockup con el símbolo a la izquierda:** símbolo a la izquierda, wordmark "inkey" en Bricolage 800 con tracking -1.6px, separados por 1R. El wordmark va en `ink`. Se usa **solo fuera de los encabezados**: pie, recibo y perfil en PDF.
+
+**El archivo de marca:** la geometría de la versión media vive en
+`public/brand/inkey-simbolo-medio.svg`, con la caja ajustada `10.5 7.5 99 37`
+(los extremos reales del dibujo, contando el trazo, más medio punto de aire).
+El componente `Logo` usa exactamente esa geometría y un test lo compara contra
+el archivo, para que la marca no se parta en dos. La única diferencia a
+propósito es el color: el archivo lo trae fijo, porque se usa donde no hay
+variables CSS (mails), y el componente usa los tokens, para que el modo oscuro
+funcione.
+
+**En los mails**, donde no se puede dibujar un SVG (Gmail y Outlook no lo
+muestran), el símbolo del encabezado es `inkey-simbolo-medio.png`, exportado
+del mismo archivo: se muestra a 24 × 9 px al lado de un wordmark de 28px, con
+`vertical-align: baseline` y 2px de separación. Entre la palabra y la imagen no
+puede quedar ni un espacio en el HTML: se dibuja y rompe el remate.
 
 **Una sola tinta:** ambos trazos del mismo color. Como el cruce no se lee por color, cada aro que queda atrás se interrumpe con una **muesca corta** del color del fondo, de ancho `stroke-width + 4`, y el orden de los eslabones es el mismo que con dos tintas:
 

@@ -45,9 +45,7 @@ function marco(opciones: { titulo: string; cuerpo: string; siteUrl: string; pie?
 <body style="margin:0;padding:24px 12px;background:${COLORES.bg};font-family:${FUENTE};">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;">
     <tr><td style="padding:8px 4px 20px;">
-      <img src="${opciones.siteUrl}/apple-icon.png" width="36" height="36" alt=""
-           style="vertical-align:middle;border-radius:9px;">
-      <span style="vertical-align:middle;margin-left:10px;font:700 24px/1 ${FUENTE};letter-spacing:-0.8px;color:${COLORES.ink};">inkey</span>
+      <span style="font:700 28px/1 ${FUENTE};letter-spacing:-1.1px;color:${COLORES.ink};vertical-align:baseline;">inkey</span><img src="${opciones.siteUrl}/brand/inkey-simbolo-medio.png" width="24" height="9" alt="" style="vertical-align:baseline;margin-left:2px;border:0;">
     </td></tr>
     <tr><td style="background:${COLORES.surface};border-radius:24px;padding:28px;">
       ${opciones.cuerpo}

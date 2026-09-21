@@ -5,7 +5,7 @@ import {
   mensajeDeRebote,
   MENSAJE_GENERICO,
 } from "@/lib/auth/errores-link";
-import { codigoSchema } from "@/lib/validation/codigo";
+import { codigoSchema, LARGO_CODIGO } from "@/lib/validation/codigo";
 
 describe("links de ingreso que ya no sirven", () => {
   it("reconoce el rebote de Supabase", () => {
@@ -36,21 +36,33 @@ describe("links de ingreso que ya no sirven", () => {
   });
 });
 
-describe("código de 6 dígitos", () => {
+describe("el código del mail", () => {
   const base = { email: "ana@mail.com" };
 
-  it("acepta los 6 números", () => {
+  it("acepta los 6 números de siempre", () => {
     expect(codigoSchema.parse({ ...base, codigo: "123456" }).codigo).toBe("123456");
+  });
+
+  /*
+   * El largo lo decide Supabase ("Email OTP Length"). Ya nos pasó que llegara
+   * uno de 7 y la pantalla lo rechazara siendo válido: por eso el rango.
+   */
+  it("acepta cualquier largo que pueda mandar Supabase", () => {
+    for (let largo = LARGO_CODIGO.minimo; largo <= LARGO_CODIGO.maximo; largo += 1) {
+      const codigo = "1234567890".slice(0, largo);
+      expect(codigoSchema.safeParse({ ...base, codigo }).success, `largo ${largo}`).toBe(true);
+    }
   });
 
   it("perdona cómo se pega desde el mail", () => {
     expect(codigoSchema.parse({ ...base, codigo: " 123 456 " }).codigo).toBe("123456");
     expect(codigoSchema.parse({ ...base, codigo: "123-456" }).codigo).toBe("123456");
+    expect(codigoSchema.parse({ ...base, codigo: "123 4567" }).codigo).toBe("1234567");
   });
 
-  it("rechaza lo que no sea seis números", () => {
-    for (const codigo of ["12345", "1234567", "12345a", "", "abcdef"]) {
-      expect(codigoSchema.safeParse({ ...base, codigo }).success).toBe(false);
+  it("rechaza lo que no sean números, o un largo imposible", () => {
+    for (const codigo of ["12345", "12345678901", "12345a", "", "abcdef"]) {
+      expect(codigoSchema.safeParse({ ...base, codigo }).success, codigo).toBe(false);
     }
   });
 
