@@ -62,3 +62,20 @@ test.describe("el dominio", () => {
     expect(texto).not.toContain("/cuenta");
   });
 });
+
+test.describe("el rol elegido en la landing", () => {
+  test("llega al ingreso y sigue viaje", async ({ page }) => {
+    await page.goto("/ingresar?intencion=propietario");
+
+    // Va en un campo oculto: sobrevive al mail y llega al onboarding.
+    await expect(page.locator('input[name="intencion"]').first()).toHaveValue("propietario");
+  });
+
+  test("una intención inventada se ignora", async ({ page }) => {
+    await page.goto("/ingresar?intencion=administrador");
+
+    await expect(page.locator('input[name="intencion"]')).toHaveCount(0);
+    // Y la pantalla funciona igual.
+    await expect(page.getByRole("heading", { name: "Entrá a Inkey" })).toBeVisible();
+  });
+});

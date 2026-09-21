@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("landing", () => {
-  test("cuenta la propuesta y deja anotarse", async ({ page }) => {
+  test("cuenta la propuesta y deja entrar", async ({ page }) => {
     await page.goto("/");
 
     await expect(
@@ -23,25 +23,59 @@ test.describe("landing", () => {
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
   });
 
-  test("se puede elegir el rol antes de anotarse", async ({ page }) => {
+  /*
+   * Sin contraseñas, registrarse e ingresar son el mismo flujo: los dos
+   * caminos llevan a /ingresar y lo único que cambia es qué espera la persona.
+   */
+  test("los dos caminos llevan a ingresar", async ({ page }) => {
+    await page.goto("/");
+
+    await expect(page.getByRole("link", { name: "Empezá gratis" }).first()).toHaveAttribute(
+      "href",
+      /^\/ingresar/,
+    );
+    await expect(
+      page.getByRole("link", { name: "Ya tengo cuenta · Ingresar" }),
+    ).toHaveAttribute("href", "/ingresar");
+
+    await page.getByRole("link", { name: "Empezá gratis" }).first().click();
+    await expect(page).toHaveURL(/\/ingresar/);
+    await expect(page.getByRole("heading", { name: "Entrá a Inkey" })).toBeVisible();
+  });
+
+  test("el rol elegido viaja hasta el ingreso", async ({ page }) => {
     await page.goto("/");
 
     const inquilino = page.getByRole("button", { name: "Soy inquilino/a" });
     const propietario = page.getByRole("button", { name: "Soy propietario/a" });
 
     await expect(inquilino).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByRole("link", { name: "Empezá gratis" }).first()).toHaveAttribute(
+      "href",
+      "/ingresar?intencion=inquilino",
+    );
+
     await propietario.click();
     await expect(propietario).toHaveAttribute("aria-pressed", "true");
     await expect(inquilino).toHaveAttribute("aria-pressed", "false");
+    await expect(page.getByRole("link", { name: "Empezá gratis" }).first()).toHaveAttribute(
+      "href",
+      "/ingresar?intencion=propietario",
+    );
   });
 
-  test("avisa cuando el mail está mal escrito", async ({ page }) => {
+  test("el header y el cierre invitan a entrar, no a esperar", async ({ page }) => {
     await page.goto("/");
 
-    await page.getByLabel("Tu mail").fill("ana@");
-    await page.getByRole("button", { name: "Quiero entrar primero" }).click();
+    await expect(page.locator("header").getByRole("link", { name: "Ingresar" })).toHaveAttribute(
+      "href",
+      "/ingresar",
+    );
 
-    await expect(page.locator("#lista-error")).toContainText("nombre@mail.com");
+    const texto = await page.locator("body").innerText();
+    for (const viejo of ["Sumarme a la lista", "lista de espera", "cuando abramos"]) {
+      expect(texto, `quedó texto de lista de espera: ${viejo}`).not.toContain(viejo);
+    }
   });
 });
 

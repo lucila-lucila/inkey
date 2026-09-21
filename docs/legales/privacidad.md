@@ -46,7 +46,7 @@ Usamos tus datos solamente para:
 - **Con la otra parte de tu alquiler.** El dueño y el inquilino ven los datos del alquiler que comparten, los pagos, los comprobantes y el contrato. No ven tus otros alquileres ni tu actividad fuera de ese contrato.
 - **Con quien recibe tu link de perfil.** Solo ve lo que muestra el perfil: tu nombre y la inicial de tu apellido, los barrios, tus métricas de pagos y las reseñas publicadas. Nunca ve tu dirección completa, tu mail, tu teléfono ni tus comprobantes. Los montos se muestran solo si vos lo activás en ese link.
 - **Con proveedores que hacen funcionar Inkey**, que procesan los datos solo para prestarnos su servicio:
-  - **Supabase:** base de datos, archivos y acceso a la cuenta. Servidores en Brasil.
+  - **Supabase:** base de datos, archivos y acceso a la cuenta. Servidores en Estados Unidos (Oregon).
   - **Vercel:** alojamiento del sitio. Servidores en Estados Unidos y otros países.
   - **Resend:** envío de mails. Servidores en Estados Unidos.
   - **Google Fonts:** tipografías del sitio.
@@ -54,7 +54,14 @@ Usamos tus datos solamente para:
 
 ## 5. Datos fuera de Argentina
 
-Como algunos de nuestros proveedores están en el exterior, tus datos se guardan y procesan fuera de la Argentina. Al usar Inkey prestás tu consentimiento para esa transferencia, que hacemos con proveedores que aplican medidas de seguridad adecuadas, conforme al artículo 12 de la Ley 25.326.
+Nuestros proveedores están en el exterior, así que tus datos se guardan y procesan fuera de la Argentina, principalmente en **Estados Unidos**.
+
+La Ley 25.326 prohíbe transferir datos personales a países que no tengan un nivel de protección adecuado, salvo que se den ciertas excepciones (artículo 12). Estados Unidos no está entre los países que la Argentina considera adecuados, así que esa transferencia se apoya en dos cosas:
+
+- **Tu consentimiento**, que prestás al usar Inkey sabiendo que nuestros proveedores están en el exterior, como explica esta política.
+- **Las garantías contractuales que tenemos con cada proveedor.** Con Supabase, Vercel y Resend rigen sus acuerdos de tratamiento de datos, que los obligan a tratar tus datos solo siguiendo nuestras instrucciones, a mantener medidas de seguridad apropiadas, a no usarlos para fines propios y a cumplir las cláusulas contractuales tipo para transferencias internacionales.
+
+Si alguna vez cambiáramos de proveedor o de región, lo vamos a reflejar en esta política antes de hacerlo.
 
 ## 6. Cuánto tiempo los guardamos
 

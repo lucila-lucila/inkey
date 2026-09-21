@@ -490,6 +490,34 @@ lo que pide la ley y lo que espera cualquiera que quiera saber algo.
 `[CORCHETE]` sin completar dice que nadie lo leyó antes de publicarlo. Hay un
 test sobre los archivos y otro que mira las pantallas renderizadas.
 
+## Lanzamiento: se va la lista de espera
+
+**Registrarse e ingresar son el mismo flujo.** Sin contraseñas no hay dos
+caminos: el mail llega, se toca el link o se escribe el código, y si la cuenta
+no existe se crea sola. Por eso "Empezá gratis" y "Ya tengo cuenta · Ingresar"
+llevan al mismo lado. Lo único que cambia es qué espera la persona, y eso lo
+resuelve el texto, no una pantalla aparte.
+
+**El rol viaja por la URL hasta el onboarding.** Lo elegido en la landing entra
+como `?intencion=`, se guarda en un campo oculto del ingreso, sobrevive al
+viaje por el mail dentro del link de vuelta y llega al onboarding, que ya lo
+sabía leer. Se valida contra la lista de intenciones en cada salto: lo que
+viene de una URL no se usa a ciegas. Es una preselección, no una decisión
+cerrada: en Inkey el rol es de cada alquiler, no de la cuenta.
+
+**La tabla de la lista de espera queda.** Se fueron el formulario, su acción y
+su límite de frecuencia, pero los datos no: esas personas pidieron que les
+avisáramos. La tabla sigue cerrada para `anon` y `authenticated`, sus tests de
+RLS siguen corriendo, y `supabase/lista-de-espera.sql` saca la lista de a
+quién falta avisarle, sin los que ya se crearon la cuenta solos.
+
+**La política de privacidad dice Estados Unidos, no Brasil.** La región de
+Supabase es `us-west-2` (Oregon). La Argentina no considera a Estados Unidos un
+país de protección adecuada, así que el artículo 12 de la Ley 25.326 no se
+cumple solo con el consentimiento: el texto ahora nombra también las garantías
+contractuales con cada proveedor. Un país equivocado en una política de
+privacidad no es un detalle de redacción.
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting

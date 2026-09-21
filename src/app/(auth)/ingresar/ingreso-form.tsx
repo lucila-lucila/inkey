@@ -10,6 +10,7 @@ import {
   type EstadoIngreso,
 } from "./actions";
 import { Button, Field, Input } from "@/components/ui";
+import type { Intencion } from "@/lib/validation/profile";
 import { LARGO_CODIGO } from "@/lib/validation/codigo";
 
 const ESTADO_INICIAL: EstadoIngreso = { estado: "inicial" };
@@ -47,7 +48,15 @@ function BotonGoogle() {
  * Los dos caminos llevan al mismo lado. El código está porque algunos
  * servicios de correo abren los links solos para revisarlos y los gastan.
  */
-function Revisa({ email, volverA }: { email: string; volverA: string }) {
+function Revisa({
+  email,
+  volverA,
+  intencion,
+}: {
+  email: string;
+  volverA: string;
+  intencion?: Intencion | null;
+}) {
   const [estado, accion] = useActionState(entrarConCodigo, { estado: "inicial" } as EstadoCodigo);
 
   return (
@@ -63,6 +72,7 @@ function Revisa({ email, volverA }: { email: string; volverA: string }) {
       <form action={accion} noValidate className="flex flex-col gap-4">
         <input type="hidden" name="email" value={email} />
         <input type="hidden" name="volver_a" value={volverA} />
+        {intencion && <input type="hidden" name="intencion" value={intencion} />}
         <Field
           label="O escribí el código del mail"
           htmlFor="codigo"
@@ -98,17 +108,25 @@ function Revisa({ email, volverA }: { email: string; volverA: string }) {
   );
 }
 
-export function IngresoForm({ volverA }: { volverA: string }) {
+export function IngresoForm({
+  volverA,
+  intencion,
+}: {
+  volverA: string;
+  /** Lo que eligió en la landing, para que el onboarding llegue con la respuesta puesta. */
+  intencion?: Intencion | null;
+}) {
   const [estado, accion] = useActionState(enviarMagicLink, ESTADO_INICIAL);
 
   if (estado.estado === "enviado") {
-    return <Revisa email={estado.email} volverA={volverA} />;
+    return <Revisa email={estado.email} volverA={volverA} intencion={intencion} />;
   }
 
   return (
     <div className="flex flex-col gap-5">
       <form action={accion} noValidate className="flex flex-col gap-4">
         <input type="hidden" name="volver_a" value={volverA} />
+        {intencion && <input type="hidden" name="intencion" value={intencion} />}
         <Field
           label="Tu mail"
           htmlFor="email"
@@ -135,6 +153,7 @@ export function IngresoForm({ volverA }: { volverA: string }) {
 
       <form action={ingresarConGoogle}>
         <input type="hidden" name="volver_a" value={volverA} />
+        {intencion && <input type="hidden" name="intencion" value={intencion} />}
         <BotonGoogle />
       </form>
     </div>

@@ -6,6 +6,7 @@ import {
   MENSAJE_GENERICO,
 } from "@/lib/auth/errores-link";
 import { codigoSchema, LARGO_CODIGO } from "@/lib/validation/codigo";
+import { intencionSegura } from "@/lib/validation/profile";
 
 describe("links de ingreso que ya no sirven", () => {
   it("reconoce el rebote de Supabase", () => {
@@ -70,5 +71,22 @@ describe("el código del mail", () => {
     expect(codigoSchema.parse({ email: " ANA@Mail.com ", codigo: "123456" }).email).toBe(
       "ana@mail.com",
     );
+  });
+});
+
+/*
+ * El rol elegido en la landing viaja por la URL hasta el onboarding, y en el
+ * medio pasa por un mail. Lo que llega de afuera no se usa a ciegas.
+ */
+describe("la intención que viene de la landing", () => {
+  it("deja pasar las dos que existen", () => {
+    expect(intencionSegura("inquilino")).toBe("inquilino");
+    expect(intencionSegura("propietario")).toBe("propietario");
+  });
+
+  it("descarta cualquier otra cosa en vez de confiar", () => {
+    for (const basura of ["administrador", "", null, undefined, "INQUILINO", "<script>"]) {
+      expect(intencionSegura(basura), String(basura)).toBeNull();
+    }
   });
 });

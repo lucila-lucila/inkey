@@ -11,7 +11,7 @@ type EntradaAuditoria = {
 
 /**
  * Registra una acción sensible. Escribe con service role: la bitácora no
- * puede depender de que el cliente quiera anotarse.
+ * puede depender de los permisos de quien hizo la acción.
  * Nunca guardes datos personales de más en `metadata`.
  */
 export async function registrarAuditoria(entrada: EntradaAuditoria): Promise<void> {

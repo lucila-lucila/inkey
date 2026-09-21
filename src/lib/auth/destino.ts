@@ -1,11 +1,15 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import type { Intencion } from "@/lib/validation/profile";
 
 /**
  * A dónde va la persona después de ingresar: si todavía no completó el
  * onboarding, primero el onboarding.
  */
-export async function destinoPostIngreso(volverA: string): Promise<string> {
+export async function destinoPostIngreso(
+  volverA: string,
+  intencion?: Intencion | null,
+): Promise<string> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -28,6 +32,8 @@ export async function destinoPostIngreso(volverA: string): Promise<string> {
   if (!completo) {
     const url = new URL("/onboarding", "http://local");
     if (volverA !== "/panel") url.searchParams.set("volver_a", volverA);
+    // Lo que eligió en la landing, para no preguntárselo de nuevo.
+    if (intencion) url.searchParams.set("intencion", intencion);
     return `${url.pathname}${url.search}`;
   }
 

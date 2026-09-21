@@ -7,7 +7,7 @@ import { FinalCta } from "@/components/landing/final-cta";
 import { HouseRules } from "@/components/landing/house-rules";
 import { SiteHeader } from "@/components/landing/site-header";
 import { Steps } from "@/components/landing/steps";
-import { WaitlistForm } from "@/components/landing/waitlist-form";
+import { Acceso } from "@/components/landing/acceso";
 import { OutlineTag, Pie } from "@/components/ui";
 
 /** La landing es la única pantalla indexable de todo el sitio. */
@@ -52,7 +52,7 @@ export default function LandingPage() {
               Vos y tu dueño confirman cada pago, mes a mes. Ese historial es tuyo y lo llevás a tu
               próximo alquiler para que hable por vos.
             </p>
-            <WaitlistForm />
+            <Acceso />
           </div>
           <ExampleProfile />
         </section>

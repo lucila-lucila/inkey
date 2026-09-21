@@ -11,7 +11,6 @@ export type ReglaLimite = { limite: number; ventanaSegundos: number };
  * apretados para un script.
  */
 export const LIMITES = {
-  lista_espera: { limite: 5, ventanaSegundos: 60 * 60 },
   ingreso: { limite: 5, ventanaSegundos: 15 * 60 },
   invitacion: { limite: 10, ventanaSegundos: 60 * 60 },
   reporte_pago: { limite: 20, ventanaSegundos: 60 * 60 },

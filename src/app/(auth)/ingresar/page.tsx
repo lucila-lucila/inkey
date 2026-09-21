@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Card } from "@/components/ui";
 import { mensajeDeRebote } from "@/lib/auth/errores-link";
 import { rutaInternaSegura } from "@/lib/validation/auth";
+import { intencionSegura } from "@/lib/validation/profile";
 import { IngresoForm } from "./ingreso-form";
 
 export const metadata: Metadata = {
@@ -17,11 +18,13 @@ const ERRORES: Record<string, string> = {
 export default async function IngresarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ volver_a?: string; error?: string }>;
+  searchParams: Promise<{ volver_a?: string; error?: string; intencion?: string }>;
 }) {
   const params = await searchParams;
   const volverA = rutaInternaSegura(params.volver_a, "/panel");
   const error = params.error ? (ERRORES[params.error] ?? mensajeDeRebote(params.error)) : undefined;
+  // Viene de la landing: preselecciona "¿Qué querés hacer primero?".
+  const intencion = intencionSegura(params.intencion);
 
   return (
     <Card hero >
@@ -36,7 +39,7 @@ export default async function IngresarPage({
           {error}
         </p>
       )}
-      <IngresoForm volverA={volverA} />
+      <IngresoForm volverA={volverA} intencion={intencion} />
     </Card>
   );
 }

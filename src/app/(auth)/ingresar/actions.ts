@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { ingresoSchema, rutaInternaSegura } from "@/lib/validation/auth";
 import { codigoSchema } from "@/lib/validation/codigo";
+import { intencionSegura, type Intencion } from "@/lib/validation/profile";
 import { destinoPostIngreso } from "@/lib/auth/destino";
 import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { serverEnv } from "@/lib/env";
@@ -14,9 +15,11 @@ export type EstadoIngreso =
   | { estado: "enviado"; email: string }
   | { estado: "error"; mensaje: string };
 
-function urlCallback(volverA: string): string {
+function urlCallback(volverA: string, intencion: Intencion | null): string {
   const url = new URL("/auth/callback", serverEnv.siteUrl);
   url.searchParams.set("volver_a", volverA);
+  // Sobrevive al viaje por el mail para que el onboarding llegue preseleccionado.
+  if (intencion) url.searchParams.set("intencion", intencion);
   return url.toString();
 }
 
@@ -42,6 +45,7 @@ async function mandarMagicLink(
   }
 
   const volverA = rutaInternaSegura(String(formData.get("volver_a") ?? ""), "/panel");
+  const intencion = intencionSegura(String(formData.get("intencion") ?? ""));
 
   const limite = await consumirIntento("ingreso", await identificadorCliente());
   if (!limite.permitido) {
@@ -51,7 +55,7 @@ async function mandarMagicLink(
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email: parsed.data.email,
-    options: { emailRedirectTo: urlCallback(volverA) },
+    options: { emailRedirectTo: urlCallback(volverA, intencion) },
   });
 
   if (error) {
@@ -101,6 +105,7 @@ async function verificarCodigo(
   }
 
   const volverA = rutaInternaSegura(String(formData.get("volver_a") ?? ""), "/panel");
+  const intencion = intencionSegura(String(formData.get("intencion") ?? ""));
 
   // Mismo límite que el link: un código de 6 dígitos no se prueba a mano.
   const limite = await consumirIntento("ingreso", await identificadorCliente());
@@ -121,17 +126,18 @@ async function verificarCodigo(
     };
   }
 
-  redirect(await destinoPostIngreso(volverA));
+  redirect(await destinoPostIngreso(volverA, intencion));
 }
 
 /** Arranca el ingreso con Google. */
 export async function ingresarConGoogle(formData: FormData): Promise<void> {
   const volverA = rutaInternaSegura(String(formData.get("volver_a") ?? ""), "/panel");
+  const intencion = intencionSegura(String(formData.get("intencion") ?? ""));
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: urlCallback(volverA) },
+    options: { redirectTo: urlCallback(volverA, intencion) },
   });
 
   if (error || !data.url) {

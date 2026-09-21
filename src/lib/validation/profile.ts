@@ -10,6 +10,16 @@ const casillaObligatoria = z
   .literal("on", { message: "Necesitamos que aceptes para seguir." })
   .transform(() => true);
 
+/**
+ * La intención que viaja desde la landing hasta el onboarding, por la URL.
+ *
+ * Es solo una preselección de "¿Qué querés hacer primero?": el rol en Inkey es
+ * de cada alquiler, no de la cuenta. Si viene cualquier otra cosa, se ignora.
+ */
+export function intencionSegura(valor: string | null | undefined): Intencion | null {
+  return INTENCIONES.includes(valor as Intencion) ? (valor as Intencion) : null;
+}
+
 export const onboardingSchema = z.object({
   first_name: z
     .string()

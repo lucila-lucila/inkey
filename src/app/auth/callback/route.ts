@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { rutaInternaSegura } from "@/lib/validation/auth";
+import { intencionSegura } from "@/lib/validation/profile";
 import { destinoPostIngreso } from "@/lib/auth/destino";
 
 /**
@@ -11,6 +12,7 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get("code");
   const volverA = rutaInternaSegura(searchParams.get("volver_a"), "/panel");
+  const intencion = intencionSegura(searchParams.get("intencion"));
 
   if (!code) {
     return NextResponse.redirect(new URL("/ingresar?error=link", origin));
@@ -24,6 +26,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/ingresar?error=link", origin));
   }
 
-  const destino = await destinoPostIngreso(volverA);
+  const destino = await destinoPostIngreso(volverA, intencion);
   return NextResponse.redirect(new URL(destino, origin));
 }

@@ -20,8 +20,8 @@ export function SiteHeader() {
           >
             Para quién
           </a>
-          <ButtonLink href="#lista" size="md" className="whitespace-nowrap">
-            Sumarme a la lista
+          <ButtonLink href="/ingresar" size="md" className="whitespace-nowrap">
+            Ingresar
           </ButtonLink>
         </nav>
       </div>

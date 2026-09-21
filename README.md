@@ -236,6 +236,7 @@ src/
 docs/legales/            términos y privacidad (de acá salen las páginas)
 supabase/migrations/     el esquema, versionado
 supabase/seed.sql        datos de ejemplo (solo para desarrollo)
+supabase/lista-de-espera.sql  a quién avisarle que ya abrimos
 supabase/verificar.sql   ¿están todas las migraciones aplicadas?
 supabase/templates/      los mails de ingreso que manda Supabase
 tests/                   unit · rls · e2e
@@ -309,36 +310,32 @@ Actions salen por ahí, no por la consola del navegador:
 Los logs de runtime se guardan por poco tiempo, así que conviene mirarlos
 mientras el problema está pasando.
 
-## Pendiente antes de abrir al público
+## Pendiente, con prioridad
 
-**CSP con nonce.** Hoy `script-src` incluye `'unsafe-inline'`, porque Next
-inyecta su script de arranque sin nonce. Hay que generar un nonce por request
-en `src/proxy.ts` y pasarlo a la cabecera y a los scripts de Next, para que la
-CSP frene de verdad un XSS en vez de solo impedir que entre código de otro
-dominio. Está acordado hacerlo antes de la apertura, no antes.
+El sitio ya está abierto, así que esto no frena el lanzamiento: es la lista de
+lo que falta, ordenada por el riesgo de dejarlo para después.
 
-**Los textos legales, terminados de completar.** Están en `docs/legales/` y se
-publican en `/terminos` y `/privacidad`, pero antes de abrir faltan tres cosas
-que no son de programación:
+### 1 · Identificar al responsable de los datos · riesgo legal, hoy
 
-1. **Identificar al responsable de los datos.** Hoy los textos dicen "Inkey, un
-   servicio desarrollado en la República Argentina". La Ley 25.326 pide una
-   persona humana o jurídica identificable, con domicilio: hay que poner el
-   nombre o la razón social y la dirección.
-2. **Inscribir la base en el Registro Nacional de Bases de Datos** de la
-   Agencia de Acceso a la Información Pública. Es obligatorio para quien trata
-   datos personales y es gratuito.
-3. **Que un abogado revise los dos textos.** Están escritos para que se
-   entiendan y para describir lo que la app hace de verdad, pero nadie de este
-   lado es abogado.
+Los textos dicen "Inkey, un servicio desarrollado en la República Argentina".
+La Ley 25.326 pide una persona humana o jurídica identificable, con domicilio:
+hay que poner el nombre o la razón social y la dirección en los dos textos.
+Mientras no esté, cualquier reclamo de un titular de datos encuentra a un
+responsable que no se puede identificar. Es lo más barato de arreglar y lo más
+caro de dejar pasar.
 
-**Una herramienta mínima de moderación.** Los términos se reservan el derecho
-de ocultar una reseña con insultos, datos de terceros o información falsa
-(§7) y de suspender o cerrar una cuenta que los incumpla (§11). Hoy las dos
-cosas existen en la base pero no en la app: ocultar una reseña es escribirle
-`hidden_at` a mano y suspender una cuenta no tiene ni columna. Antes de abrir
-hace falta lo mínimo para no tener que entrar a la base con un incidente
-abierto:
+### 2 · Inscribir la base en el Registro Nacional de Bases de Datos · riesgo legal
+
+Ante la Agencia de Acceso a la Información Pública. Es obligatorio para quien
+trata datos personales, es gratuito y el trámite es corto. No hacerlo es una
+infracción formal desde el primer usuario real.
+
+### 3 · Moderación mínima, sin tocar la base · riesgo operativo
+
+Los términos se reservan el derecho de ocultar una reseña con insultos, datos
+de terceros o información falsa (§7) y de suspender una cuenta que los
+incumpla (§11). Hoy las dos cosas existen en la base pero no en la app. Con
+gente real adentro, el primer incidente va a llegar antes que la herramienta:
 
 - una pantalla o comando que oculte una reseña por su id, dejando registrado
   quién lo hizo y por qué (la columna `hidden_at` ya existe y `resena_visible`
@@ -347,6 +344,22 @@ abierto:
   paso, con su aviso por mail a la persona, como dicen los términos;
 - las dos acciones en `audit_log`: una moderación sin registro es indefendible
   si alguien reclama.
+
+### 4 · CSP con nonce · riesgo técnico
+
+Hoy `script-src` incluye `'unsafe-inline'`, porque Next inyecta su script de
+arranque sin nonce. Hay que generar un nonce por request en `src/proxy.ts` y
+pasarlo a la cabecera y a los scripts de Next, para que la CSP frene de verdad
+un XSS en vez de solo impedir que entre código de otro dominio. Va cuarto
+porque hoy no hay ningún `dangerouslySetInnerHTML` en el repo y React escapa
+todo lo que renderiza: es una red de contención que falta, no un agujero
+abierto.
+
+### 5 · Que un abogado revise los textos legales · cuando se pueda
+
+Están escritos para que se entiendan y para describir lo que la app hace de
+verdad —y se verificó punto por punto contra el código—, pero nadie de este
+lado es abogado.
 
 El resto de lo que quedó abierto en
 [`docs/auditoria-seguridad.md`](docs/auditoria-seguridad.md) son decisiones
