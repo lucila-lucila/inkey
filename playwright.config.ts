@@ -18,6 +18,7 @@ const ENV_DE_PRUEBA = {
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "anon-de-prueba",
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "service-de-prueba",
   RATE_LIMIT_SALT: process.env.RATE_LIMIT_SALT ?? "sal-de-prueba",
+  CRON_SECRET: process.env.CRON_SECRET ?? "cron-de-prueba",
   NEXT_PUBLIC_SITE_URL: BASE_URL,
 };
 

@@ -241,6 +241,54 @@ expone a nadie de más.
 **Todas las etiquetas son afirmaciones positivas.** No hay etiquetas negativas
 ni puntaje: el producto no tiene forma de marcar mal a nadie.
 
+## Notificaciones (Fase 6)
+
+**El mail es una tarea secundaria y nunca rompe nada.** Si `RESEND_API_KEY` no
+está, la app funciona igual: el aviso queda registrado con su error y la acción
+principal (reportar, confirmar, aceptar) ya está guardada antes de que se
+intente mandar nada. Ningún `enviarMail` tira una excepción hacia afuera.
+
+**El remitente sale entero de `EMAIL_FROM`.** No hay ningún dominio escrito en
+el código. Mientras no haya dominio propio se usa el de prueba de Resend
+(`onboarding@resend.dev`, que solo escribe a la casilla de la cuenta); cuando
+el dominio esté verificado, se cambia la variable y se vuelve a deployar. Los
+pasos de la verificación (DKIM, SPF, MX, DMARC) están en el README.
+
+**`dedupe_key` en la base, no un flag en el código.** Cada aviso se reserva
+antes de mandarse con una clave única que describe el hecho y el destinatario
+(`pago.recordatorio:<pago>:<reported_at>`). Si el cron corre dos veces, la
+segunda no manda nada; y si el inquilino vuelve a reportar, la clave cambia y
+el recordatorio se puede volver a mandar.
+
+**El link del mail confirma un pago y nada más.** `action_tokens`: 32 bytes
+aleatorios de los que se guarda solo el hash, 72 horas de vida, un solo uso y
+una sola acción sobre un solo pago. No abre sesión. Quien tenga el link puede
+responder ese pago, igual que quien tenga la casilla del dueño; por eso dura
+poco y queda en la bitácora como hecho `via: mail`.
+
+**El recordatorio por WhatsApp del inquilino NO lleva el link del mail.** A los
+7 días sin respuesta, el inquilino puede escribirle al dueño; ese mensaje lleva
+a `/pagos/<id>`, que pide sesión. Si llevara un token de acción, el inquilino
+podría abrirlo él mismo y confirmarse su propio pago: el historial dejaría de
+valer, que es lo único que sostiene el producto.
+
+**La invitación por mail la manda el servidor, no un `mailto:`.** Antes de
+mandar, se verifica que el token sea de una invitación viva de un alquiler de
+quien lo pide: nadie puede usar nuestro remitente para mandar cualquier cosa a
+cualquier lado. El `mailto:` queda como alternativa, para quien prefiera
+escribirlo desde su propio correo.
+
+**El cron va cerrado por `CRON_SECRET`.** Sin la variable el endpoint devuelve
+503 en vez de quedar abierto. Corre una vez por día (13:00 UTC, 10:00 en
+Argentina): recuerda los pagos sin responder a los 3 días y materializa las
+reseñas que cumplieron sus 14 días.
+
+**Las tablas de avisos no las ve la app.** `notifications` y `action_tokens`
+están revocadas para `anon` y `authenticated`: se tocan solo con el service
+role o a través de las funciones `security definer`. Por eso `/api/salud` las
+revisa con el cliente de administración: si dieran "ok" con el otro, sería una
+mala noticia.
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting

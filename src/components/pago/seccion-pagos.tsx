@@ -5,8 +5,14 @@ import { useState } from "react";
 import { Button, Card, Pill } from "@/components/ui";
 import { BotonesDueño } from "./botones-dueno";
 import { FormularioReporte } from "./formulario-reporte";
-import { formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
-import { ESTADOS_PAGO, nombrePeriodo, type EstadoPago } from "@/lib/domain/pagos";
+import { enlaceWhatsApp, formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
+import {
+  ESTADOS_PAGO,
+  mensajeInsistirPago,
+  nombrePeriodo,
+  sePuedeInsistir,
+  type EstadoPago,
+} from "@/lib/domain/pagos";
 import type { Moneda } from "@/lib/validation/rental";
 
 export type PagoDelPeriodo = {
@@ -19,6 +25,7 @@ export type PagoDelPeriodo = {
   on_time: boolean | null;
   owner_note: string | null;
   receipt_path: string | null;
+  reported_at: string | null;
 };
 
 export type FilaPeriodo = {
@@ -37,12 +44,17 @@ export function SeccionPagos({
   montoSugerido,
   filas,
   hoy,
+  barrio,
+  siteUrl,
 }: {
   rentalId: string;
   soyInquilino: boolean;
   montoSugerido: string;
   filas: FilaPeriodo[];
   hoy: string;
+  barrio: string;
+  /** Base de los links que se comparten por WhatsApp. */
+  siteUrl: string;
 }) {
   const [reportando, setReportando] = useState<string | null>(null);
 
@@ -92,12 +104,42 @@ export function SeccionPagos({
           )}
 
           {actual.pago?.status === "reported" && (
-            <p className="m-0 text-body">
-              Ya lo reportaste. Le avisamos a tu dueño para que lo confirme.{" "}
-              <Link href={`/pagos/${actual.pago.id}`} className="font-medium text-confirm-ink">
-                Ver el detalle
-              </Link>
-            </p>
+            <div className="flex flex-col gap-3">
+              <p className="m-0 text-body">
+                Ya lo reportaste. Le avisamos a tu dueño para que lo confirme.{" "}
+                <Link href={`/pagos/${actual.pago.id}`} className="font-medium text-confirm-ink">
+                  Ver el detalle
+                </Link>
+              </p>
+
+              {/*
+               * A la semana sin respuesta, se lo puede recordar por WhatsApp. El
+               * link va al pago dentro de la app: confirmarlo sigue siendo cosa
+               * del dueño, entrando con su mail.
+               */}
+              {sePuedeInsistir(actual.pago, new Date(`${hoy}T12:00:00Z`)) && (
+                <div className="flex flex-col gap-2">
+                  <a
+                    href={enlaceWhatsApp(
+                      mensajeInsistirPago({
+                        mes: nombrePeriodo(actual.periodo),
+                        barrio,
+                        url: `${siteUrl}/pagos/${actual.pago.id}`,
+                      }),
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-[52px] items-center justify-center rounded-full border-[1.5px] border-line bg-surface px-6 text-[17px] font-medium text-ink no-underline hover:bg-surface-sunk"
+                  >
+                    Recordárselo por WhatsApp
+                  </a>
+                  <p className="m-0 text-[15px] text-muted">
+                    Pasó más de una semana y todavía no respondió. Ya le mandamos un mail; si
+                    querés, escribile vos.
+                  </p>
+                </div>
+              )}
+            </div>
           )}
 
           {actual.pago?.status === "not_received" && (

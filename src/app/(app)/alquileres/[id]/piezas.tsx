@@ -36,6 +36,7 @@ export function NuevoLink({
     return (
       <CompartirInvitacion
         url={estado.url}
+        rentalId={rentalId}
         barrio={estado.barrio}
         rolInvitado={estado.rolInvitado}
         nombre={estado.nombre}

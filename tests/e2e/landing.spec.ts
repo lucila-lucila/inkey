@@ -77,6 +77,7 @@ test.describe("identidad", () => {
     ["ingreso", "/ingresar"],
     ["invitación", "/invitacion/no-es-un-token"],
     ["perfil público", "/p/no-es-un-token"],
+    ["confirmar un pago desde el mail", `/pagos/confirmar/${"a".repeat(43)}`],
   ] as const;
 
   for (const [nombre, ruta] of PANTALLAS_CON_HEADER) {

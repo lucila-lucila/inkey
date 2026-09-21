@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
 import { MENSAJES_PAGO } from "@/lib/domain/pagos";
 import { notaDueñoSchema } from "@/lib/validation/pago";
+import { avisarPagoConfirmado } from "@/lib/email/avisos";
 import { urlFirmada } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 
@@ -53,6 +54,8 @@ export async function confirmarPago(
           mensaje: mensajeDe(respuesta.error, "No se pudo confirmar el pago."),
         };
       }
+
+      await avisarPagoConfirmado(pagoId);
 
       revalidatePath(`/pagos/${pagoId}`);
       revalidatePath("/panel");

@@ -22,6 +22,7 @@ import {
   type ResenaPropia,
 } from "@/lib/domain/resenas";
 import type { Moneda } from "@/lib/validation/rental";
+import { serverEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { BotonContrato, CancelarAlquiler, NuevoLink, SubirContrato } from "./piezas";
 
@@ -72,7 +73,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
   const { data: pagos } = await supabase
     .from("payments")
     .select(
-      "id, period, status, amount, currency, paid_on, due_date, on_time, owner_note, receipt_path",
+      "id, period, status, amount, currency, paid_on, due_date, on_time, owner_note, receipt_path, reported_at",
     )
     .eq("rental_id", id)
     .order("period", { ascending: false });
@@ -273,6 +274,8 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
             montoSugerido={String(alquiler.monthly_amount)}
             filas={filas}
             hoy={hoy}
+            barrio={alquiler.neighborhood_label}
+            siteUrl={serverEnv.siteUrl}
           />
         </section>
       )}

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { hashearToken, pareceToken } from "@/lib/tokens";
 import { consumirIntento, identificadorCliente } from "@/lib/ratelimit";
+import { avisarRespuestaInvitacion } from "@/lib/email/avisos";
 import { createClient } from "@/lib/supabase/server";
 
 type Respuesta = { ok: boolean; error?: string; rental_id?: string };
@@ -31,6 +32,8 @@ export async function aceptarInvitacion(formData: FormData): Promise<void> {
 
   const respuesta = data as Respuesta;
   if (!respuesta.ok) redirect(`/invitacion/${token}?error=${respuesta.error ?? "servidor"}`);
+
+  await avisarRespuestaInvitacion(String(respuesta.rental_id), true);
 
   revalidatePath("/panel");
   redirect(`/alquileres/${respuesta.rental_id}`);
@@ -60,6 +63,8 @@ export async function rechazarInvitacion(formData: FormData): Promise<void> {
 
   const respuesta = data as Respuesta;
   if (!respuesta.ok) redirect(`/invitacion/${token}?error=${respuesta.error ?? "servidor"}`);
+
+  if (respuesta.rental_id) await avisarRespuestaInvitacion(respuesta.rental_id, false);
 
   redirect(`/invitacion/${token}?resultado=rechazada`);
 }

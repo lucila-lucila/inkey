@@ -64,6 +64,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
           <p className="t-etiqueta mt-0 mb-2 text-confirm-ink">Alquiler guardado</p>
           <CompartirInvitacion
             url={estado.url}
+            rentalId={estado.rentalId}
             barrio={estado.barrio}
             rolInvitado={estado.rolInvitado}
             nombre={estado.nombre}

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
 import { MENSAJES_RESENA } from "@/lib/domain/resenas";
 import { resenaSchema } from "@/lib/validation/resena";
+import { avisarFinDeContrato } from "@/lib/email/avisos";
 import { createClient } from "@/lib/supabase/server";
 
 export type EstadoFin = { estado: "inicial" } | { estado: "error"; mensaje: string };
@@ -39,6 +40,9 @@ async function llamarRpc(
 
   const respuesta = data as Respuesta;
   if (!respuesta.ok) return { estado: "error", mensaje: mensajeDe(respuesta.error, porDefecto) };
+
+  // Al terminar, los dos reciben la invitación a dejar su reseña.
+  if (nombre === "rental_confirm_end") await avisarFinDeContrato(rentalId);
 
   revalidatePath(`/alquileres/${rentalId}`);
   revalidatePath("/panel");

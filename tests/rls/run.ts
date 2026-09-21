@@ -12,9 +12,17 @@ import { CASOS_ALQUILERES } from "./casos-alquileres";
 import { CASOS_PAGOS } from "./casos-pagos";
 import { CASOS_PERFIL } from "./casos-perfil";
 import { CASOS_RESENAS } from "./casos-resenas";
+import { CASOS_AVISOS } from "./casos-avisos";
 import { buscarBinariosPg, levantarCluster } from "./cluster";
 
-const CASOS: Caso[] = [...CASOS_BASE, ...CASOS_ALQUILERES, ...CASOS_PAGOS, ...CASOS_PERFIL, ...CASOS_RESENAS];
+const CASOS: Caso[] = [
+  ...CASOS_BASE,
+  ...CASOS_ALQUILERES,
+  ...CASOS_PAGOS,
+  ...CASOS_PERFIL,
+  ...CASOS_RESENAS,
+  ...CASOS_AVISOS,
+];
 
 async function main(): Promise<void> {
   if (!buscarBinariosPg()) {

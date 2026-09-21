@@ -8,6 +8,7 @@ import { BUCKET_DOCUMENTOS, subirDocumento, urlFirmada } from "@/lib/storage";
 import { registrarAuditoria } from "@/lib/audit";
 import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
 import { MENSAJES_PAGO } from "@/lib/domain/pagos";
+import { avisarPagoReportado } from "@/lib/email/avisos";
 import { reportePagoSchema } from "@/lib/validation/pago";
 import { createClient } from "@/lib/supabase/server";
 import { rolInvitado as calcularRolInvitado } from "@/lib/domain/alquiler";
@@ -252,6 +253,9 @@ async function guardarReporteDePago(
       mensaje: (respuesta.error && MENSAJES_PAGO[respuesta.error]) ?? "No se pudo guardar el pago.",
     };
   }
+
+  // El aviso va después de guardar: si el mail falla, el pago ya está.
+  await avisarPagoReportado(String(respuesta.payment_id));
 
   if (avisoArchivo) {
     // El pago quedó reportado: lo único que falló fue el archivo.

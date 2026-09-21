@@ -4,7 +4,16 @@ import { NextResponse, type NextRequest } from "next/server";
 /** Rutas que exigen sesión iniciada. */
 const RUTAS_PRIVADAS = ["/panel", "/onboarding", "/alquileres", "/pagos", "/perfil", "/cuenta"];
 
+/**
+ * Salvedades: el link que le llega al dueño por mail confirma un pago sin
+ * sesión, así que esta ruta queda abierta aunque cuelgue de /pagos.
+ */
+const RUTAS_ABIERTAS = ["/pagos/confirmar"];
+
 function esRutaPrivada(pathname: string): boolean {
+  if (RUTAS_ABIERTAS.some((ruta) => pathname === ruta || pathname.startsWith(`${ruta}/`))) {
+    return false;
+  }
   return RUTAS_PRIVADAS.some((ruta) => pathname === ruta || pathname.startsWith(`${ruta}/`));
 }
 

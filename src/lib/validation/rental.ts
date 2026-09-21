@@ -120,3 +120,16 @@ export function pasoDelCampo(campo: string): number | null {
   );
   return indice === -1 ? null : indice;
 }
+
+/** Mandar el link de invitación por mail desde Inkey. */
+export const invitacionPorMailSchema = z.object({
+  rental_id: z.string().uuid("No encontramos ese alquiler."),
+  token: z.string().trim().min(1, "Falta el link de la invitación."),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Escribí el mail de la persona.")
+    .max(254, "Ese mail es demasiado largo.")
+    .email("Revisá el mail: tiene que ser del estilo nombre@mail.com.")
+    .transform((valor) => valor.toLowerCase()),
+});

@@ -20,7 +20,7 @@ tomadas (con su motivo) en [`docs/decisiones.md`](docs/decisiones.md).
 | 3 | Pagos, comprobantes y recibo PDF | ✅ |
 | 4 | Perfil compartible | ✅ |
 | 5 | Fin de contrato y reseñas | ✅ |
-| 6 | Notificaciones y recordatorios | ⏳ |
+| 6 | Notificaciones y recordatorios | ✅ |
 | 7 | Cierre: e2e, seed, seguridad, deploy | ⏳ |
 
 ## Correrlo en tu máquina
@@ -53,6 +53,78 @@ Supabase.
 5. En **Authentication → URL Configuration** agregá
    `http://localhost:3000/auth/callback` y el de producción a las redirect URLs.
 
+### Conectar Resend (mails)
+
+Los mails son una tarea secundaria: si Resend no está configurado, la app
+funciona igual y cada aviso que no sale queda registrado en la consola y en la
+tabla `notifications`. Nada se rompe por no tener mail.
+
+1. Creá una cuenta en [resend.com](https://resend.com) y una API key.
+2. Cargá `RESEND_API_KEY` en `.env.local` y en Vercel.
+3. Cargá `EMAIL_FROM` con el remitente. **Sin dominio propio**, usá el de
+   prueba de Resend:
+
+   ```
+   EMAIL_FROM="Inkey <onboarding@resend.dev>"
+   ```
+
+   Ese remitente solo puede escribirle a la casilla con la que te registraste
+   en Resend: sirve para probar el flujo, no para mandarle a un dueño real.
+4. Cargá también `CRON_SECRET` (cualquier cadena larga y aleatoria): sin ella,
+   `/api/cron/recordatorios` devuelve 503 y no corre.
+
+#### Cuando tengas el dominio
+
+1. En Resend, **Domains → Add Domain**, escribí el dominio (por ejemplo
+   `inkey.com.ar`). Conviene usar un subdominio para el correo transaccional,
+   como `mail.inkey.com.ar`: si algo sale mal, no arrastra la reputación del
+   dominio principal.
+2. Resend te muestra los registros DNS. Cargalos en tu proveedor de DNS tal
+   cual (son tres):
+   - **DKIM**: un `TXT` (`resend._domainkey`) con la clave pública que firma
+     cada mail.
+   - **SPF**: un `TXT` en el dominio de envío con `v=spf1 include:amazonses.com ~all`,
+     que autoriza a Resend a mandar en tu nombre. Si ya tenés un SPF, sumá el
+     `include:` al que existe en vez de crear un segundo registro: dos SPF
+     invalidan los dos.
+   - **MX** (`feedback-smtp`): recibe los rebotes.
+3. Volvé a Resend y tocá **Verify**. Tarda entre unos minutos y unas horas
+   según el proveedor de DNS.
+4. Sumá un `TXT` de **DMARC** en `_dmarc.tu-dominio` para que Gmail no lo mande
+   a correo no deseado. Empezá suave y apretá cuando veas que todo llega:
+
+   ```
+   v=DMARC1; p=none; rua=mailto:dmarc@tu-dominio
+   ```
+
+5. Cambiá `EMAIL_FROM` en Vercel por el remitente del dominio verificado y
+   volvé a deployar:
+
+   ```
+   EMAIL_FROM="Inkey <hola@mail.tu-dominio>"
+   ```
+
+   No hace falta tocar código: el remitente sale entero de esa variable.
+6. Revisá que `NEXT_PUBLIC_SITE_URL` apunte al dominio definitivo: de ahí salen
+   los links de los mails (confirmar un pago, la invitación, el recibo).
+7. Probá de punta a punta: reportá un pago de prueba y confirmá desde el mail.
+   Si el mail no llega, `/api/salud` y los logs de Vercel dicen qué falta.
+
+### Recordatorios (cron)
+
+`vercel.json` programa `/api/cron/recordatorios` todos los días a las 13:00 UTC
+(10:00 en Argentina). Cada corrida hace dos cosas:
+
+- le recuerda por mail al dueño los pagos reportados hace 3 días o más que
+  todavía no respondió (una sola vez por reporte: lo garantiza `dedupe_key`);
+- publica las reseñas que ya cumplieron los 14 días.
+
+Para probarlo a mano:
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/recordatorios
+```
+
 ## Tests
 
 ```bash
@@ -77,6 +149,8 @@ src/
 │   ├── (app)/           pantallas con sesión (/panel, /alquileres, …)
 │   ├── invitacion/      la pantalla que ve quien recibe el link
 │   ├── p/[token]/       el perfil compartible (público, con PDF y preview)
+│   ├── pagos/confirmar/ confirmar un pago desde el mail, sin sesión
+│   ├── api/cron/        los recordatorios diarios
 │   └── auth/callback/   vuelta del magic link y de Google
 ├── components/ui/       componentes base (Button, Card, Field, …)
 ├── components/landing/  secciones de la landing
@@ -84,6 +158,7 @@ src/
 │   ├── supabase/        clientes server / browser / admin y sesión
 │   ├── validation/      esquemas Zod (mismos en cliente y servidor)
 │   ├── domain/          reglas puras: montos, fechas, vencimientos
+│   ├── email/           plantillas y envío (Resend), siempre opcional
 │   ├── ratelimit/       ventana deslizante en Postgres
 │   ├── tokens.ts        32 bytes aleatorios; de la base, solo el hash
 │   └── storage.ts       documentos privados y URLs firmadas

@@ -19,6 +19,9 @@ export const VARIABLES = {
     "RATE_LIMIT_SALT",
     "SHARE_LINK_SECRET",
     "NEXT_PUBLIC_SITE_URL",
+    "RESEND_API_KEY",
+    "EMAIL_FROM",
+    "CRON_SECRET",
   ],
 } as const;
 
@@ -59,6 +62,21 @@ export const serverEnv = {
    */
   get shareLinkSecret() {
     return leer("SHARE_LINK_SECRET");
+  },
+  /** Resend. Sin esto no salen mails, pero la app sigue funcionando. */
+  get resendApiKey() {
+    return leer("RESEND_API_KEY");
+  },
+  /**
+   * Remitente de los mails. Hasta tener dominio propio verificado, el de
+   * prueba de Resend, que solo escribe a la casilla de la cuenta.
+   */
+  get emailFrom() {
+    return leer("EMAIL_FROM") ?? "Inkey <onboarding@resend.dev>";
+  },
+  /** Protege los endpoints que dispara Vercel Cron. */
+  get cronSecret() {
+    return leer("CRON_SECRET");
   },
   get siteUrl() {
     return leer("NEXT_PUBLIC_SITE_URL") ?? "http://localhost:3000";

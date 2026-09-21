@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "comment": "Recordatorios de pagos sin respuesta y publicación de reseñas vencidas. 13:00 UTC son las 10 de la mañana en Argentina.",
+      "path": "/api/cron/recordatorios",
+      "schedule": "0 13 * * *"
+    }
+  ]
+}

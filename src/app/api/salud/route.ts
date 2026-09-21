@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { variablesFaltantes } from "@/lib/env";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -57,6 +58,39 @@ export async function GET() {
         ? "no respondió a tiempo"
         : rpc.error
           ? `error (${rpc.error.code ?? "?"}): ${rpc.error.message}`
+          : "ok";
+
+    /*
+     * Las tablas de los avisos no las puede ver la app: son del service role.
+     * Por eso se revisan con el cliente de administración, no con el de la
+     * persona; si diera "ok" con el otro sería una mala noticia, no una buena.
+     */
+    const admin = createAdminClient();
+    for (const tabla of ["notifications", "action_tokens"]) {
+      if (!admin) {
+        revisiones[`tabla:${tabla}`] = "sin service role: no se puede revisar";
+        continue;
+      }
+      const resultado = await conTiempoLimite(
+        admin.from(tabla).select("id", { head: true, count: "exact" }),
+      );
+      revisiones[`tabla:${tabla}`] =
+        resultado === "timeout"
+          ? "no respondió a tiempo"
+          : resultado.error
+            ? `error (${resultado.error.code ?? "?"}): ${resultado.error.message}`
+            : "ok";
+    }
+
+    // ¿Existen las funciones de los avisos? (Fase 6)
+    const tokenPago = await conTiempoLimite(
+      supabase.rpc("payment_token_preview", { p_token_hash: "0".repeat(64) }),
+    );
+    revisiones["rpc:payment_token_preview"] =
+      tokenPago === "timeout"
+        ? "no respondió a tiempo"
+        : tokenPago.error
+          ? `error (${tokenPago.error.code ?? "?"}): ${tokenPago.error.message}`
           : "ok";
 
     // ¿Existe el bucket de documentos?

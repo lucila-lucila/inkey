@@ -96,3 +96,40 @@ export const MENSAJES_PAGO: Record<string, string> = {
   ya_confirmado: "Ese pago ya está confirmado.",
   "no_sos_el_dueño": "Solo el dueño del alquiler puede confirmar un pago.",
 };
+
+/**
+ * Insistirle al dueño por WhatsApp.
+ *
+ * A los 3 días le mandamos un recordatorio por mail (ver el cron). Si a los 7
+ * sigue sin responder, el inquilino puede escribirle él mismo: es su alquiler
+ * y su historial.
+ */
+export const DIAS_PARA_INSISTIR = 7;
+
+export function diasDesde(fechaISO: string, hoy = new Date()): number {
+  const desde = new Date(fechaISO).getTime();
+  if (Number.isNaN(desde)) return 0;
+  return Math.floor((hoy.getTime() - desde) / (24 * 60 * 60 * 1000));
+}
+
+export function sePuedeInsistir(
+  pago: { status: string; reported_at?: string | null },
+  hoy = new Date(),
+): boolean {
+  if (pago.status !== "reported" || !pago.reported_at) return false;
+  return diasDesde(pago.reported_at, hoy) >= DIAS_PARA_INSISTIR;
+}
+
+/**
+ * El mensaje que le manda el inquilino al dueño. El link lleva al pago dentro
+ * de la app: para confirmar hay que entrar con el mail del dueño. El link
+ * directo del mail confirma sin sesión y es solo para él, así que nunca puede
+ * viajar en un mensaje que arma el inquilino.
+ */
+export function mensajeInsistirPago(datos: {
+  mes: string;
+  barrio: string;
+  url: string;
+}): string {
+  return `Hola. Te reportamos en Inkey el pago de ${datos.mes} del alquiler de ${datos.barrio} y todavía figura sin confirmar. ¿Lo mirás cuando puedas? Son dos toques.\n\n${datos.url}`;
+}
