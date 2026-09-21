@@ -17,6 +17,7 @@ Para cualquier consulta sobre tus datos: **contacto@inkeyapp.com**.
 - **Cuenta:** nombre, apellido, mail y celular.
 - **Alquiler:** dirección, barrio, fechas del contrato, monto, moneda, día de vencimiento e índice de ajuste.
 - **Pagos:** monto, fecha de pago, estado de la confirmación y, si los subís, comprobantes.
+- **Notas entre las partes:** si el dueño marca que un pago todavía no le llegó, puede dejar una nota explicando por qué. Se guarda y la ven solo las dos partes de ese alquiler: nunca sale al perfil.
 - **Documentos:** el contrato, si decidís subirlo.
 - **Reseñas:** las etiquetas y el texto que escribís al terminar un contrato.
 - **Lista de espera:** tu mail y si sos inquilino o propietario, si te anotaste antes del lanzamiento.
@@ -81,8 +82,8 @@ Podés ejercerlos de dos formas:
 
 - Toda la comunicación con Inkey viaja cifrada.
 - Cada usuario solo puede acceder a los datos de los alquileres en los que participa: esa regla está aplicada en la propia base de datos, no solo en la aplicación.
-- Los comprobantes y contratos se guardan en un almacenamiento privado y se abren con enlaces temporales que vencen en segundos.
-- Los links de invitación y de perfil se guardan cifrados.
+- Los comprobantes y contratos se guardan en un almacenamiento privado y se abren con enlaces temporales que vencen en un minuto.
+- Los links de invitación y de perfil se guardan como una huella irreversible: el link en sí no queda guardado en ningún lado.
 
 Ningún sistema es infalible. Si ocurriera un incidente que afecte tus datos, te lo vamos a informar sin demoras.
 

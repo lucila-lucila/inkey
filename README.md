@@ -332,6 +332,22 @@ que no son de programación:
    entiendan y para describir lo que la app hace de verdad, pero nadie de este
    lado es abogado.
 
+**Una herramienta mínima de moderación.** Los términos se reservan el derecho
+de ocultar una reseña con insultos, datos de terceros o información falsa
+(§7) y de suspender o cerrar una cuenta que los incumpla (§11). Hoy las dos
+cosas existen en la base pero no en la app: ocultar una reseña es escribirle
+`hidden_at` a mano y suspender una cuenta no tiene ni columna. Antes de abrir
+hace falta lo mínimo para no tener que entrar a la base con un incidente
+abierto:
+
+- una pantalla o comando que oculte una reseña por su id, dejando registrado
+  quién lo hizo y por qué (la columna `hidden_at` ya existe y `resena_visible`
+  ya la respeta, así que es la mitad del trabajo);
+- una marca de cuenta suspendida que el proxy de sesión lea para cortar el
+  paso, con su aviso por mail a la persona, como dicen los términos;
+- las dos acciones en `audit_log`: una moderación sin registro es indefendible
+  si alguien reclama.
+
 El resto de lo que quedó abierto en
 [`docs/auditoria-seguridad.md`](docs/auditoria-seguridad.md) son decisiones
 conscientes, con su motivo escrito.
