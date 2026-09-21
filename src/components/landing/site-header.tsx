@@ -3,7 +3,7 @@ import { ButtonLink, Logo } from "@/components/ui";
 export function SiteHeader() {
   return (
     <header>
-      <div className="wrap flex items-center justify-between py-6">
+      <div className="wrap flex items-center justify-between py-4 min-[640px]:py-6">
         {/* En el header, el wordmark manda y el símbolo hace de punto final. */}
         <Logo href="#top" size="lg" className="max-[560px]:hidden" />
         <Logo href="#top" size="sm" className="min-[561px]:hidden" />
