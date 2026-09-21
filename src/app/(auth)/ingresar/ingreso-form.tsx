@@ -64,7 +64,7 @@ function Revisa({
       <div>
         <h2 className="mt-0 mb-2 t-titulo text-primary-ink">Mirá tu casilla</h2>
         <p className="m-0 text-body">
-          Le mandamos un link y un código de 6 números a{" "}
+          Le mandamos un link y un código numérico a{" "}
           <strong className="text-ink">{email}</strong>. Si no aparece, fijate en spam.
         </p>
       </div>

@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "test:rls": "tsx tests/rls/run.ts",
     "test:e2e": "playwright test",
+    "capturas": "tsx tests/capturas/run.ts",
     "check": "pnpm typecheck && pnpm lint && pnpm test"
   },
   "dependencies": {
