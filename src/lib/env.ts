@@ -26,6 +26,42 @@ export const VARIABLES = {
   ],
 } as const;
 
+/** Para no llenar los logs con el mismo aviso en cada request. */
+const avisosDados = new Set<string>();
+function avisarUnaVez(mensaje: string): void {
+  if (avisosDados.has(mensaje)) return;
+  avisosDados.add(mensaje);
+  console.warn(`[inkey] ${mensaje}`);
+}
+
+const SITIO_POR_DEFECTO = "http://localhost:3000";
+
+/**
+ * El dominio del sitio, sí o sí usable.
+ *
+ * De acá salen los links de los mails, las URLs canónicas y `metadataBase`.
+ * Un valor mal escrito (sin `https://`, con una barra de más) hacía explotar
+ * el build entero: una variable mal cargada no puede tirar abajo la app.
+ */
+export function normalizarSitio(valor: string | null | undefined): string {
+  if (!valor) return SITIO_POR_DEFECTO;
+  const limpio = valor.trim().replace(/\/+$/, "");
+
+  for (const candidato of [limpio, `https://${limpio}`]) {
+    try {
+      const url = new URL(candidato);
+      if (url.protocol === "http:" || url.protocol === "https:") return url.origin;
+    } catch {
+      /* probamos la forma siguiente */
+    }
+  }
+
+  avisarUnaVez(
+    `NEXT_PUBLIC_SITE_URL no es una URL válida ("${valor}"): uso ${SITIO_POR_DEFECTO}. Cargala como https://tu-dominio.`,
+  );
+  return SITIO_POR_DEFECTO;
+}
+
 function leer(nombre: string): string | null {
   const valor = process.env[nombre];
   return valor && valor.trim() !== "" ? valor : null;
@@ -87,7 +123,7 @@ export const serverEnv = {
     return leer("CRON_SECRET");
   },
   get siteUrl() {
-    return leer("NEXT_PUBLIC_SITE_URL") ?? "http://localhost:3000";
+    return normalizarSitio(leer("NEXT_PUBLIC_SITE_URL"));
   },
 };
 

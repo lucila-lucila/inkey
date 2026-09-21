@@ -162,6 +162,22 @@ Para probarlo a mano:
 curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/recordatorios
 ```
 
+**Un solo cron, por el plan Hobby.** Hobby permite hasta dos tareas y como
+mucho una por día cada una; una expresión más frecuente no se degrada, hace
+**fallar el deploy entero**. Por eso la tarea diaria hace las dos cosas.
+Vercel además dispara en algún momento de esa hora, no a las 13:00 en punto:
+como las dos tareas miden en días, da igual.
+
+Si alguna vez hiciera falta más seguido sin pasar al plan pago, el endpoint ya
+está preparado: cualquier programador externo que sepa mandar un header puede
+llamarlo (por ejemplo un workflow de GitHub Actions con `schedule`, guardando
+`CRON_SECRET` como secret del repo). No hay que tocar código: es el mismo
+endpoint, y como cada aviso se reserva con su clave, llamarlo de más no manda
+nada repetido.
+
+El test `tests/unit/despliegue.test.ts` verifica que `vercel.json` siga
+entrando en Hobby y no tenga propiedades que Vercel rechace.
+
 ## Tests
 
 ```bash

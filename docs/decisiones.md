@@ -338,6 +338,34 @@ Editor, así que hace falta poder responder "¿están todas?" sin adivinar. El
 script lista cada tabla, función y bucket esperado con `ok` o `FALTA`, dice qué
 migración lo trae, y cuenta las tablas de `public` sin RLS (tiene que dar 0).
 
+## Deploy en Vercel (plan Hobby)
+
+**`vercel.json` no admite comentarios, ni siquiera con nombre de propiedad.**
+Vercel valida ese archivo contra su esquema antes de compilar: una propiedad
+que no conoce —teníamos un `comment` explicando el horario del cron— hace
+fallar el deploy en dos segundos, sin build y sin log útil. Dentro de un cron
+van `path` y `schedule`, y nada más. La explicación vive en el archivo de la
+ruta, que es código y sí se puede comentar.
+
+**Un solo cron diario.** Hobby permite hasta dos tareas y como mucho una por
+día. Una expresión más frecuente no se degrada a diaria: rechaza el deploy. La
+tarea diaria hace las dos cosas (recordatorios y publicación de reseñas), que
+miden en días; que Vercel dispare en cualquier momento de esa hora no cambia
+nada. Si algún día hiciera falta más frecuencia, el endpoint lo puede llamar
+cualquier programador externo con el header del secreto, sin tocar código ni
+pagar plan.
+
+**Un test guarda el `vercel.json`.** Ese error no lo veía ningún test de la
+app: el deploy fallaba, y el sitio seguía mostrando la versión anterior como si
+nada. `tests/unit/despliegue.test.ts` revisa las propiedades, que el endpoint
+exista y que la frecuencia entre en Hobby.
+
+**Una variable mal cargada no puede voltear el build.** `metadataBase` hacía
+`new URL(NEXT_PUBLIC_SITE_URL)` al cargar el layout: cargarla sin `https://`
+tiraba abajo la compilación entera, no solo los links. Ahora `serverEnv.siteUrl`
+normaliza (completa el protocolo, saca la barra final) y, si no hay nada
+usable, cae a localhost avisando por consola.
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting

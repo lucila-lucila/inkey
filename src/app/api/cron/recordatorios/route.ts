@@ -8,12 +8,22 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /*
- * Lo que corre una vez por día (ver vercel.json):
+ * Lo que corre una vez por día:
  *   - recordarle al dueño los pagos que no respondió en 3 días;
  *   - publicar las reseñas que ya cumplieron sus 14 días.
  *
  * Es idempotente: cada aviso se reserva con una clave, así que si el cron
  * corre dos veces no se manda nada dos veces.
+ *
+ * El horario está en `vercel.json`: 13:00 UTC, las 10 de la mañana en
+ * Argentina. Ahí no se puede explicar nada (Vercel valida ese archivo contra
+ * su esquema y rechaza cualquier propiedad que no conozca, incluido un
+ * "comment"), así que la explicación vive acá.
+ *
+ * Un solo cron diario, para entrar en el plan Hobby de Vercel: hasta dos
+ * tareas y como mucho una vez por día cada una. Además Vercel dispara en
+ * cualquier momento de esa hora, no a las 13:00 en punto. Las dos tareas
+ * miden en días, así que la hora exacta no cambia nada.
  */
 export async function GET(request: NextRequest) {
   const secreto = serverEnv.cronSecret;
