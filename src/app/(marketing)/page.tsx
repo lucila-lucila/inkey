@@ -8,7 +8,7 @@ import { HouseRules } from "@/components/landing/house-rules";
 import { SiteHeader } from "@/components/landing/site-header";
 import { Steps } from "@/components/landing/steps";
 import { Acceso } from "@/components/landing/acceso";
-import { OutlineTag, Pie } from "@/components/ui";
+import { Pie } from "@/components/ui";
 
 /** La landing es la única pantalla indexable de todo el sitio. */
 export const metadata: Metadata = {
@@ -41,10 +41,19 @@ export default function LandingPage() {
         <Suspense fallback={null}>
           <AvisoDeBaja />
         </Suspense>
-        <section className="wrap grid grid-cols-1 items-center gap-14 pt-6 pb-18 min-[960px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] min-[960px]:gap-18 min-[960px]:pt-14 min-[960px]:pb-28">
+        {/*
+          El hero ocupa la primera pantalla: el alto descuenta el header y el
+          contenido va centrado, sin aire de más arriba del eyebrow.
+        */}
+        {/*
+          El hero ocupa la primera pantalla. `content-center` centra el bloque
+          entero y `items-start` alinea las dos columnas por arriba: así el
+          eyebrow empieza donde empieza la tarjeta, sin aire de más encima.
+        */}
+        <section className="wrap grid grid-cols-1 items-start content-center gap-14 pb-16 min-[960px]:min-h-[calc(100svh-104px)] min-[960px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] min-[960px]:gap-18 min-[960px]:pb-20">
           <div>
-            <OutlineTag>Tu historial de alquiler, confirmado</OutlineTag>
-            <h1 className="t-display mt-6 mb-5">
+            <p className="t-etiqueta m-0 text-primary-ink">Tu historial de alquiler, confirmado</p>
+            <h1 className="t-display mt-4 mb-5">
               Pagaste puntual durante años.{" "}
               <em className="text-primary-ink not-italic">Ahora demostralo.</em>
             </h1>

@@ -38,6 +38,7 @@ Reemplazá el contenido de `src/styles/tokens.css` por estos valores, conservand
 | `confirm-soft` | `#E8F0EB` | Fondo de estado confirmado |
 | `confirm-ink` | `#24614B` | Texto sobre `confirm-soft` |
 | `sun` | `#F2D06B` | Destaque, avatares, métricas |
+| `invertido-confirm` | `#7FC3A6` | El verde sobre fondo tinta. No cambia con el modo: ese fondo es siempre oscuro. |
 
 ### Modo oscuro
 

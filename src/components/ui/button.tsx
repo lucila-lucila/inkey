@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "confirm" | "secondary" | "quiet";
+type Variant = "primary" | "confirm" | "secondary" | "quiet" | "outline";
 type Size = "md" | "lg";
 
 const base =
@@ -15,6 +15,8 @@ const variants: Record<Variant, string> = {
   confirm: "bg-confirm text-on-confirm hover:brightness-110",
   secondary: "bg-surface-sunk text-ink hover:brightness-[0.97]",
   quiet: "bg-transparent text-body hover:bg-surface-sunk",
+  // Contorno: presente sin pelearle el lugar a la acción principal.
+  outline: "border-[1.5px] border-ink bg-transparent text-ink hover:bg-ink hover:text-bg",
 };
 
 // 44px es el objetivo táctil mínimo; 52px para los botones de formulario.
@@ -39,7 +41,15 @@ export function Button({
 }: CommonProps & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      className={cn(base, variants[variant], sizes[size], "cursor-pointer border-0", className)}
+      className={cn(
+        base,
+        variants[variant],
+        sizes[size],
+        "cursor-pointer",
+        // `cn` no resuelve conflictos: el borde solo se apaga donde no lo hay.
+        variant === "outline" ? undefined : "border-0",
+        className,
+      )}
       {...props}
     >
       {children}

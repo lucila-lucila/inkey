@@ -11,7 +11,7 @@ test.describe("landing", () => {
     await expect(page.getByRole("heading", { name: "Las reglas de la casa" })).toBeVisible();
 
     // El perfil de ejemplo es lo que la persona va a querer tener.
-    await expect(page.getByText("meses confirmados", { exact: true })).toBeVisible();
+    await expect(page.getByText("meses pagados, confirmados por su dueño")).toBeVisible();
     await expect(page.getByText("Martina R.")).toBeVisible();
   });
 
@@ -24,58 +24,74 @@ test.describe("landing", () => {
   });
 
   /*
-   * Sin contraseñas, registrarse e ingresar son el mismo flujo: los dos
-   * caminos llevan a /ingresar y lo único que cambia es qué espera la persona.
+   * Dos caminos, uno por cada lado del alquiler, y cada uno lleva su intención
+   * para que el onboarding llegue con la respuesta puesta.
    */
-  test("los dos caminos llevan a ingresar", async ({ page }) => {
+  test("los dos caminos llevan a ingresar, cada uno con su intención", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.getByRole("link", { name: "Empezá gratis" }).first()).toHaveAttribute(
-      "href",
-      /^\/ingresar/,
-    );
-    await expect(
-      page.getByRole("link", { name: "Ya tengo cuenta · Ingresar" }),
-    ).toHaveAttribute("href", "/ingresar");
-
-    await page.getByRole("link", { name: "Empezá gratis" }).first().click();
-    await expect(page).toHaveURL(/\/ingresar/);
-    await expect(page.getByRole("heading", { name: "Entrá a Inkey" })).toBeVisible();
-  });
-
-  test("el rol elegido viaja hasta el ingreso", async ({ page }) => {
-    await page.goto("/");
-
-    const inquilino = page.getByRole("button", { name: "Soy inquilino/a" });
-    const propietario = page.getByRole("button", { name: "Soy propietario/a" });
-
-    await expect(inquilino).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByRole("link", { name: "Empezá gratis" }).first()).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "Crear mi historial" }).first()).toHaveAttribute(
       "href",
       "/ingresar?intencion=inquilino",
     );
+    await expect(
+      page.getByRole("link", { name: /Tengo una propiedad en alquiler/ }),
+    ).toHaveAttribute("href", "/ingresar?intencion=propietario");
 
-    await propietario.click();
-    await expect(propietario).toHaveAttribute("aria-pressed", "true");
-    await expect(inquilino).toHaveAttribute("aria-pressed", "false");
-    await expect(page.getByRole("link", { name: "Empezá gratis" }).first()).toHaveAttribute(
-      "href",
-      "/ingresar?intencion=propietario",
-    );
+    await page.getByRole("link", { name: "Crear mi historial" }).first().click();
+    await expect(page).toHaveURL(/\/ingresar\?intencion=inquilino/);
+    await expect(page.getByRole("heading", { name: "Entrá a Inkey" })).toBeVisible();
   });
 
-  test("el header y el cierre invitan a entrar, no a esperar", async ({ page }) => {
+  test("el dueño llega al ingreso con su intención puesta", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("link", { name: /Tengo una propiedad en alquiler/ }).click();
+
+    await expect(page).toHaveURL(/\/ingresar\?intencion=propietario/);
+    await expect(page.locator('input[name="intencion"]').first()).toHaveValue("propietario");
+  });
+
+  test("el header invita a entrar, y es el único 'Ingresar' de la página", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.locator("header").getByRole("link", { name: "Ingresar" })).toHaveAttribute(
-      "href",
-      "/ingresar",
+    const ingresar = page.getByRole("link", { name: "Ingresar", exact: true });
+    await expect(ingresar).toHaveCount(1);
+    await expect(ingresar).toHaveAttribute("href", "/ingresar");
+    /*
+     * De contorno: presente sin pelearle el lugar a la acción principal.
+     * El ancho se mide con el valor declarado, no con el computado: Chrome
+     * redondea 1,5px a 1px cuando la pantalla no es retina.
+     */
+    const borde = await ingresar.evaluate(
+      (el) => getComputedStyle(el).getPropertyValue("border-top-width"),
     );
+    expect(Number.parseFloat(borde)).toBeGreaterThanOrEqual(1);
+    await expect(ingresar).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  });
+
+  test("no quedó nada de la etapa anterior, ni la palabra gratis", async ({ page }) => {
+    await page.goto("/");
 
     const texto = await page.locator("body").innerText();
-    for (const viejo of ["Sumarme a la lista", "lista de espera", "cuando abramos"]) {
-      expect(texto, `quedó texto de lista de espera: ${viejo}`).not.toContain(viejo);
+    for (const viejo of [
+      "Sumarme a la lista",
+      "lista de espera",
+      "cuando abramos",
+      "Empezá gratis",
+      "gratis",
+      "Gratis",
+      "Ya tengo cuenta",
+    ]) {
+      expect(texto, `quedó texto viejo: ${viejo}`).not.toContain(viejo);
     }
+  });
+
+  test("el cierre repite el mismo llamado", async ({ page }) => {
+    await page.goto("/");
+
+    const cierres = page.getByRole("link", { name: "Crear mi historial" });
+    await expect(cierres).toHaveCount(2);
+    await expect(cierres.last()).toHaveAttribute("href", /\/ingresar/);
   });
 });
 

@@ -518,6 +518,46 @@ cumple solo con el consentimiento: el texto ahora nombra también las garantías
 contractuales con cada proveedor. Un país equivocado en una política de
 privacidad no es un detalle de redacción.
 
+## El hero, después del lanzamiento
+
+**Dos caminos, uno por lado del alquiler.** En vez de un selector que hay que
+tocar antes de poder avanzar, cada rol tiene su acción: "Crear mi historial"
+(botón, para el inquilino, porque el historial es suyo) y "Tengo una propiedad
+en alquiler →" (link de texto, que pesa menos sin esconderse). Cada uno lleva
+su `?intencion=`, así que el selector dejó de ser un paso y pasó a ser una
+consecuencia de en qué tocaste.
+
+**Sin caja blanca y sin formulario.** No hay nada que completar en la landing:
+entrar es tocar un botón y mirar el mail. La caja solo enmarcaba un formulario
+que ya no existe.
+
+**"Ingresar" aparece una sola vez, en el header y de contorno.** Antes había
+tres llamados compitiendo (el botón del header, el principal y el "ya tengo
+cuenta"). Quien ya tiene cuenta busca arriba a la derecha; quien no, busca el
+botón grande.
+
+**Se va la palabra "gratis" de toda la landing.** El precio está en los
+términos y en la letra chica de la app; repetirlo en cada botón lo convierte en
+el argumento, y el argumento es el historial. Un test lee la página renderizada
+y falla si vuelve a aparecer.
+
+**La tarjeta de ejemplo muestra una sola cosa grande.** Tres métricas del mismo
+tamaño son tres cosas que nadie mira: ahora manda el número de meses
+confirmados y el resto acompaña en chico. La tira de doce meses perdió los
+nombres —no importa cuál es cada mes, importa que están todos— y quedaron las
+puntas como referencia.
+
+**La notificación flotante es el momento en que el producto cumple.** Se apoya
+sobre el borde de la tarjeta, no adentro, para que se lea como algo que acaba
+de pasar y no como parte del perfil. Va sobre fondo tinta siempre, así que el
+verde del check tiene su propio token (`--invertido-confirm`): el `confirm` del
+modo claro no tiene contraste suficiente ahí.
+
+**El hero ocupa la primera pantalla.** `content-center` centra el bloque entero
+y `items-start` alinea las dos columnas por arriba: el eyebrow empieza donde
+empieza la tarjeta. Centrar cada columna por separado dejaba doscientos píxeles
+de aire arriba del texto, que era justo lo que había que sacar.
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting

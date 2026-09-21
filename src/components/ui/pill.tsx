@@ -34,23 +34,3 @@ export function Pill({
     </span>
   );
 }
-
-/** Etiqueta con borde, para encabezar una sección. */
-export function OutlineTag({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <span
-      className={cn(
-        "t-etiqueta inline-block rounded-chip bg-primary-soft px-3 py-2 text-primary-ink",
-        className,
-      )}
-    >
-      {children}
-    </span>
-  );
-}
