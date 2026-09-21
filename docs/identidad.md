@@ -105,25 +105,40 @@ Nunca por debajo de 15px en texto corrido. Los montos siempre en la familia disp
 
 Dos llaves enganchadas, en trazo, con las paletas hacia lados opuestos. Se implementa como un componente `Logo` con una prop de tamaño.
 
-Geometría: R es el radio del aro; los centros están a 1R; las paletas miden 2R; el trazo es 0,3R; el aire mínimo alrededor es 1R.
+Geometría: R es el radio del aro; los centros están a 1R; las paletas miden 2R; el aire mínimo alrededor es 1R.
 
-**Versión completa** (a partir de 120px de ancho):
+**Una sola forma, para todos los tamaños.** Sin dientes y con `stroke-width="8"`. Antes había tres versiones (completa, media y mínima) y la que quedó es la que antes era la mínima: a cualquier tamaño se lee igual, y una forma sola es una marca sola.
 
 ```html
-<svg viewBox="0 0 124 52" fill="none" role="img" aria-label="Inkey">
-  <circle cx="52" cy="26" r="15" stroke="var(--primary)" stroke-width="4.5"/>
-  <path d="M37 26H6M14 26v-8M23.5 26v-5.5" stroke="var(--primary)" stroke-width="4.5" stroke-linecap="round"/>
-  <circle cx="68" cy="26" r="15" stroke="var(--confirm)" stroke-width="4.5"/>
-  <path d="M83 26h31M106 26v8M96.5 26v5.5" stroke="var(--confirm)" stroke-width="4.5" stroke-linecap="round"/>
-  <path d="M49.40 11.23A15 15 0 0 1 66.10 20.87" stroke="var(--primary)" stroke-width="4.5"/>
+<svg viewBox="13.5 6.5 93 39" fill="none" role="img" aria-label="Inkey">
+  <g stroke-width="8">
+    <g stroke="var(--primary)">
+      <circle cx="52" cy="26" r="15"/>
+      <path d="M37 26H18" stroke-linecap="round"/>
+    </g>
+    <g stroke="var(--confirm)">
+      <circle cx="68" cy="26" r="15"/>
+      <path d="M83 26h19" stroke-linecap="round"/>
+    </g>
+    <path d="M49.40 11.23A15 15 0 0 1 66.10 20.87" stroke="var(--primary)"/>
+  </g>
 </svg>
 ```
 
-**El cruce: dos eslabones de verdad.** El último `path` es un tramo del aro izquierdo que se dibuja por encima del derecho, así que **arriba pasa por delante la llave terracota y abajo la verde**. Es el mismo arco en las tres versiones: lo único que cambia con el tamaño es el grosor del trazo.
+**Los colores: la primera llave terracota y la segunda verde, en todos los usos.** En pantalla salen de los tokens `primary` y `confirm`, así que el modo oscuro los aclara solo:
 
-**Versión media** (40–120px): mismo dibujo con `stroke-width="6"`, un solo diente por llave (`M37 26H14M21 26v-7` y `M83 26h23M99 26v7`).
+| | Primera llave | Segunda llave |
+| --- | --- | --- |
+| Modo claro | `#B8451A` (`primary`) | `#2F7A5F` (`confirm`) |
+| Modo oscuro | `#E59B78` | `#7FC3A6` |
 
-**Versión mínima** (menos de 40px, favicon): `stroke-width="8"`, sin dientes (`M37 26H18` y `M83 26h19`).
+**La excepción del verde.** En toda la interfaz el verde significa *confirmado*: nunca es decorativo ni el color de marca. **El logo es la única excepción**, y es deliberada: las dos llaves son dos partes, y que cada una tenga su color es lo que cuenta de qué se trata el producto. Fuera del logo, la regla no se toca.
+
+**El cruce: dos eslabones de verdad.** El último `path` es un tramo del aro izquierdo que se dibuja por encima del derecho, así que **arriba pasa por delante la llave terracota y abajo la verde**.
+
+**Una sola tinta.** Cuando no hay dos colores disponibles (el pie, un sello, una impresión a un color), el cruce no se lee por color: cada aro de atrás se **recorta** con un `clipPath` —un rectángulo con un hueco, en regla `evenodd`, que muerde el aro justo en el cruce— y se respeta el mismo orden de eslabones. A diferencia de tapar con el color del fondo, el recorte funciona sobre cualquier fondo. El color se cambia con el `stroke`. Vive en `public/brand/inkey-simbolo-una-tinta.svg`.
+
+Si hay más de un logo en la misma página, los ids del `clipPath` tienen que ser únicos: si se repiten, `url(#...)` se queda con el primero. En el componente el id lo pone quien lo usa (`unaTinta={{ color, id }}`) y el tipo lo exige, así la unicidad queda a la vista de quien escribe la pantalla en vez de depender de un contador escondido.
 
 **Lockup del header:** el wordmark manda y el símbolo va a la derecha, ocupando el lugar del punto final. **Es el de todos los encabezados, sin excepción**: landing, panel, perfil, perfil público, ingreso, onboarding, invitación, el encabezado de los mails —los de la app y los de ingreso— y cualquier pantalla nueva. El orden es siempre nombre primero, símbolo después.
 
@@ -131,34 +146,25 @@ Geometría: R es el radio del aro; los centros están a 1R; las paletas miden 2R
 - El símbolo **no crece con el wordmark**: es un remate chico, de alrededor de **dos quintos de la altura de las mayúsculas** del wordmark.
 - Va **apoyado en la línea de base del texto**, no centrado.
 - La separación entre el final de la palabra y el símbolo es de **medio radio**: bien ajustada, como un punto.
-- Se dibuja en **versión media** (un diente por llave): al lado del texto, dos dientes hacen ruido.
 - El símbolo se recorta al contorno real del dibujo, sin el aire del `viewBox`, o esa separación de medio radio se pierde.
 
 **Lockup con el símbolo a la izquierda:** símbolo a la izquierda, wordmark "inkey" en Bricolage 800 con tracking -1.6px, separados por 1R. El wordmark va en `ink`. Se usa **solo fuera de los encabezados**: pie, recibo y perfil en PDF.
 
-**El archivo de marca:** la geometría de la versión media vive en
-`public/brand/inkey-simbolo-medio.svg`, con la caja ajustada `10.5 7.5 99 37`
-(los extremos reales del dibujo, contando el trazo, más medio punto de aire).
-El componente `Logo` usa exactamente esa geometría y un test lo compara contra
-el archivo, para que la marca no se parta en dos. La única diferencia a
-propósito es el color: el archivo lo trae fijo, porque se usa donde no hay
-variables CSS (mails), y el componente usa los tokens, para que el modo oscuro
-funcione.
+**El archivo de marca:** la geometría vive en `public/brand/inkey-simbolo.svg`,
+con la caja ajustada `13.5 6.5 93 39` (los extremos reales del dibujo, contando
+el trazo, más medio punto de aire). El componente `Logo` usa exactamente esa
+geometría y un test lo compara contra el archivo, para que la marca no se parta
+en dos. La única diferencia a propósito es el color: el archivo lo trae fijo,
+porque se usa donde no hay variables CSS (mails), y el componente usa los
+tokens, para que el modo oscuro funcione solo.
 
 **En los mails**, donde no se puede dibujar un SVG (Gmail y Outlook no lo
-muestran), el símbolo del encabezado es `inkey-simbolo-medio.png`, exportado
-del mismo archivo: se muestra a 24 × 9 px al lado de un wordmark de 28px, con
+muestran), el símbolo del encabezado es `inkey-simbolo.png`, exportado
+del mismo archivo: se muestra a 24 × 10 px al lado de un wordmark de 28px, con
 `vertical-align: baseline` y 2px de separación. Entre la palabra y la imagen no
 puede quedar ni un espacio en el HTML: se dibuja y rompe el remate.
 
-**Una sola tinta:** ambos trazos del mismo color. Como el cruce no se lee por color, cada aro que queda atrás se interrumpe con una **muesca corta** del color del fondo, de ancho `stroke-width + 4`, y el orden de los eslabones es el mismo que con dos tintas:
-
-- en el cruce de **abajo** se muesca el aro izquierdo (`M62.83 36.38A15 15 0 0 1 56.69 40.25`), porque ahí pasa por delante la llave derecha;
-- en el de **arriba** se muesca el aro derecho (`M57.17 15.62A15 15 0 0 1 63.31 11.75`), porque ahí pasa la izquierda.
-
-Cada muesca cubre unos 14° a cada lado del punto de cruce: lo justo para que se vea la separación sin comerse el aro.
-
-**Favicon y app icon:** símbolo mínimo en `#FFF6EA` y `#F2D06B` sobre cuadrado `ink` con radio 26.
+**Favicon y app icon:** el símbolo en los tonos del modo oscuro (`#E59B78` y `#7FC3A6`) sobre un cuadrado `ink` (`#23201C`) con radio 26. Los colores van fijos: un favicon no ve las variables CSS.
 
 ---
 

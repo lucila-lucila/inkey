@@ -6,13 +6,15 @@ export function SiteFooter() {
       <div className="wrap flex flex-wrap items-center justify-between gap-4 border-t border-line py-10 text-[15px] text-muted">
         {/*
           El pie es de los pocos lugares donde va el símbolo a la izquierda, y
-          de una sola tinta: el cruce se lee por el corte del aro de atrás.
+          el único que queda de una sola tinta: es un remate discreto, no la
+          marca en su versión plena. El cruce se lee por el recorte del aro de
+          atrás, así que funciona sobre cualquier fondo.
         */}
         <Logo
           href="#top"
           size="sm"
           variante="simbolo-izquierda"
-          unaTinta={{ color: "var(--muted)", fondo: "var(--bg)" }}
+          unaTinta={{ color: "var(--muted)", id: "pie" }}
         />
         <span>Hecho en Buenos Aires · [MAIL DE CONTACTO]</span>
       </div>

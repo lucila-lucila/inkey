@@ -80,6 +80,31 @@ test.describe("identidad", () => {
     ["confirmar un pago desde el mail", `/pagos/confirmar/${"a".repeat(43)}`],
   ] as const;
 
+  test("el pie lleva el símbolo a la izquierda, de una sola tinta", async ({ page }) => {
+    await page.goto("/");
+
+    const medida = await page.evaluate(() => {
+      const enlace = document.querySelector("footer a[aria-label='Inkey, inicio']")!;
+      const palabra = enlace.querySelector("span")!;
+      const simbolo = enlace.querySelector("svg")!;
+      const cajaSimbolo = simbolo.getBoundingClientRect();
+      const cajaPalabra = palabra.getBoundingClientRect();
+
+      return {
+        aLaIzquierda: cajaSimbolo.right <= cajaPalabra.left + 1,
+        // Una sola tinta: los dos aros del mismo color, recortados en el cruce.
+        colores: new Set(
+          [...simbolo.querySelectorAll("circle")].map((c) => getComputedStyle(c).stroke),
+        ).size,
+        recortes: simbolo.querySelectorAll("clipPath").length,
+      };
+    });
+
+    expect(medida.aLaIzquierda).toBe(true);
+    expect(medida.colores, "el pie va de una sola tinta").toBe(1);
+    expect(medida.recortes, "faltan los recortes que separan los aros").toBe(2);
+  });
+
   for (const [nombre, ruta] of PANTALLAS_CON_HEADER) {
     test(`el header de ${nombre} lleva el nombre primero y el símbolo de remate`, async ({
       page,
@@ -118,16 +143,19 @@ test.describe("identidad", () => {
           separacion: cajaSimbolo.left - cajaPalabra.right,
           aLaDerecha: cajaSimbolo.left >= cajaPalabra.right,
           distanciaALaBase: Math.abs(cajaSimbolo.bottom - lineaDeBase),
+          // El radio del aro, a la escala a la que se está dibujando.
+          medioRadio: (15 * cajaSimbolo.width) / 93 / 2,
         };
       });
 
       // El símbolo va después de la palabra, nunca antes.
       expect(medida.aLaDerecha).toBe(true);
-      // Es un remate: alrededor de dos quintos de la altura de las mayúsculas.
-      expect(medida.proporcion).toBeGreaterThan(0.33);
-      expect(medida.proporcion).toBeLessThan(0.48);
-      // Ajustado, como un punto final.
-      expect(medida.separacion).toBeLessThan(6);
+      // Es un remate: dos quintos de la altura de las mayúsculas.
+      expect(medida.proporcion).toBeGreaterThan(0.36);
+      expect(medida.proporcion).toBeLessThan(0.44);
+      // Medio radio de separación, como un punto final.
+      expect(medida.separacion).toBeGreaterThan(medida.medioRadio - 0.5);
+      expect(medida.separacion).toBeLessThan(medida.medioRadio + 0.5);
       // Y apoyado en la línea de base del texto, no centrado.
       expect(medida.distanciaALaBase).toBeLessThan(3);
     });

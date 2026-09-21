@@ -16,7 +16,7 @@ plantilla. De cada archivo de esta carpeta:
 
 Nombre primero y símbolo después, a la derecha, como en todos los encabezados
 (ver `docs/identidad.md`). El símbolo es un PNG servido por el sitio
-(`{{ .SiteURL }}/brand/inkey-simbolo-medio.png`), porque Gmail y Outlook no
+(`{{ .SiteURL }}/brand/inkey-simbolo.png`), porque Gmail y Outlook no
 muestran SVG. Entre `</span>` y `<img` no puede haber ni un espacio.
 
 ## Las variables

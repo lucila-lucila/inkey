@@ -100,49 +100,107 @@ describe("reglas de la identidad", () => {
  * dos sin que nadie se entere.
  */
 const SVG_MARCA = readFileSync(
-  new URL("../../public/brand/inkey-simbolo-medio.svg", import.meta.url),
+  new URL("../../public/brand/inkey-simbolo.svg", import.meta.url),
+  "utf8",
+);
+const SVG_UNA_TINTA = readFileSync(
+  new URL("../../public/brand/inkey-simbolo-una-tinta.svg", import.meta.url),
   "utf8",
 );
 const LOGO = readFileSync(new URL("../../src/components/ui/logo.tsx", import.meta.url), "utf8");
+const ICONO = readFileSync(new URL("../../src/app/icon.svg", import.meta.url), "utf8");
 
 function atributo(nombre: string, texto = SVG_MARCA): string[] {
   return [...texto.matchAll(new RegExp(`${nombre}="([^"]+)"`, "g"))].map((m) => m[1]);
 }
 
 describe("el símbolo: componente y archivo de marca", () => {
-  it("comparten la caja ajustada de la versión media", () => {
-    const [viewBox] = atributo("viewBox");
-    expect(viewBox).toBe("10.5 7.5 99 37");
-    expect(LOGO).toContain(`medio: { viewBox: "${viewBox}"`);
-
-    const [, , ancho, alto] = viewBox.split(" ");
-    expect(LOGO).toContain(`ancho: ${ancho}, alto: ${alto} }`);
-  });
-
-  it("comparten los dientes de cada llave", () => {
+  it("es una sola forma, la de siempre sin dientes", () => {
     const paths = atributo("d");
-    // Izquierda, derecha y el arco que pasa por delante en el cruce de arriba.
-    expect(paths).toHaveLength(3);
-    expect(LOGO).toContain(`izquierda: "${paths[0]}"`);
-    expect(LOGO).toContain(`derecha: "${paths[1]}"`);
-  });
-
-  it("comparten el arco del cruce, que es lo que se corrigió a mano", () => {
-    const paths = atributo("d");
-    expect(paths[2]).toBe("M49.40 11.23A15 15 0 0 1 66.10 20.87");
+    // Dos paletas y el arco del cruce: nada más.
+    expect(paths).toEqual([
+      "M37 26H18",
+      "M83 26h19",
+      "M49.40 11.23A15 15 0 0 1 66.10 20.87",
+    ]);
+    expect(LOGO).toContain('const PALETA_IZQUIERDA = "M37 26H18"');
+    expect(LOGO).toContain('const PALETA_DERECHA = "M83 26h19"');
     expect(LOGO).toContain(`const ARCO_DE_ADELANTE = "${paths[2]}"`);
   });
 
-  it("comparten el grosor del trazo de la versión media", () => {
-    expect(atributo("stroke-width")).toEqual(["6"]);
-    expect(LOGO).toContain("trazo: 6,");
+  it("ya no quedan versiones por tamaño", () => {
+    // Como código, no como palabra: el componente habla de "medio radio".
+    for (const viejo of [
+      'version="',
+      "DIENTES",
+      "versionPara",
+      "CAJA_AJUSTADA",
+      "ajustado",
+      'completo:',
+      'medio:',
+      'minimo:',
+    ]) {
+      expect(LOGO, `quedó rastro de "${viejo}"`).not.toContain(viejo);
+    }
   });
 
-  it("usan los mismos colores que los tokens en modo claro", () => {
+  it("comparten la caja y el grosor del trazo", () => {
+    const [viewBox] = atributo("viewBox");
+    expect(viewBox).toBe("13.5 6.5 93 39");
+    expect(LOGO).toContain(`viewBox: "${viewBox}"`);
+
+    const [, , ancho, alto] = viewBox.split(" ");
+    expect(LOGO).toContain(`ancho: ${ancho}, alto: ${alto}`);
+
+    expect(atributo("stroke-width")).toEqual(["8"]);
+    expect(LOGO).toContain("const TRAZO = 8;");
+  });
+
+  it("usa los mismos colores que los tokens en modo claro", () => {
     const colores = atributo("stroke").map((c) => c.toLowerCase());
-    // La llave de la izquierda es terracota y pasa por delante arriba; la de
-    // la derecha, verde.
+    // Primera llave terracota, segunda verde, y el arco del cruce terracota.
     expect(colores).toEqual([claro.primary, claro.confirm, claro.primary]);
+  });
+
+  /*
+   * En pantalla los colores salen de los tokens, así que el modo oscuro los
+   * aclara solo. Es la razón por la que el componente no los escribe fijos.
+   */
+  it("en pantalla toma los colores del token, no del archivo", () => {
+    expect(LOGO).toContain("var(--primary)");
+    expect(LOGO).toContain("var(--confirm)");
+    expect(LOGO).not.toContain(claro.primary.toUpperCase());
+    expect(oscuro.primary).toBe("#e59b78");
+    expect(oscuro.confirm).toBe("#7fc3a6");
+  });
+
+  it("la versión de una tinta recorta el aro de atrás en los dos cruces", () => {
+    const recortes = atributo("d", SVG_UNA_TINTA).filter((d) => d.startsWith("M-20 -20"));
+    expect(recortes).toHaveLength(2);
+    expect(LOGO).toContain(`const CLIP_IZQUIERDA =
+  "${recortes[0]}"`);
+    expect(LOGO).toContain(`const CLIP_DERECHA =
+  "${recortes[1]}"`);
+  });
+
+  it("los ids del recorte no pueden chocar entre dos logos de la misma página", () => {
+    // El archivo trae ids fijos; en el componente los pone quien lo usa, y el
+    // tipo lo exige: no hay forma de pedir una tinta sin dar un id.
+    expect(SVG_UNA_TINTA).toContain('id="cA1"');
+    expect(LOGO).toContain("export type UnaTinta = { color: string; id: string }");
+    expect(LOGO).toContain("`${id}-a`");
+    expect(LOGO).toContain("`${id}-b`");
+  });
+
+  it("el ícono de la app usa los tonos oscuros sobre el fondo ink", () => {
+    const colores = atributo("stroke", ICONO).map((c) => c.toLowerCase());
+    expect(new Set(colores)).toEqual(new Set([oscuro.primary, oscuro.confirm]));
+    expect(atributo("fill", ICONO)).toContain(claro.ink.toUpperCase());
+    // Esquinas redondeadas de la marca.
+    expect(ICONO).toContain('rx="26"');
+    // Y es la forma única: sin dientes.
+    expect(ICONO).not.toContain("v-7");
+    expect(ICONO).not.toContain("M37 26H14");
   });
 });
 
@@ -191,7 +249,7 @@ describe("el encabezado de los mails", () => {
     it(`${nombre}: primero el nombre, después el símbolo`, () => {
       const encabezado = encabezadoDe(html);
       const palabra = encabezado.indexOf(">inkey</span>");
-      const simbolo = encabezado.indexOf("inkey-simbolo-medio.png");
+      const simbolo = encabezado.indexOf("inkey-simbolo.png");
 
       expect(palabra, "falta el wordmark").toBeGreaterThan(-1);
       expect(simbolo, "falta el símbolo").toBeGreaterThan(-1);

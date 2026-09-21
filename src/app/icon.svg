@@ -1,12 +1,19 @@
+<!--
+  El ícono de la app: el símbolo en los tonos del modo oscuro (`primary` y
+  `confirm` aclarados) sobre el fondo `ink`, con las esquinas redondeadas de la
+  marca. Los colores van fijos porque un favicon no ve las variables CSS.
+-->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 124" width="124" height="124">
   <rect width="124" height="124" rx="26" fill="#23201C"/>
-  <g transform="translate(0,36)" fill="none" stroke-linecap="round">
-    <circle cx="52" cy="26" r="15" stroke="#FFF6EA" stroke-width="8"/>
-    <path d="M37 26H18" stroke="#FFF6EA" stroke-width="8"/>
-    <path d="M62.83 36.38A15 15 0 0 1 56.69 40.25" stroke="#23201C" stroke-width="12"/>
-    <circle cx="68" cy="26" r="15" stroke="#F2D06B" stroke-width="8"/>
-    <path d="M83 26h19" stroke="#F2D06B" stroke-width="8"/>
-    <path d="M57.17 15.62A15 15 0 0 1 63.31 11.75" stroke="#23201C" stroke-width="12"/>
-    <path d="M49.40 11.23A15 15 0 0 1 66.10 20.87" stroke="#FFF6EA" stroke-width="8"/>
+  <g transform="translate(2,36)" fill="none" stroke-width="8">
+    <g stroke="#E59B78">
+      <circle cx="52" cy="26" r="15"/>
+      <path d="M37 26H18" stroke-linecap="round"/>
+    </g>
+    <g stroke="#7FC3A6">
+      <circle cx="68" cy="26" r="15"/>
+      <path d="M83 26h19" stroke-linecap="round"/>
+    </g>
+    <path d="M49.40 11.23A15 15 0 0 1 66.10 20.87" stroke="#E59B78"/>
   </g>
 </svg>

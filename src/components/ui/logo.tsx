@@ -3,134 +3,111 @@ import { cn } from "@/lib/cn";
 
 /*
  * Dos llaves enganchadas, en trazo, con las paletas hacia lados opuestos
- * (ver docs/identidad.md). El dibujo es siempre el mismo: lo que cambia con
- * el tamaño es el grosor del trazo y cuántos dientes se dibujan, para que no
- * se empaste en chico.
+ * (ver docs/identidad.md).
  *
- * Geometría: R = 15 (radio del aro), centros a 1R, paletas de 2R, trazo 0,3R.
+ * Una sola forma para todos los tamaños: sin dientes y con trazo 8. El dibujo
+ * es exactamente el de `public/brand/inkey-simbolo.svg`, y un test compara los
+ * dos para que no se separen.
+ *
+ * Geometría: R = 15 (radio del aro), centros a 1R, paletas de 2R, trazo 8.
  */
 
-type Version = "completo" | "medio" | "minimo";
+/** Los extremos reales del dibujo (contando el trazo) más medio punto de aire. */
+const CAJA = { viewBox: "13.5 6.5 93 39", ancho: 93, alto: 39 };
+const TRAZO = 8;
+const RADIO = 15;
+
+const PALETA_IZQUIERDA = "M37 26H18";
+const PALETA_DERECHA = "M83 26h19";
 
 /*
- * Caja ajustada de cada versión: el viewBox completo deja aire a los lados, y
- * cuando el símbolo hace de punto final ese aire se nota como un espacio de
- * más entre la palabra y el símbolo.
- *
- * Son los extremos reales del dibujo (contando el grosor del trazo) más medio
- * punto de aire. La de `medio` es, carácter por carácter, la del archivo de
- * marca `public/brand/inkey-simbolo-medio.svg`; el test de identidad compara
- * las dos.
- */
-const CAJA_AJUSTADA: Record<Version, { viewBox: string; ancho: number; alto: number }> = {
-  completo: { viewBox: "3.25 8.25 113.5 35.5", ancho: 113.5, alto: 35.5 },
-  medio: { viewBox: "10.5 7.5 99 37", ancho: 99, alto: 37 },
-  minimo: { viewBox: "13.5 6.5 93 39", ancho: 93, alto: 39 },
-};
-
-/*
- * Los dos cruces, como dos eslabones enganchados de verdad: arriba pasa por
- * delante la llave izquierda y abajo la derecha.
- *
- * `ARCO_DE_ADELANTE` es un tramo del aro izquierdo que se dibuja último, así
- * queda por encima del derecho en el cruce de arriba. El de abajo sale solo,
- * porque el aro derecho se dibuja después del izquierdo.
- *
- * Con una sola tinta el cruce no se lee por color: ahí hacen falta además dos
- * muescas cortas del color del fondo, una en cada cruce, para separar el aro
- * de atrás del de adelante.
+ * El cruce, como dos eslabones de verdad: arriba pasa por delante la llave
+ * izquierda y abajo la derecha. `ARCO_DE_ADELANTE` es un tramo del aro
+ * izquierdo que se dibuja último, así queda por encima en el cruce de arriba;
+ * el de abajo sale solo, porque el aro derecho se dibuja después del izquierdo.
  */
 const ARCO_DE_ADELANTE = "M49.40 11.23A15 15 0 0 1 66.10 20.87";
-const MUESCA_ARRIBA = "M57.17 15.62A15 15 0 0 1 63.31 11.75";
-const MUESCA_ABAJO = "M62.83 36.38A15 15 0 0 1 56.69 40.25";
 
-const DIENTES: Record<Version, { izquierda: string; derecha: string; trazo: number }> = {
-  completo: {
-    izquierda: "M37 26H6M14 26v-8M23.5 26v-5.5",
-    derecha: "M83 26h31M106 26v8M96.5 26v5.5",
-    trazo: 4.5,
-  },
-  medio: {
-    izquierda: "M37 26H14M21 26v-7",
-    derecha: "M83 26h23M99 26v7",
-    trazo: 6,
-  },
-  minimo: {
-    izquierda: "M37 26H18",
-    derecha: "M83 26h19",
-    trazo: 8,
-  },
-};
+/*
+ * Con una sola tinta el cruce no se lee por color. Ahí cada aro de atrás se
+ * recorta con un clip: un rectángulo grande con un hueco (regla evenodd) que
+ * muerde el aro justo en el cruce. A diferencia de tapar con el color del
+ * fondo, esto funciona sobre cualquier fondo.
+ */
+const CLIP_IZQUIERDA =
+  "M-20 -20H140V80H-20ZM70.05 46.20A20.3 20.3 0 0 1 48.90 32.88L58.87 29.29A9.7 9.7 0 0 0 68.98 35.65Z";
+const CLIP_DERECHA =
+  "M-20 -20H140V80H-20ZM49.95 5.80A20.3 20.3 0 0 1 71.10 19.12L61.13 22.71A9.7 9.7 0 0 0 51.02 16.35Z";
 
-function versionPara(ancho: number): Version {
-  if (ancho >= 120) return "completo";
-  if (ancho >= 40) return "medio";
-  return "minimo";
-}
+/**
+ * Una sola tinta.
+ *
+ * El `id` lo pone quien lo usa, y tiene que ser único en la página: si dos
+ * logos comparten el id del recorte, `url(#...)` se queda con el primero. No se
+ * genera acá a propósito: un contador de módulo sería estado mutable durante el
+ * render (se rompe con render concurrente) y un valor al azar no sobreviviría a
+ * la hidratación. Pedirlo deja la unicidad a la vista de quien escribe la
+ * pantalla.
+ */
+export type UnaTinta = { color: string; id: string };
 
 export function Simbolo({
-  ancho = 64,
+  ancho = 93,
   className,
-  /** Una sola tinta: el aro de atrás se corta en el cruce con el color del fondo. */
   unaTinta,
   titulo,
-  /** Forzar una versión: al lado del texto, la media se lee mejor que la mínima. */
-  version: versionForzada,
-  /** Sin el aire del viewBox, para lockups ajustados. */
-  ajustado = false,
 }: {
   ancho?: number;
   className?: string;
-  unaTinta?: { color: string; fondo: string };
+  unaTinta?: UnaTinta;
   titulo?: string;
-  version?: Version;
-  ajustado?: boolean;
 }) {
-  const version = versionForzada ?? versionPara(ancho);
-  const { izquierda, derecha, trazo } = DIENTES[version];
   const colorIzquierda = unaTinta?.color ?? "var(--primary)";
   const colorDerecha = unaTinta?.color ?? "var(--confirm)";
-  const caja = ajustado
-    ? CAJA_AJUSTADA[version]
-    : { viewBox: "0 0 124 52", ancho: 124, alto: 52 };
+
+  const id = unaTinta ? `inkey-${unaTinta.id}` : "";
 
   return (
     <svg
-      viewBox={caja.viewBox}
+      viewBox={CAJA.viewBox}
       width={ancho}
-      height={(ancho * caja.alto) / caja.ancho}
+      height={(ancho * CAJA.alto) / CAJA.ancho}
       fill="none"
       role={titulo ? "img" : undefined}
       aria-label={titulo}
       aria-hidden={titulo ? undefined : true}
       className={className}
     >
-      <circle cx="52" cy="26" r="15" stroke={colorIzquierda} strokeWidth={trazo} />
-      <path d={izquierda} stroke={colorIzquierda} strokeWidth={trazo} strokeLinecap="round" />
-
-      {/* Abajo pasa por delante la llave derecha: se muesca el aro izquierdo. */}
       {unaTinta && (
-        <path
-          d={MUESCA_ABAJO}
-          stroke={unaTinta.fondo}
-          strokeWidth={trazo + 4}
-          strokeLinecap="butt"
-        />
+        <defs>
+          <clipPath id={`${id}-a`}>
+            <path clipRule="evenodd" fillRule="evenodd" d={CLIP_IZQUIERDA} />
+          </clipPath>
+          <clipPath id={`${id}-b`}>
+            <path clipRule="evenodd" fillRule="evenodd" d={CLIP_DERECHA} />
+          </clipPath>
+        </defs>
       )}
 
-      <circle cx="68" cy="26" r="15" stroke={colorDerecha} strokeWidth={trazo} />
-      <path d={derecha} stroke={colorDerecha} strokeWidth={trazo} strokeLinecap="round" />
-
-      {/* Y arriba pasa la izquierda: se muesca el aro derecho. */}
-      {unaTinta && (
+      <g clipPath={unaTinta ? `url(#${id}-a)` : undefined}>
+        <circle cx="52" cy="26" r={RADIO} stroke={colorIzquierda} strokeWidth={TRAZO} />
         <path
-          d={MUESCA_ARRIBA}
-          stroke={unaTinta.fondo}
-          strokeWidth={trazo + 4}
-          strokeLinecap="butt"
+          d={PALETA_IZQUIERDA}
+          stroke={colorIzquierda}
+          strokeWidth={TRAZO}
+          strokeLinecap="round"
         />
+      </g>
+
+      <g clipPath={unaTinta ? `url(#${id}-b)` : undefined}>
+        <circle cx="68" cy="26" r={RADIO} stroke={colorDerecha} strokeWidth={TRAZO} />
+        <path d={PALETA_DERECHA} stroke={colorDerecha} strokeWidth={TRAZO} strokeLinecap="round" />
+      </g>
+
+      {/* Con dos tintas, el cruce de arriba lo resuelve este arco por encima. */}
+      {!unaTinta && (
+        <path d={ARCO_DE_ADELANTE} stroke={colorIzquierda} strokeWidth={TRAZO} />
       )}
-      <path d={ARCO_DE_ADELANTE} stroke={colorIzquierda} strokeWidth={trazo} />
     </svg>
   );
 }
@@ -139,11 +116,12 @@ export function Simbolo({
  * Dos medidas por tamaño, según el lockup:
  *   - `pie`: símbolo a la izquierda, wordmark a 1R;
  *   - `header`: wordmark grande y símbolo chico de remate.
- * En el header el símbolo NO crece con el wordmark: es un punto final.
+ * En el header el símbolo NO crece con el wordmark: es un punto final, de
+ * alrededor de dos quintos de la altura de las mayúsculas.
  */
 const TAMANIOS = {
-  sm: { simboloPie: 96, fuentePie: 22, fuenteHeader: 34, simboloHeader: 27 },
-  lg: { simboloPie: 124, fuentePie: 28, fuenteHeader: 44, simboloHeader: 34 },
+  sm: { simboloPie: 72, fuentePie: 22, fuenteHeader: 34, simboloHeader: 23 },
+  lg: { simboloPie: 93, fuentePie: 28, fuenteHeader: 44, simboloHeader: 30 },
 } as const;
 
 /**
@@ -151,11 +129,11 @@ const TAMANIOS = {
  *
  * - `punto` (por defecto): wordmark grande y el símbolo chico a la derecha,
  *   apoyado en la base del texto, ocupando el lugar del punto final. Es el de
- *   TODOS los headers, del sitio y de la app. Va en versión media: al lado del
- *   texto, dos dientes por llave hacen ruido. Es el valor por defecto a
- *   propósito, para que una pantalla nueva no pueda quedar con el orden viejo.
+ *   TODOS los encabezados, del sitio, de la app y de los mails. Es el valor por
+ *   defecto a propósito, para que una pantalla nueva no pueda quedar con el
+ *   orden viejo.
  * - `simbolo-izquierda`: símbolo a la izquierda y wordmark a 1R. Solo para lo
- *   que no es header: pie, recibo, perfil en PDF y mails.
+ *   que no es encabezado: pie, recibo y perfil en PDF.
  */
 export function Logo({
   href = "/",
@@ -167,7 +145,7 @@ export function Logo({
   href?: string;
   className?: string;
   size?: keyof typeof TAMANIOS;
-  unaTinta?: { color: string; fondo: string };
+  unaTinta?: UnaTinta;
   variante?: "simbolo-izquierda" | "punto";
 }) {
   const medidas = TAMANIOS[size];
@@ -177,19 +155,10 @@ export function Logo({
   const anchoSimbolo = esPunto ? medidas.simboloHeader : medidas.simboloPie;
 
   // 1R de aire en el lockup del pie; medio radio cuando hace de punto final.
-  const radio = esPunto
-    ? (15 * anchoSimbolo) / CAJA_AJUSTADA.medio.ancho
-    : (15 * anchoSimbolo) / 124;
+  const radio = (RADIO * anchoSimbolo) / CAJA.ancho;
   const separacion = esPunto ? radio / 2 : radio;
 
-  const marca = (
-    <Simbolo
-      ancho={anchoSimbolo}
-      unaTinta={unaTinta}
-      version={esPunto ? "medio" : undefined}
-      ajustado={esPunto}
-    />
-  );
+  const marca = <Simbolo ancho={anchoSimbolo} unaTinta={unaTinta} />;
 
   const palabra = (
     <span

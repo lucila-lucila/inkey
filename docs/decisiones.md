@@ -437,6 +437,35 @@ link: es donde más falta hacía.
 recorre `src/app`, busca quién llama a una función que escribe y exige el
 limitador o una excepción con motivo. Acordarse no es un mecanismo.
 
+## El logo, en una sola forma
+
+**Una forma para todos los tamaños.** Antes había tres versiones (completa,
+media, mínima) y quedó la que era mínima: sin dientes, trazo 8. Tres versiones
+eran tres cosas que mantener sincronizadas —el componente, el archivo, el
+ícono, el PDF, el PNG de los mails— y a los tamaños que usamos de verdad el ojo
+no distinguía los dientes.
+
+**Los colores salen de los tokens, no del archivo.** El archivo de marca los
+trae fijos porque se usa donde no hay CSS (mails, favicon); el componente usa
+`var(--primary)` y `var(--confirm)`, y por eso el modo oscuro los aclara solo,
+sin una segunda copia del dibujo.
+
+**El verde del logo es la única excepción a la regla del verde.** En la
+interfaz el verde significa *confirmado* y nunca es decorativo. En el logo, que
+cada llave tenga su color es lo que cuenta de qué se trata el producto: son dos
+partes. La excepción está escrita en `docs/identidad.md` para que no se lea
+como un descuido.
+
+**El recorte en vez de la muesca.** Con una sola tinta, el aro de atrás se
+recorta con un `clipPath` en regla `evenodd`. Antes se tapaba con una muesca
+del color del fondo, lo que obligaba a saber el fondo: sobre otro fondo
+aparecía la muesca. El recorte funciona sobre cualquiera.
+
+**El id del recorte lo pone quien usa el componente.** Un contador de módulo
+sería estado mutable durante el render —lo rechaza el linter de React, y con
+razón: se rompe con render concurrente— y un valor al azar no sobreviviría a la
+hidratación. El tipo exige el id, así la unicidad queda a la vista.
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting
