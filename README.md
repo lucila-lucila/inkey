@@ -250,8 +250,21 @@ redirect URLs de Supabase, con `www` y sin `www`.
 
 **Primero: `/api/salud`.** Abrí `https://tu-dominio/api/salud`. Dice qué
 variables de entorno faltan, si PostgREST ve las tablas (si acabás de aplicar
-migraciones, el caché del esquema puede estar viejo) y si el bucket de
-documentos existe. Nunca muestra el valor de ninguna variable.
+migraciones, el caché del esquema puede estar viejo), si las funciones públicas
+responden y si el bucket de documentos existe y sigue siendo privado. Nunca
+muestra el valor de ninguna variable.
+
+Cómo leer los renglones:
+
+- `tabla:*` → se preguntan con el service role, que es el único que ve todas
+  las tablas. Un error acá casi siempre es una migración sin aplicar o el caché
+  del esquema viejo: probá `notify pgrst, 'reload schema';` en el SQL Editor.
+- `cerrado:*` → lo contrario: se preguntan **sin sesión**, y `ok` significa que
+  una visita no puede leer esa tabla. Si alguno dijera `¡ABIERTA!`, hay un
+  problema de seguridad de verdad.
+- `rpc:*` → las funciones que sostienen `/invitacion`, `/p` y el link de
+  confirmar un pago, preguntadas como las pregunta una visita.
+- `sitio` → informativo: qué dominio está configurado y por cuál entraste.
 
 **Los errores en pantalla traen un código.** Si algo se rompe de forma
 inesperada, la pantalla muestra un mensaje con un código corto (por ejemplo

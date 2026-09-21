@@ -18,3 +18,16 @@ export function createAdminClient() {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
+
+/**
+ * Cliente sin sesión de nadie: el de un visitante cualquiera.
+ *
+ * Sirve para comprobar desde el servidor qué puede ver alguien que no entró.
+ * No usa las cookies del pedido a propósito: si lo mirara con la sesión de
+ * quien abrió la página, diría que todo se ve y sería mentira.
+ */
+export function createAnonClient() {
+  return createClient(serverEnv.supabaseUrl, serverEnv.supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}

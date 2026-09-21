@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { serverEnv, variablesFaltantes } from "@/lib/env";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createAnonClient } from "@/lib/supabase/admin";
+import { estadoDeConsulta } from "@/lib/diagnostico";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +10,25 @@ export const dynamic = "force-dynamic";
  *
  * Dice QUÉ falta, nunca el valor de nada. Sirve para responder en diez
  * segundos "¿por qué no anda en producción?" sin tener que leer logs.
+ *
+ * Dos reglas que aprendimos a los golpes:
+ *
+ *   1. Las tablas se revisan con el cliente de administración. La app casi
+ *      nunca las lee "a secas": lo hace con la sesión de una persona y pasando
+ *      por RLS. Preguntarle a `anon` si ve `rentals` da error SIEMPRE, y ese
+ *      error es la respuesta correcta: anon no tiene ningún permiso ahí.
+ *   2. Nunca con `head: true`. Una respuesta HEAD no trae cuerpo, así que el
+ *      error de PostgREST llega vacío: quedaba "error (?): " y no se podía
+ *      diagnosticar nada. Con `limit(0)` el cuerpo viene igual (una lista
+ *      vacía, sin datos de nadie) y los errores traen código y mensaje.
  */
+
+/*
+ * Las revisiones salen todas juntas: son independientes entre sí y en serie el
+ * diagnóstico tardaba casi un minuto cuando algo no respondía, que es
+ * justamente cuando más lo necesitás.
+ */
+
 /** Ninguna revisión puede colgar el diagnóstico. */
 async function conTiempoLimite<T>(promesa: PromiseLike<T>, ms = 3000): Promise<T | "timeout"> {
   return Promise.race([
@@ -52,12 +70,25 @@ export async function GET(request: Request) {
     coincide: hostConfigurado === hostPedido,
   };
 
-  try {
-    const supabase = await createClient();
+  /* Cada revisión arranca al agregarse; abajo se esperan todas juntas. */
+  const pendientes: Array<readonly [string, Promise<string>]> = [];
+  function revisar(nombre: string, hacer: () => Promise<string>): void {
+    const promesa = hacer().catch(
+      (error: unknown) => `no se pudo revisar: ${(error as Error).message}`,
+    );
+    pendientes.push([nombre, promesa] as const);
+  }
 
-    // ¿PostgREST ve las tablas? (si las migraciones se aplicaron recién, el
-    // caché del esquema puede estar viejo y esto lo delata)
-    for (const tabla of [
+  try {
+    const admin = createAdminClient();
+    // Sin las cookies del pedido: si lo mirara con TU sesión, diría cualquier cosa.
+    const visitante = createAnonClient();
+
+    /*
+     * ¿PostgREST ve las tablas? Si acabás de aplicar migraciones, el caché del
+     * esquema puede estar viejo y esto lo delata (error PGRST205).
+     */
+    const TABLAS = [
       "profiles",
       "rentals",
       "invitations",
@@ -65,80 +96,75 @@ export async function GET(request: Request) {
       "share_links",
       "reviews",
       "review_tag_defs",
-    ]) {
-      const resultado = await conTiempoLimite(
-        supabase.from(tabla).select("id", { head: true, count: "exact" }),
-      );
-      revisiones[`tabla:${tabla}`] =
-        resultado === "timeout"
-          ? "no respondió a tiempo"
-          : resultado.error
-            ? `error (${resultado.error.code ?? "?"}): ${resultado.error.message}`
-            : "ok";
-    }
+      "notifications",
+      "action_tokens",
+    ];
 
-    // ¿Existen las funciones de invitación?
-    const rpc = await conTiempoLimite(
-      supabase.rpc("invitation_preview", { p_token_hash: "0".repeat(64) }),
-    );
-    revisiones["rpc:invitation_preview"] =
-      rpc === "timeout"
-        ? "no respondió a tiempo"
-        : rpc.error
-          ? `error (${rpc.error.code ?? "?"}): ${rpc.error.message}`
-          : "ok";
+    for (const tabla of TABLAS) {
+      revisar(`tabla:${tabla}`, async () => {
+        if (!admin) return "sin service role: no se puede revisar";
+        // `limit(0)`: confirma que la tabla existe sin traer una sola fila.
+        return estadoDeConsulta(
+          await conTiempoLimite(admin.from(tabla).select("*").limit(0)),
+        );
+      });
+    }
 
     /*
-     * Las tablas de los avisos no las puede ver la app: son del service role.
-     * Por eso se revisan con el cliente de administración, no con el de la
-     * persona; si diera "ok" con el otro sería una mala noticia, no una buena.
+     * Y la otra mitad de la pregunta: que las tablas privadas sigan cerradas
+     * para quien no tiene sesión. Acá "no pude leer" es la respuesta buena; la
+     * mala sería que devolviera filas.
      */
-    const admin = createAdminClient();
-    for (const tabla of ["notifications", "action_tokens"]) {
-      if (!admin) {
-        revisiones[`tabla:${tabla}`] = "sin service role: no se puede revisar";
-        continue;
-      }
-      const resultado = await conTiempoLimite(
-        admin.from(tabla).select("id", { head: true, count: "exact" }),
-      );
-      revisiones[`tabla:${tabla}`] =
-        resultado === "timeout"
-          ? "no respondió a tiempo"
-          : resultado.error
-            ? `error (${resultado.error.code ?? "?"}): ${resultado.error.message}`
-            : "ok";
+    for (const tabla of ["rentals", "payments", "profiles"]) {
+      revisar(`cerrado:${tabla}`, async () => {
+        const resultado = await conTiempoLimite(visitante.from(tabla).select("id").limit(1));
+        if (resultado === "timeout") return "no respondió a tiempo";
+        // PostgREST la rechaza, o RLS no devuelve nada: las dos sirven.
+        if (resultado.error) return "ok";
+        return (resultado.data?.length ?? 0) === 0
+          ? "ok"
+          : "¡ABIERTA! sin sesión se pueden leer filas de esta tabla";
+      });
     }
 
-    // ¿Existen las funciones de los avisos? (Fase 6)
-    const tokenPago = await conTiempoLimite(
-      supabase.rpc("payment_token_preview", { p_token_hash: "0".repeat(64) }),
+    /*
+     * Las funciones de las pantallas públicas, preguntadas como las pregunta
+     * una visita: son las que sostienen /invitacion, /p y el link del mail.
+     * Con un token que no existe tienen que contestar, no fallar.
+     */
+    const SIN_TOKEN = "0".repeat(64);
+    revisar("rpc:invitation_preview", async () =>
+      estadoDeConsulta(
+        await conTiempoLimite(visitante.rpc("invitation_preview", { p_token_hash: SIN_TOKEN })),
+      ),
     );
-    revisiones["rpc:payment_token_preview"] =
-      tokenPago === "timeout"
-        ? "no respondió a tiempo"
-        : tokenPago.error
-          ? `error (${tokenPago.error.code ?? "?"}): ${tokenPago.error.message}`
-          : "ok";
-
-    // ¿Existe el bucket de documentos?
-    const perfilPublico = await conTiempoLimite(
-      supabase.rpc("public_profile", { p_token_hash: "0".repeat(64), p_contar: false }),
+    revisar("rpc:payment_token_preview", async () =>
+      estadoDeConsulta(
+        await conTiempoLimite(visitante.rpc("payment_token_preview", { p_token_hash: SIN_TOKEN })),
+      ),
     );
-    revisiones["rpc:public_profile"] =
-      perfilPublico === "timeout"
-        ? "no respondió a tiempo"
-        : perfilPublico.error
-          ? `error (${perfilPublico.error.code ?? "?"}): ${perfilPublico.error.message}`
-          : "ok";
+    revisar("rpc:public_profile", async () =>
+      estadoDeConsulta(
+        await conTiempoLimite(
+          visitante.rpc("public_profile", { p_token_hash: SIN_TOKEN, p_contar: false }),
+        ),
+      ),
+    );
 
-    const storage = await conTiempoLimite(supabase.storage.from("documentos").list("", { limit: 1 }));
-    revisiones["storage:documentos"] =
-      storage === "timeout"
-        ? "no respondió a tiempo"
-        : storage.error
-          ? `error: ${storage.error.message}`
-          : "ok";
+    // El bucket de los documentos: que exista y que siga siendo privado.
+    revisar("storage:documentos", async () => {
+      if (!admin) return "sin service role: no se puede revisar";
+      const bucket = await conTiempoLimite(admin.storage.getBucket("documentos"));
+      if (bucket === "timeout") return "no respondió a tiempo";
+      if (bucket.error) return estadoDeConsulta(bucket);
+      return bucket.data?.public
+        ? "¡PÚBLICO! los comprobantes se pueden abrir sin permiso"
+        : "ok";
+    });
+
+    for (const [nombre, promesa] of pendientes) {
+      revisiones[nombre] = await promesa;
+    }
   } catch (error) {
     revisiones["supabase"] = `no se pudo conectar: ${(error as Error).message}`;
   }
@@ -156,7 +182,7 @@ export async function GET(request: Request) {
       revisiones,
       ayuda: todoOk
         ? undefined
-        : "Cargá lo que falte en las variables de entorno del proyecto y volvé a deployar. Las tablas que den error suelen ser migraciones sin aplicar.",
+        : "Cargá lo que falte en las variables de entorno del proyecto y volvé a deployar. Las tablas que den error suelen ser migraciones sin aplicar: probá con `notify pgrst, 'reload schema';` en el SQL Editor.",
     },
     {
       status: todoOk ? 200 : 503,

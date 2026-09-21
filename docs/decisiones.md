@@ -394,6 +394,36 @@ el estado de las revisiones, nunca valores. Poder diagnosticar una instalación
 rota desde el navegador vale más que esconder que, por ejemplo, falta cargar una
 clave.
 
+## El chequeo de salud pregunta lo que corresponde
+
+**Las tablas se revisan con el service role, no con el cliente de la app.** El
+chequeo preguntaba "¿podés leer `rentals`?" sin sesión, y la respuesta correcta
+a esa pregunta es *no*: `anon` no tiene ningún permiso sobre las tablas
+privadas. Estaba reportando como falla la seguridad funcionando.
+
+**Ninguna revisión usa `head: true`.** Una respuesta HEAD no trae cuerpo, así
+que el error de PostgREST llegaba vacío: `error (?): `, sin código y sin
+mensaje. Con `limit(0)` el cuerpo viene igual (una lista vacía, sin datos de
+nadie) y el error trae código, mensaje y pista.
+
+**Tampoco se pregunta por una columna que quizá no existe.** `select("id")`
+fallaba en `review_tag_defs`, cuya clave es `code`. Un diagnóstico no puede
+depender de la forma de cada tabla: `select("*").limit(0)` alcanza para saber
+si existe.
+
+**El chequeo sin sesión usa un cliente sin las cookies del pedido.** Si usara
+la sesión de quien abre la página, diría que las tablas privadas "se ven" y
+sería mentira: se ven porque esa persona entró.
+
+**Y ahora afirma lo positivo, no solo lo negativo.** Los renglones `cerrado:*`
+dicen `ok` cuando una visita NO puede leer una tabla privada, y gritan
+`¡ABIERTA!` si alguna vez devuelve filas. Lo mismo con el bucket: avisa si
+dejara de ser privado.
+
+**Todo en paralelo.** En serie, con algo que no responde, el diagnóstico
+tardaba casi un minuto: justo cuando más lo necesitás. Ahora tarda lo que la
+revisión más lenta.
+
 ## Stack
 
 **Rate limiting en Postgres, no en Redis.** Ventana deslizante en
