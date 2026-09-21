@@ -21,6 +21,7 @@ export const VARIABLES = {
     "NEXT_PUBLIC_SITE_URL",
     "RESEND_API_KEY",
     "EMAIL_FROM",
+    "EMAIL_REPLY_TO",
     "CRON_SECRET",
   ],
 } as const;
@@ -73,6 +74,13 @@ export const serverEnv = {
    */
   get emailFrom() {
     return leer("EMAIL_FROM") ?? "Inkey <onboarding@resend.dev>";
+  },
+  /**
+   * A dónde contesta la gente cuando responde un aviso. Los avisos salen de
+   * una dirección que nadie lee; las respuestas tienen que llegar a una que sí.
+   */
+  get emailReplyTo() {
+    return leer("EMAIL_REPLY_TO");
   },
   /** Protege los endpoints que dispara Vercel Cron. */
   get cronSecret() {

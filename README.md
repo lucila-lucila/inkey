@@ -48,10 +48,17 @@ Supabase.
    ```
 
    O pegando cada archivo en el SQL Editor, de más viejo a más nuevo.
-4. En **Authentication → Providers** dejá habilitado Email (magic link) y
+4. **Verificá que estén todas**: pegá `supabase/verificar.sql` en el SQL Editor
+   y dale Run. Devuelve una fila por tabla, función y bucket que tiene que
+   existir, con `ok` o `FALTA`, y al final cuántas tablas quedaron sin RLS (eso
+   tiene que dar 0). No modifica nada.
+5. En **Authentication → Providers** dejá habilitado Email (magic link) y
    configurá Google.
-5. En **Authentication → URL Configuration** agregá
-   `http://localhost:3000/auth/callback` y el de producción a las redirect URLs.
+6. En **Authentication → URL Configuration** poné el Site URL del dominio y
+   agregá a las redirect URLs `http://localhost:3000/auth/callback`, el del
+   dominio con `www` y el de sin `www`.
+7. En **Authentication → Emails → Templates**, cargá las plantillas de
+   `supabase/templates/` (ver más abajo).
 
 ### Conectar Resend (mails)
 
@@ -70,45 +77,75 @@ tabla `notifications`. Nada se rompe por no tener mail.
 
    Ese remitente solo puede escribirle a la casilla con la que te registraste
    en Resend: sirve para probar el flujo, no para mandarle a un dueño real.
-4. Cargá también `CRON_SECRET` (cualquier cadena larga y aleatoria): sin ella,
+4. Cargá `EMAIL_REPLY_TO` con la casilla que leés de verdad: los avisos salen
+   de una dirección que nadie mira, pero las respuestas tienen que llegar a
+   alguien.
+5. Cargá también `CRON_SECRET` (cualquier cadena larga y aleatoria): sin ella,
    `/api/cron/recordatorios` devuelve 503 y no corre.
 
-#### Cuando tengas el dominio
+#### Verificar el dominio en Resend
 
-1. En Resend, **Domains → Add Domain**, escribí el dominio (por ejemplo
-   `inkey.com.ar`). Conviene usar un subdominio para el correo transaccional,
-   como `mail.inkey.com.ar`: si algo sale mal, no arrastra la reputación del
-   dominio principal.
-2. Resend te muestra los registros DNS. Cargalos en tu proveedor de DNS tal
-   cual (son tres):
-   - **DKIM**: un `TXT` (`resend._domainkey`) con la clave pública que firma
-     cada mail.
-   - **SPF**: un `TXT` en el dominio de envío con `v=spf1 include:amazonses.com ~all`,
-     que autoriza a Resend a mandar en tu nombre. Si ya tenés un SPF, sumá el
-     `include:` al que existe en vez de crear un segundo registro: dos SPF
-     invalidan los dos.
-   - **MX** (`feedback-smtp`): recibe los rebotes.
-3. Volvé a Resend y tocá **Verify**. Tarda entre unos minutos y unas horas
-   según el proveedor de DNS.
-4. Sumá un `TXT` de **DMARC** en `_dmarc.tu-dominio` para que Gmail no lo mande
-   a correo no deseado. Empezá suave y apretá cuando veas que todo llega:
+Resend necesita tres registros DNS para poder firmar los mails con tu dominio.
+**Conviene verificar un subdominio de envío** (`mail.inkeyapp.com`) y no el
+dominio pelado: así el SPF y el MX del correo de Google Workspace, que viven en
+el dominio raíz, no se tocan. Solo hay un SPF permitido por nombre, y pisarlo
+rompe el correo de la gente.
 
-   ```
-   v=DMARC1; p=none; rua=mailto:dmarc@tu-dominio
-   ```
-
-5. Cambiá `EMAIL_FROM` en Vercel por el remitente del dominio verificado y
-   volvé a deployar:
+1. En Resend, **Domains → Add Domain** → `mail.inkeyapp.com`, región
+   `us-east-1` (o la que prefieras, pero acordate de cuál elegiste: el MX
+   cambia).
+2. Resend muestra tres registros. Cargalos en el DNS del dominio **tal cual los
+   muestra**, sin repetir el dominio en el nombre si el panel ya lo agrega
+   solo:
+   - `TXT` en `resend._domainkey.mail` → la clave DKIM que te da Resend.
+   - `TXT` en `mail` → `v=spf1 include:amazonses.com ~all`.
+   - `MX` en `send.mail` (prioridad 10) → `feedback-smtp.us-east-1.amazonses.com`.
+3. Volvé a Resend y tocá **Verify**. Tarda entre minutos y unas horas.
+4. Opcional pero recomendado, `TXT` en `_dmarc` →
+   `v=DMARC1; p=none; rua=mailto:contacto@tu-dominio`. Si ya existe un `_dmarc`,
+   **no agregues otro**: editá el que está.
+5. Cambiá en Vercel `EMAIL_FROM` por una dirección de ese subdominio y
+   `EMAIL_REPLY_TO` por la casilla que sí leés, y volvé a deployar:
 
    ```
    EMAIL_FROM="Inkey <hola@mail.tu-dominio>"
+   EMAIL_REPLY_TO=contacto@tu-dominio
    ```
 
-   No hace falta tocar código: el remitente sale entero de esa variable.
-6. Revisá que `NEXT_PUBLIC_SITE_URL` apunte al dominio definitivo: de ahí salen
-   los links de los mails (confirmar un pago, la invitación, el recibo).
-7. Probá de punta a punta: reportá un pago de prueba y confirmá desde el mail.
-   Si el mail no llega, `/api/salud` y los logs de Vercel dicen qué falta.
+   No hace falta tocar código: las dos salen enteras de esas variables.
+6. Revisá que `NEXT_PUBLIC_SITE_URL` sea el dominio definitivo: de ahí salen
+   los links de los mails, las URLs canónicas y el `robots.txt`.
+7. Probá de punta a punta: reportá un pago y confirmalo desde el mail. Si algo
+   no sale, `/api/salud` dice qué falta.
+
+### Los mails de ingreso (Supabase)
+
+Los mails de la app (pagos, invitaciones, reseñas) los manda Resend desde
+nuestro código. Los de **ingreso** los manda Supabase, con su propio servidor y
+sus propias plantillas.
+
+1. Para que salgan del dominio propio y no del de Supabase (que tiene un tope
+   bajo de envíos): **Project Settings → Authentication → SMTP Settings**,
+   activá "Enable Custom SMTP" y cargá:
+
+   | Campo | Valor |
+   | --- | --- |
+   | Host | `smtp.resend.com` |
+   | Port | `465` |
+   | Username | `resend` |
+   | Password | tu API key de Resend |
+   | Sender email | la misma dirección de `EMAIL_FROM` |
+   | Sender name | `Inkey` |
+
+2. **Authentication → Emails → Templates**: copiá cada archivo de
+   `supabase/templates/` en su pestaña (el asunto está en la primera línea de
+   cada archivo). Están en castellano y con la identidad de Inkey.
+
+3. Las plantillas incluyen `{{ .Token }}`, el código de 6 dígitos. **Es
+   obligatorio**: sin eso Supabase no manda el código y la pantalla de
+   `/ingresar` se queda sin su alternativa al link. Existe porque algunos
+   servicios de correo abren los links solos para revisarlos y los gastan
+   antes de que la persona los toque.
 
 ### Recordatorios (cron)
 
@@ -171,10 +208,27 @@ reference/landing.html   la landing de la Fase 1 (registro; la identidad
 
 ## Deploy
 
-Va a Vercel. Cargá en el proyecto las mismas variables de `.env.example`
-(`NEXT_PUBLIC_SITE_URL` con el dominio real) y agregá ese dominio a las redirect
-URLs de Supabase. Las migraciones se aplican contra el proyecto de Supabase de
+Va a Vercel. Las migraciones se aplican contra el proyecto de Supabase de
 producción antes de publicar.
+
+Las variables que tienen que estar cargadas en Vercel (Production y Preview):
+
+| Variable | Sin ella | Secreta |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | la app no levanta | no |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | la app no levanta | no |
+| `SUPABASE_SERVICE_ROLE_KEY` | sin lista de espera, sin rate limiting, sin mails | **sí** |
+| `RATE_LIMIT_SALT` | sin rate limiting | **sí** |
+| `SHARE_LINK_SECRET` | no se pueden crear links de perfil | **sí** |
+| `NEXT_PUBLIC_SITE_URL` | los links de los mails apuntan a localhost | no |
+| `RESEND_API_KEY` | no sale ningún mail de la app | **sí** |
+| `EMAIL_FROM` | los mails salen del remitente de prueba | no |
+| `EMAIL_REPLY_TO` | las respuestas no llegan a nadie | no |
+| `CRON_SECRET` | el cron no corre (503) | **sí** |
+
+Las `NEXT_PUBLIC_*` se hornean en el build: si cambiás una, hay que volver a
+deployar para que tome efecto. El dominio del proyecto también va a las
+redirect URLs de Supabase, con `www` y sin `www`.
 
 ## Cuando algo no anda
 

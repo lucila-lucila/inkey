@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generarToken, hashearToken } from "@/lib/tokens";
 import { serverEnv } from "@/lib/env";
-import { createEmailClient, remitente } from "./cliente";
+import { createEmailClient, remitente, respuestaA } from "./cliente";
 import type { Mail } from "./plantillas";
 
 /*
@@ -56,9 +56,11 @@ export async function enviarMail(pedido: EnvioPedido): Promise<boolean> {
       return false;
     }
 
+    const responder = respuestaA();
     const { error } = await resend.emails.send({
       from: remitente(),
       to: pedido.para,
+      ...(responder ? { replyTo: responder } : {}),
       subject: pedido.mail.asunto,
       html: pedido.mail.html,
       text: pedido.mail.texto,

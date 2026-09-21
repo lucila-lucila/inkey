@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Card } from "@/components/ui";
+import { mensajeDeRebote } from "@/lib/auth/errores-link";
 import { rutaInternaSegura } from "@/lib/validation/auth";
 import { IngresoForm } from "./ingreso-form";
 
@@ -8,8 +9,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+/** Los errores nuestros; los rebotes de Supabase los traduce `mensajeDeRebote`. */
 const ERRORES: Record<string, string> = {
-  link: "Ese link ya no sirve: venció o ya se usó. Pedí uno nuevo.",
   google: "No se pudo abrir Google. Probá con tu mail.",
 };
 
@@ -20,7 +21,7 @@ export default async function IngresarPage({
 }) {
   const params = await searchParams;
   const volverA = rutaInternaSegura(params.volver_a, "/panel");
-  const error = params.error ? ERRORES[params.error] : undefined;
+  const error = params.error ? (ERRORES[params.error] ?? mensajeDeRebote(params.error)) : undefined;
 
   return (
     <Card hero >

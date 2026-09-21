@@ -289,6 +289,55 @@ role o a través de las funciones `security definer`. Por eso `/api/salud` las
 revisa con el cliente de administración: si dieran "ok" con el otro, sería una
 mala noticia.
 
+## Dominio propio e ingreso (revisión de infraestructura)
+
+**Ningún dominio está escrito en el código.** Los links de los mails, las URLs
+canónicas, el `robots.txt` y el sitemap salen todos de `NEXT_PUBLIC_SITE_URL`.
+Cambiar de dominio es cambiar una variable y volver a deployar.
+
+**`metadataBase` en el layout raíz.** Sin eso, Next arma las URLs absolutas de
+los metadatos con la URL del deploy de Vercel: el preview de WhatsApp de un
+perfil compartido terminaba sirviendo la imagen desde `*.vercel.app`. Ahora
+sale del dominio configurado.
+
+**Canónica y `robots.txt`.** El sitio responde por tres nombres (dominio con
+`www`, sin `www` y la URL del deploy). La landing declara su canónica y el
+`robots.txt` marca el host bueno, así no compiten entre sí en los buscadores.
+Lo privado, además del `noindex` de cada pantalla, queda cerrado en la puerta.
+
+**Subdominio de envío para Resend.** Los mails salen de `mail.<dominio>` y no
+del dominio pelado. En el dominio raíz vive el correo de Google Workspace, y
+solo se permite un SPF por nombre: verificar el subdominio deja intactos el MX,
+el SPF y el DKIM de Google. Si algún día la reputación de envío se arruina,
+tampoco arrastra al correo de las personas.
+
+**Remitente y respuesta separados.** `EMAIL_FROM` es la casilla de la que salen
+los avisos; `EMAIL_REPLY_TO`, la que alguien lee. Si una persona contesta un
+aviso, tiene que llegarle a alguien: un `no-responder@` sin `reply-to` es una
+puerta cerrada.
+
+**Los mails de ingreso los manda Supabase, no nuestro código.** Por eso sus
+plantillas viven aparte, en `supabase/templates/`, en castellano y con la misma
+identidad. Se cargan a mano en el panel; el repo es la fuente.
+
+**Un link de ingreso muerto ya no deja a nadie mirando la landing.** Supabase
+rebota al Site URL con el error en la query o en el fragmento. El proxy ataja
+la query y un componente chico del layout ataja el fragmento (que no viaja al
+servidor), y los dos llevan a `/ingresar` con un mensaje claro. El texto lo
+ponemos nosotros a partir de un código conocido: nunca se muestra lo que venga
+escrito en la URL.
+
+**Código de 6 dígitos además del link.** Varios servicios de correo abren los
+links solos para revisarlos, y un magic link es de un solo uso: cuando la
+persona lo toca, ya está gastado. El código va en el mismo mail, se escribe en
+la misma pantalla donde se pidió, y funciona aunque el link no exista más o se
+abra en otro dispositivo. Pasa por el mismo rate limiting que el link.
+
+**`supabase/verificar.sql`.** Las migraciones se aplican a mano en el SQL
+Editor, así que hace falta poder responder "¿están todas?" sin adivinar. El
+script lista cada tabla, función y bucket esperado con `ok` o `FALTA`, dice qué
+migración lo trae, y cuenta las tablas de `public` sin RLS (tiene que dar 0).
+
 ## Fallas y diagnóstico
 
 **Una tarea secundaria no puede voltear la acción principal.** El rate limiting

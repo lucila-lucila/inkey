@@ -2,7 +2,13 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { enviarMagicLink, ingresarConGoogle, type EstadoIngreso } from "./actions";
+import {
+  entrarConCodigo,
+  enviarMagicLink,
+  ingresarConGoogle,
+  type EstadoCodigo,
+  type EstadoIngreso,
+} from "./actions";
 import { Button, Field, Input } from "@/components/ui";
 
 const ESTADO_INICIAL: EstadoIngreso = { estado: "inicial" };
@@ -16,6 +22,15 @@ function BotonEnviar() {
   );
 }
 
+function BotonCodigo() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" disabled={pending} className="w-full">
+      {pending ? "Entrando…" : "Entrar con el código"}
+    </Button>
+  );
+}
+
 function BotonGoogle() {
   const { pending } = useFormStatus();
   return (
@@ -25,21 +40,67 @@ function BotonGoogle() {
   );
 }
 
+/**
+ * Después de pedir el mail: el link y, abajo, el código.
+ *
+ * Los dos caminos llevan al mismo lado. El código está porque algunos
+ * servicios de correo abren los links solos para revisarlos y los gastan.
+ */
+function Revisa({ email, volverA }: { email: string; volverA: string }) {
+  const [estado, accion] = useActionState(entrarConCodigo, { estado: "inicial" } as EstadoCodigo);
+
+  return (
+    <div aria-live="polite" className="flex flex-col gap-5">
+      <div>
+        <h2 className="mt-0 mb-2 t-titulo text-primary-ink">Mirá tu casilla</h2>
+        <p className="m-0 text-body">
+          Le mandamos un link y un código de 6 números a{" "}
+          <strong className="text-ink">{email}</strong>. Si no aparece, fijate en spam.
+        </p>
+      </div>
+
+      <form action={accion} noValidate className="flex flex-col gap-4">
+        <input type="hidden" name="email" value={email} />
+        <input type="hidden" name="volver_a" value={volverA} />
+        <Field
+          label="O escribí el código del mail"
+          htmlFor="codigo"
+          hint="Sirve siempre, aunque el link no funcione o lo abras en otro dispositivo."
+          error={estado.estado === "error" ? estado.mensaje : undefined}
+        >
+          <Input
+            id="codigo"
+            name="codigo"
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="[0-9]*"
+            maxLength={7}
+            placeholder="123456"
+            required
+            className="text-center text-[24px] tracking-[0.4em]"
+            aria-describedby={estado.estado === "error" ? "codigo-error" : "codigo-hint"}
+          />
+        </Field>
+        <BotonCodigo />
+      </form>
+
+      <p className="m-0 text-[15px] text-muted">
+        ¿No te llegó? Volvé a{" "}
+        <a href="/ingresar" className="font-medium text-confirm-ink">
+          pedir uno nuevo
+        </a>
+        .
+      </p>
+    </div>
+  );
+}
+
 export function IngresoForm({ volverA }: { volverA: string }) {
   const [estado, accion] = useActionState(enviarMagicLink, ESTADO_INICIAL);
 
   if (estado.estado === "enviado") {
-    return (
-      <div aria-live="polite">
-        <h2 className="mt-0 mb-2 t-titulo text-primary-ink">
-          Mirá tu casilla
-        </h2>
-        <p className="m-0 text-body">
-          Te mandamos un link a <strong className="text-ink">{estado.email}</strong>. Abrilo desde
-          este mismo dispositivo y entrás sin contraseña. Si no aparece, fijate en spam.
-        </p>
-      </div>
-    );
+    return <Revisa email={estado.email} volverA={volverA} />;
   }
 
   return (

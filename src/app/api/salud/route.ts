@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { variablesFaltantes } from "@/lib/env";
+import { serverEnv, variablesFaltantes } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -19,10 +19,38 @@ async function conTiempoLimite<T>(promesa: PromiseLike<T>, ms = 3000): Promise<T
   ]);
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const faltan = variablesFaltantes();
 
   const revisiones: Record<string, string> = {};
+
+  /*
+   * El dominio. Los links de los mails, el Open Graph y las URLs canónicas
+   * salen todos de NEXT_PUBLIC_SITE_URL: si no coincide con el dominio por el
+   * que estás entrando, los mails van a mandar a otro lado.
+   */
+  const sitio = serverEnv.siteUrl;
+  const hostPedido = new URL(request.url).host;
+  const hostConfigurado = (() => {
+    try {
+      return new URL(sitio).host;
+    } catch {
+      return null;
+    }
+  })();
+
+  revisiones["sitio:url"] = !hostConfigurado
+    ? `NEXT_PUBLIC_SITE_URL no es una URL válida: ${sitio}`
+    : hostConfigurado.endsWith(".vercel.app")
+      ? `apunta al dominio de Vercel (${hostConfigurado}), no al propio`
+      : "ok";
+
+  // Entrar por otro dominio no es un error de configuración: se informa.
+  const sitioInfo = {
+    configurado: sitio,
+    entraste_por: hostPedido,
+    coincide: hostConfigurado === hostPedido,
+  };
 
   try {
     const supabase = await createClient();
@@ -123,6 +151,7 @@ export async function GET() {
   return NextResponse.json(
     {
       ok: todoOk,
+      sitio: sitioInfo,
       variables_faltantes: faltan,
       revisiones,
       ayuda: todoOk

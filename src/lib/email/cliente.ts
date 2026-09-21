@@ -20,3 +20,11 @@ export function createEmailClient(): Resend | null {
 export function remitente(): string {
   return serverEnv.emailFrom;
 }
+
+/**
+ * A dónde van las respuestas. El remitente puede ser una casilla que nadie
+ * lee; si alguien contesta un aviso, tiene que llegarle a una persona.
+ */
+export function respuestaA(): string | undefined {
+  return serverEnv.emailReplyTo ?? undefined;
+}

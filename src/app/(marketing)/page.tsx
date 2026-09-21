@@ -15,6 +15,20 @@ export const metadata: Metadata = {
   description:
     "Vos y tu dueño confirman cada pago, mes a mes. Tu historial de alquiler es tuyo y lo llevás a tu próximo alquiler.",
   robots: { index: true, follow: true },
+  /*
+   * El dominio bueno es uno solo. Sin esto, la URL del deploy de Vercel y el
+   * dominio sin www quedan compitiendo con el definitivo en los buscadores.
+   */
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: "Inkey",
+    locale: "es_AR",
+    url: "/",
+    title: "Inkey · Tu historial de alquiler, confirmado",
+    description:
+      "Vos y tu dueño confirman cada pago, mes a mes. Tu historial de alquiler es tuyo y lo llevás a tu próximo alquiler.",
+  },
 };
 
 export default function LandingPage() {
