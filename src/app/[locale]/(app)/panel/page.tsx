@@ -62,6 +62,16 @@ function EstadoVacio({
  * Recibe el estado ya traducido y no el traductor: así sigue siendo una
  * pieza que solo dibuja, sin saber nada de idiomas.
  */
+/*
+ * El mes y el lugar van en negrita dentro de la frase. Se pasan así, como
+ * etiquetas, para que cada idioma los ponga donde le corresponde y no donde
+ * los dejó el castellano.
+ */
+const RESALTADO = {
+  capital: (partes: React.ReactNode) => <strong className="capitalize">{partes}</strong>,
+  fuerte: (partes: React.ReactNode) => <strong>{partes}</strong>,
+};
+
 function TarjetaAlquiler({ alquiler, estadoTexto }: { alquiler: Alquiler; estadoTexto: string }) {
   const estado = ESTADOS_ALQUILER[alquiler.status as EstadoAlquiler];
 
@@ -86,6 +96,7 @@ function TarjetaAlquiler({ alquiler, estadoTexto }: { alquiler: Alquiler; estado
 export default async function PanelPage() {
   const supabase = await createClient();
   const t = await getTranslations();
+  const tp = await getTranslations("panel");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -179,7 +190,7 @@ export default async function PanelPage() {
   const bloqueInquilino = (
     <section aria-labelledby="titulo-inquilino">
       <h2 id="titulo-inquilino" className="mt-0 mb-3 t-subtitulo">
-        Donde alquilás
+        {tp("dondeAlquilas")}
       </h2>
       {comoInquilino.length > 0 ? (
         <div className="flex flex-col gap-3">
@@ -192,15 +203,18 @@ export default async function PanelPage() {
           ))}
           <div>
             <ButtonLink href="/alquileres/nuevo?rol=inquilino" variant="secondary" size="md">
-              Registrar otro alquiler
+              {tp("registrarOtroAlquiler")}
             </ButtonLink>
           </div>
         </div>
       ) : (
         <EstadoVacio
-          titulo="Todavía no registraste tu alquiler"
-          texto="Cargá los datos, invitá a tu dueño y desde el primer mes confirmado empezás a construir tu historial."
-          accion={{ href: "/alquileres/nuevo?rol=inquilino", texto: "Registrar mi alquiler" }}
+          titulo={tp("vacioInquilinoTitulo")}
+          texto={tp("vacioInquilinoTexto")}
+          accion={{
+            href: "/alquileres/nuevo?rol=inquilino",
+            texto: tp("vacioInquilinoAccion"),
+          }}
         />
       )}
     </section>
@@ -209,7 +223,7 @@ export default async function PanelPage() {
   const bloquePropietario = (
     <section aria-labelledby="titulo-propietario">
       <h2 id="titulo-propietario" className="mt-0 mb-3 t-subtitulo">
-        Lo que alquilás
+        {tp("loQueAlquilas")}
       </h2>
       {comoPropietario.length > 0 ? (
         <div className="flex flex-col gap-3">
@@ -222,15 +236,18 @@ export default async function PanelPage() {
           ))}
           <div>
             <ButtonLink href="/alquileres/nuevo?rol=propietario" variant="secondary" size="md">
-              Registrar otra propiedad
+              {tp("registrarOtraPropiedad")}
             </ButtonLink>
           </div>
         </div>
       ) : (
         <EstadoVacio
-          titulo="Todavía no cargaste ninguna propiedad"
-          texto="Registrá la propiedad, invitá a tu inquilino y confirmá cada pago en dos toques desde el celular."
-          accion={{ href: "/alquileres/nuevo?rol=propietario", texto: "Registrar una propiedad" }}
+          titulo={tp("vacioPropietarioTitulo")}
+          texto={tp("vacioPropietarioTexto")}
+          accion={{
+            href: "/alquileres/nuevo?rol=propietario",
+            texto: tp("vacioPropietarioAccion"),
+          }}
         />
       )}
     </section>
@@ -242,14 +259,14 @@ export default async function PanelPage() {
     <div className="flex flex-col gap-9">
       <div>
         <h1 className="mt-0 mb-1 t-titulo">
-          Hola{perfil?.first_name ? `, ${perfil.first_name}` : ""}
+          {perfil?.first_name ? tp("holaNombre", { nombre: perfil.first_name }) : tp("hola")}
         </h1>
-        <p className="m-0 text-body">Acá vas a ver lo que necesita tu atención primero.</p>
+        <p className="m-0 text-body">{tp("bajada")}</p>
       </div>
 
       <section aria-labelledby="titulo-pendientes">
         <h2 id="titulo-pendientes" className="mt-0 mb-3 t-subtitulo">
-          Tareas pendientes
+          {tp("pendientes")}
         </h2>
         {esperandoConfirmacion.length === 0 &&
         rechazados.length === 0 &&
@@ -259,10 +276,7 @@ export default async function PanelPage() {
         finPorConfirmar.length === 0 &&
         resenaPendiente.length === 0 ? (
           <Card >
-            <p className="m-0 text-body">
-              Nada pendiente por ahora. Cuando haya un pago para reportar o confirmar, te aparece acá
-              arriba de todo.
-            </p>
+            <p className="m-0 text-body">{tp("nadaPendiente")}</p>
           </Card>
         ) : (
           <div className="flex flex-col gap-3">
@@ -270,11 +284,14 @@ export default async function PanelPage() {
             {porConfirmar.map((pago) => (
               <Card key={pago.id} hero className="flex flex-col items-start gap-3">
                 <p className="m-0 text-[17px]">
-                  Confirmá el pago de <strong className="capitalize">{nombrePeriodo(pago.period)}</strong> en{" "}
-                  <strong>{nombreDelAlquiler.get(pago.rental_id)}</strong>.
+                  {tp.rich("confirmaPago", {
+                    mes: nombrePeriodo(pago.period),
+                    lugar: nombreDelAlquiler.get(pago.rental_id) ?? "",
+                    ...RESALTADO,
+                  })}
                 </p>
                 <ButtonLink href={`/pagos/${pago.id}`} size="md">
-                  Ver y confirmar
+                  {tp("verYConfirmar")}
                 </ButtonLink>
               </Card>
             ))}
@@ -282,12 +299,14 @@ export default async function PanelPage() {
             {porReportar.map((alquiler) => (
               <Card key={`reportar-${alquiler.id}`} hero className="flex flex-col items-start gap-3">
                 <p className="m-0 text-[17px]">
-                  ¿Ya pagaste <strong className="capitalize">{nombrePeriodo(mesActual)}</strong> en{" "}
-                  <strong>{alquiler.neighborhood_label}</strong>? Reportalo para que tu dueño lo
-                  confirme.
+                  {tp.rich("yaPagaste", {
+                    mes: nombrePeriodo(mesActual),
+                    lugar: alquiler.neighborhood_label,
+                    ...RESALTADO,
+                  })}
                 </p>
                 <ButtonLink href={`/alquileres/${alquiler.id}`} size="md">
-                  Reportar el pago
+                  {tp("reportarElPago")}
                 </ButtonLink>
               </Card>
             ))}
@@ -295,12 +314,14 @@ export default async function PanelPage() {
             {rebotados.map((pago) => (
               <Card key={`rebotado-${pago.id}`} className="flex flex-col items-start gap-3">
                 <p className="m-0 text-[17px]">
-                  Tu dueño todavía no recibió el pago de{" "}
-                  <strong className="capitalize">{nombrePeriodo(pago.period)}</strong> en{" "}
-                  <strong>{nombreDelAlquiler.get(pago.rental_id)}</strong>.
+                  {tp.rich("noRecibio", {
+                    mes: nombrePeriodo(pago.period),
+                    lugar: nombreDelAlquiler.get(pago.rental_id) ?? "",
+                    ...RESALTADO,
+                  })}
                 </p>
                 <ButtonLink href={`/pagos/${pago.id}`} variant="secondary" size="md">
-                  Ver qué pasó
+                  {tp("verQuePaso")}
                 </ButtonLink>
               </Card>
             ))}
@@ -308,11 +329,10 @@ export default async function PanelPage() {
             {finPorConfirmar.map((alquiler) => (
               <Card key={`fin-${alquiler.id}`} hero className="flex flex-col items-start gap-3 p-5">
                 <p className="m-0 text-[17px]">
-                  Te marcaron que terminó el contrato en{" "}
-                  <strong>{alquiler.neighborhood_label}</strong>. Confirmalo si es así.
+                  {tp.rich("teMarcaronFin", { lugar: alquiler.neighborhood_label, ...RESALTADO })}
                 </p>
                 <ButtonLink href={`/alquileres/${alquiler.id}`} size="md">
-                  Ver y confirmar
+                  {tp("verYConfirmar")}
                 </ButtonLink>
               </Card>
             ))}
@@ -320,11 +340,13 @@ export default async function PanelPage() {
             {resenaPendiente.map((alquiler) => (
               <Card key={`resena-${alquiler.id}`} className="flex flex-col items-start gap-3 p-5">
                 <p className="m-0 text-[17px]">
-                  Terminó tu alquiler en <strong>{alquiler.neighborhood_label}</strong>. Contá cómo
-                  fue: la otra parte no ve tu reseña hasta que deje la suya.
+                  {tp.rich("terminoTuAlquiler", {
+                    lugar: alquiler.neighborhood_label,
+                    ...RESALTADO,
+                  })}
                 </p>
                 <ButtonLink href={`/alquileres/${alquiler.id}`} variant="secondary" size="md">
-                  Dejar mi reseña
+                  {tp("dejarResena")}
                 </ButtonLink>
               </Card>
             ))}
@@ -332,22 +354,23 @@ export default async function PanelPage() {
             {esperandoConfirmacion.map((alquiler) => (
               <Card key={alquiler.id} hero className="flex flex-col items-start gap-3">
                 <p className="m-0 text-[17px]">
-                  <strong>{alquiler.neighborhood_label}</strong> está esperando que{" "}
-                  {alquiler.tenant_id === user.id ? "tu dueño" : "tu inquilino"} confirme.
+                  {tp.rich(
+                    alquiler.tenant_id === user.id ? "esperandoDueno" : "esperandoInquilino",
+                    { lugar: alquiler.neighborhood_label, ...RESALTADO },
+                  )}
                 </p>
                 <ButtonLink href={`/alquileres/${alquiler.id}`} size="md">
-                  Reenviar el link
+                  {tp("reenviarLink")}
                 </ButtonLink>
               </Card>
             ))}
             {rechazados.map((alquiler) => (
               <Card key={alquiler.id} className="flex flex-col items-start gap-3">
                 <p className="m-0 text-[17px]">
-                  En <strong>{alquiler.neighborhood_label}</strong> te dijeron que esa propiedad no
-                  es suya. Revisá a quién le mandaste el link.
+                  {tp.rich("rechazado", { lugar: alquiler.neighborhood_label, ...RESALTADO })}
                 </p>
                 <ButtonLink href={`/alquileres/${alquiler.id}`} variant="secondary" size="md">
-                  Ver el alquiler
+                  {tp("verElAlquiler")}
                 </ButtonLink>
               </Card>
             ))}
