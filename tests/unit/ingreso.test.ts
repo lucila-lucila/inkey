@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { traductor } from "./apoyo/traductor";
 import {
   codigoDeRebote,
   esRebote,
@@ -23,7 +24,14 @@ describe("links de ingreso que ya no sirven", () => {
   it("traduce el link vencido a algo que se entienda", () => {
     const codigo = codigoDeRebote({ error: "access_denied", error_code: "otp_expired" });
     expect(codigo).toBe("otp_expired");
-    expect(mensajeDeRebote(codigo)).toBe("El link venció o ya se usó. Pedí uno nuevo.");
+    // Devuelve la clave; el texto lo pone el archivo de idiomas.
+    expect(mensajeDeRebote(codigo)).toBe("rebote.vencido");
+    expect(traductor("es")(mensajeDeRebote(codigo)!)).toBe(
+      "El link venció o ya se usó. Pedí uno nuevo.",
+    );
+    expect(traductor("en")(mensajeDeRebote(codigo)!)).toBe(
+      "That link expired or was already used. Ask for a new one.",
+    );
   });
 
   it("un código que no conocemos no viaja en la URL", () => {

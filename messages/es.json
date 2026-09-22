@@ -143,7 +143,15 @@
       "ajusteFueraDeRango": "El ajuste va de 1 a 60 meses.",
       "finAntesDeInicio": "La fecha de fin no puede ser anterior a la de inicio.",
       "ajusteIncompleto": "Completá el índice y cada cuántos meses ajusta, o dejá los dos vacíos."
-    }
+    },
+    "perfil": {
+      "nombre": "Escribí tu nombre.",
+      "apellido": "Escribí tu apellido.",
+      "celular": "Revisá el celular: por ejemplo +54 9 11 5555 5555.",
+      "intencion": "Elegí qué querés hacer primero."
+    },
+    "mail": "Revisá el mail.",
+    "codigo": "El código son los números que te llegaron por mail."
   },
   "dominio": {
     "estadoAlquiler": {
@@ -254,5 +262,56 @@
   "perfilPublico": {
     "tituloMeta": "Historial de alquiler confirmado",
     "noDisponibleMeta": "Perfil no disponible · Inkey"
+  },
+  "ingreso": {
+    "titulo": "Entrá a Inkey",
+    "bajada": "Tu historial de alquiler, siempre a mano. Entrás con tu mail o con Google.",
+    "tuMail": "Tu mail",
+    "pistaMail": "Te mandamos un link para entrar. Sin contraseñas.",
+    "enviarme": "Enviarme el link",
+    "enviando": "Enviando…",
+    "o": "o",
+    "conGoogle": "Continuar con Google",
+    "abriendoGoogle": "Abriendo Google…",
+    "miraTuCasilla": "Mirá tu casilla",
+    "teMandamos": "Le mandamos un link y un código numérico a {email}. Si no aparece, fijate en spam.",
+    "campoCodigo": "O escribí el código del mail",
+    "pistaCodigo": "Sirve siempre, aunque el link no funcione o lo abras en otro dispositivo.",
+    "entrarConCodigo": "Entrar con el código",
+    "entrando": "Entrando…",
+    "noTeLlego": "¿No te llegó? Volvé a",
+    "pedirOtro": "pedir uno nuevo",
+    "errorGoogle": "No se pudo abrir Google. Probá con tu mail.",
+    "errorMail": "No se pudo mandar el mail. Probá de nuevo en un momento.",
+    "errorCodigo": "Ese código no es correcto o ya venció. Revisalo o pedí uno nuevo."
+  },
+  "rebote": {
+    "vencido": "El link venció o ya se usó. Pedí uno nuevo.",
+    "desactivado": "Ese modo de ingreso está desactivado. Probá con Google.",
+    "sinConfirmar": "Todavía falta confirmar ese mail. Pedí un link nuevo.",
+    "demasiados": "Pediste varios links seguidos. Esperá un minuto y volvé a intentar.",
+    "incompleto": "Ese link está incompleto. Pedí uno nuevo.",
+    "servidor": "Algo falló de nuestro lado. Pedí un link nuevo.",
+    "generico": "Ese link ya no sirve: venció o ya se usó. Pedí uno nuevo."
+  },
+  "onboarding": {
+    "errorGuardar": "No se pudieron guardar tus datos. Probá de nuevo en un momento.",
+    "tituloMeta": "Tus datos · Inkey",
+    "titulo": "Contanos quién sos",
+    "bajada": "Son dos minutos. Tu nombre completo lo ve solo la persona con la que compartís un alquiler: en tu perfil público aparece tu nombre y la inicial del apellido.",
+    "nombre": "Nombre",
+    "apellido": "Apellido",
+    "celular": "Celular",
+    "pistaCelular": "Lo usamos para avisarte por WhatsApp. Nunca aparece en tu perfil público.",
+    "quePrimero": "¿Qué querés hacer primero?",
+    "soloParaEmpezar": "Es solo para saber por dónde empezar: después podés hacer las dos cosas.",
+    "opcionInquilinoTitulo": "Registrar mi alquiler",
+    "opcionInquilinoDetalle": "Alquilo y quiero armar mi historial.",
+    "opcionPropietarioTitulo": "Registrar una propiedad",
+    "opcionPropietarioDetalle": "Tengo una propiedad en alquiler.",
+    "aceptoTerminos": "Acepto los <link>términos y condiciones</link>.",
+    "leiPrivacidad": "Leí la <link>política de privacidad</link> y acepto el tratamiento de mis datos.",
+    "guardar": "Listo, empezar",
+    "guardando": "Guardando…"
   }
 }

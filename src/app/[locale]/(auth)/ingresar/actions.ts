@@ -62,7 +62,7 @@ async function mandarMagicLink(
     console.error("signInWithOtp falló", error);
     return {
       estado: "error",
-      mensaje: "No se pudo mandar el mail. Probá de nuevo en un momento.",
+      mensaje: "ingreso.errorMail",
     };
   }
 
@@ -122,7 +122,7 @@ async function verificarCodigo(
     console.error("verifyOtp falló", error.message);
     return {
       estado: "error",
-      mensaje: "Ese código no es correcto o ya venció. Revisalo o pedí uno nuevo.",
+      mensaje: "ingreso.errorCodigo",
     };
   }
 

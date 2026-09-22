@@ -24,18 +24,18 @@ export const onboardingSchema = z.object({
   first_name: z
     .string()
     .trim()
-    .min(2, "Escribí tu nombre.")
+    .min(2, "validacion.perfil.nombre")
     .max(60, "Ese nombre es demasiado largo."),
   last_name: z
     .string()
     .trim()
-    .min(2, "Escribí tu apellido.")
+    .min(2, "validacion.perfil.apellido")
     .max(60, "Ese apellido es demasiado largo."),
   phone: z
     .string()
     .trim()
-    .regex(telefonoRegex, "Revisá el celular: por ejemplo +54 9 11 5555 5555."),
-  intencion: z.enum(INTENCIONES, { message: "Elegí qué querés hacer primero." }),
+    .regex(telefonoRegex, "validacion.perfil.celular"),
+  intencion: z.enum(INTENCIONES, { message: "validacion.perfil.intencion" }),
   acepta_terminos: casillaObligatoria,
   acepta_privacidad: casillaObligatoria,
 });

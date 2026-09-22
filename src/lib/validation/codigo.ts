@@ -15,7 +15,7 @@ export const codigoSchema = z.object({
     .string()
     .trim()
     .min(1, "Falta el mail.")
-    .email("Revisá el mail.")
+    .email("validacion.mail")
     .transform((valor) => valor.toLowerCase()),
   codigo: z
     .string()
@@ -27,7 +27,7 @@ export const codigoSchema = z.object({
         .string()
         .regex(
           new RegExp(`^\\d{${LARGO_CODIGO.minimo},${LARGO_CODIGO.maximo}}$`),
-          "El código son los números que te llegaron por mail.",
+          "validacion.codigo",
         ),
     ),
 });

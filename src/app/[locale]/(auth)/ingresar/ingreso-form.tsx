@@ -9,6 +9,8 @@ import {
   type EstadoCodigo,
   type EstadoIngreso,
 } from "./actions";
+import { useTranslations } from "next-intl";
+import { texto } from "@/i18n/texto";
 import { Link } from "@/i18n/navigation";
 import { Button, Field, Input } from "@/components/ui";
 import type { Intencion } from "@/lib/validation/profile";
@@ -17,28 +19,31 @@ import { LARGO_CODIGO } from "@/lib/validation/codigo";
 const ESTADO_INICIAL: EstadoIngreso = { estado: "inicial" };
 
 function BotonEnviar() {
+  const t = useTranslations("ingreso");
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
-      {pending ? "Enviando…" : "Enviarme el link"}
+      {pending ? t("enviando") : t("enviarme")}
     </Button>
   );
 }
 
 function BotonCodigo() {
+  const t = useTranslations("ingreso");
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
-      {pending ? "Entrando…" : "Entrar con el código"}
+      {pending ? t("entrando") : t("entrarConCodigo")}
     </Button>
   );
 }
 
 function BotonGoogle() {
+  const t = useTranslations("ingreso");
   const { pending } = useFormStatus();
   return (
     <Button type="submit" variant="secondary" disabled={pending} className="w-full">
-      {pending ? "Abriendo Google…" : "Continuar con Google"}
+      {pending ? t("abriendoGoogle") : t("conGoogle")}
     </Button>
   );
 }
@@ -58,15 +63,18 @@ function Revisa({
   volverA: string;
   intencion?: Intencion | null;
 }) {
+  const t = useTranslations("ingreso");
+  const tt = useTranslations();
   const [estado, accion] = useActionState(entrarConCodigo, { estado: "inicial" } as EstadoCodigo);
 
   return (
     <div aria-live="polite" className="flex flex-col gap-5">
       <div>
-        <h2 className="mt-0 mb-2 t-titulo text-primary-ink">Mirá tu casilla</h2>
+        <h2 className="mt-0 mb-2 t-titulo text-primary-ink">{t("miraTuCasilla")}</h2>
         <p className="m-0 text-body">
-          Le mandamos un link y un código numérico a{" "}
-          <strong className="text-ink">{email}</strong>. Si no aparece, fijate en spam.
+          {t.rich("teMandamos", {
+            email: () => <strong className="text-ink">{email}</strong>,
+          })}
         </p>
       </div>
 
@@ -75,10 +83,10 @@ function Revisa({
         <input type="hidden" name="volver_a" value={volverA} />
         {intencion && <input type="hidden" name="intencion" value={intencion} />}
         <Field
-          label="O escribí el código del mail"
+          label={t("campoCodigo")}
           htmlFor="codigo"
-          hint="Sirve siempre, aunque el link no funcione o lo abras en otro dispositivo."
-          error={estado.estado === "error" ? estado.mensaje : undefined}
+          hint={t("pistaCodigo")}
+          error={estado.estado === "error" ? texto(tt, estado.mensaje) : undefined}
         >
           <Input
             id="codigo"
@@ -99,9 +107,9 @@ function Revisa({
       </form>
 
       <p className="m-0 text-[15px] text-muted">
-        ¿No te llegó? Volvé a{" "}
+        {t("noTeLlego")}{" "}
         <Link href="/ingresar" className="font-medium text-confirm-ink">
-          pedir uno nuevo
+          {t("pedirOtro")}
         </Link>
         .
       </p>
@@ -117,6 +125,8 @@ export function IngresoForm({
   /** Lo que eligió en la landing, para que el onboarding llegue con la respuesta puesta. */
   intencion?: Intencion | null;
 }) {
+  const t = useTranslations("ingreso");
+  const tt = useTranslations();
   const [estado, accion] = useActionState(enviarMagicLink, ESTADO_INICIAL);
 
   if (estado.estado === "enviado") {
@@ -129,10 +139,10 @@ export function IngresoForm({
         <input type="hidden" name="volver_a" value={volverA} />
         {intencion && <input type="hidden" name="intencion" value={intencion} />}
         <Field
-          label="Tu mail"
+          label={t("tuMail")}
           htmlFor="email"
-          hint="Te mandamos un link para entrar. Sin contraseñas."
-          error={estado.estado === "error" ? estado.mensaje : undefined}
+          hint={t("pistaMail")}
+          error={estado.estado === "error" ? texto(tt, estado.mensaje) : undefined}
         >
           <Input
             id="email"
@@ -149,7 +159,9 @@ export function IngresoForm({
       </form>
 
       <div className="flex items-center gap-3 text-[15px] text-muted">
-        <span className="h-px flex-1 bg-line" />o<span className="h-px flex-1 bg-line" />
+        <span className="h-px flex-1 bg-line" />
+        {t("o")}
+        <span className="h-px flex-1 bg-line" />
       </div>
 
       <form action={ingresarConGoogle}>

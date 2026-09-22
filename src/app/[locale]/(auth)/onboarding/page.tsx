@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { rutaInternaSegura } from "@/lib/validation/auth";
 import type { Intencion } from "@/lib/validation/profile";
 import { OnboardingForm } from "./onboarding-form";
 
-export const metadata: Metadata = {
-  title: "Tus datos · Inkey",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("onboarding");
+  return { title: t("tituloMeta"), robots: { index: false, follow: false } };
+}
 
 export default async function OnboardingPage({
   searchParams,
 }: {
   searchParams: Promise<{ volver_a?: string; intencion?: string }>;
 }) {
+  const t = await getTranslations("onboarding");
   const params = await searchParams;
   const supabase = await createClient();
   const {
@@ -47,13 +49,8 @@ export default async function OnboardingPage({
 
   return (
     <Card hero >
-      <h1 className="mt-0 mb-2 t-titulo">
-        Contanos quién sos
-      </h1>
-      <p className="mt-0 mb-6 text-body">
-        Son dos minutos. Tu nombre completo lo ve solo la persona con la que compartís un alquiler:
-        en tu perfil público aparece tu nombre y la inicial del apellido.
-      </p>
+      <h1 className="mt-0 mb-2 t-titulo">{t("titulo")}</h1>
+      <p className="mt-0 mb-6 text-body">{t("bajada")}</p>
       <OnboardingForm
         volverA={rutaInternaSegura(params.volver_a, "/panel")}
         intencionInicial={intencionInicial}

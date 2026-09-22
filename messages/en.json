@@ -143,7 +143,15 @@
       "ajusteFueraDeRango": "Adjustments go from 1 to 60 months.",
       "finAntesDeInicio": "The end date can't come before the start date.",
       "ajusteIncompleto": "Fill in both the index and how often it adjusts, or leave both empty."
-    }
+    },
+    "perfil": {
+      "nombre": "Write your first name.",
+      "apellido": "Write your last name.",
+      "celular": "Check the phone number: for example +54 9 11 5555 5555.",
+      "intencion": "Choose what you want to do first."
+    },
+    "mail": "Check the email address.",
+    "codigo": "The code is the numbers that arrived in your email."
   },
   "dominio": {
     "estadoAlquiler": {
@@ -254,5 +262,56 @@
   "perfilPublico": {
     "tituloMeta": "Confirmed rental history",
     "noDisponibleMeta": "Profile unavailable · Inkey"
+  },
+  "ingreso": {
+    "titulo": "Sign in to Inkey",
+    "bajada": "Your rental history, always at hand. Sign in with your email or with Google.",
+    "tuMail": "Your email",
+    "pistaMail": "We'll send you a link to sign in. No passwords.",
+    "enviarme": "Send me the link",
+    "enviando": "Sending…",
+    "o": "or",
+    "conGoogle": "Continue with Google",
+    "abriendoGoogle": "Opening Google…",
+    "miraTuCasilla": "Check your inbox",
+    "teMandamos": "We sent a link and a numeric code to {email}. If it's not there, check your spam folder.",
+    "campoCodigo": "Or type the code from the email",
+    "pistaCodigo": "This always works, even if the link doesn't or you open it on another device.",
+    "entrarConCodigo": "Sign in with the code",
+    "entrando": "Signing in…",
+    "noTeLlego": "Didn't get it? Go back and",
+    "pedirOtro": "ask for a new one",
+    "errorGoogle": "We couldn't open Google. Try with your email.",
+    "errorMail": "We couldn't send the email. Try again in a moment.",
+    "errorCodigo": "That code isn't right or it expired. Check it or ask for a new one."
+  },
+  "rebote": {
+    "vencido": "That link expired or was already used. Ask for a new one.",
+    "desactivado": "That way of signing in is turned off. Try with Google.",
+    "sinConfirmar": "That email still needs to be confirmed. Ask for a new link.",
+    "demasiados": "You asked for several links in a row. Wait a minute and try again.",
+    "incompleto": "That link is incomplete. Ask for a new one.",
+    "servidor": "Something broke on our side. Ask for a new link.",
+    "generico": "That link no longer works: it expired or was already used. Ask for a new one."
+  },
+  "onboarding": {
+    "errorGuardar": "We couldn't save your details. Try again in a moment.",
+    "tituloMeta": "Your details · Inkey",
+    "titulo": "Tell us who you are",
+    "bajada": "It takes two minutes. Your full name is only visible to the person you share a lease with: your public profile shows your first name and the initial of your last name.",
+    "nombre": "First name",
+    "apellido": "Last name",
+    "celular": "Mobile",
+    "pistaCelular": "We use it to reach you on WhatsApp. It never appears on your public profile.",
+    "quePrimero": "What would you like to do first?",
+    "soloParaEmpezar": "It's just so we know where to start: you can do both later.",
+    "opcionInquilinoTitulo": "Add my lease",
+    "opcionInquilinoDetalle": "I rent, and I want to build my history.",
+    "opcionPropietarioTitulo": "Add a place I rent out",
+    "opcionPropietarioDetalle": "I have a place I rent out.",
+    "aceptoTerminos": "I accept the <link>terms and conditions</link>.",
+    "leiPrivacidad": "I've read the <link>privacy policy</link> and I accept the processing of my data.",
+    "guardar": "Done, let's start",
+    "guardando": "Saving…"
   }
 }

@@ -1,6 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { texto } from "@/i18n/texto";
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
@@ -11,24 +13,17 @@ import type { Intencion } from "@/lib/validation/profile";
 
 const ESTADO_INICIAL: EstadoOnboarding = { estado: "inicial" };
 
-const OPCIONES: Array<{ valor: Intencion; titulo: string; detalle: string }> = [
-  {
-    valor: "inquilino",
-    titulo: "Registrar mi alquiler",
-    detalle: "Alquilo y quiero armar mi historial.",
-  },
-  {
-    valor: "propietario",
-    titulo: "Registrar una propiedad",
-    detalle: "Tengo una propiedad en alquiler.",
-  },
+const OPCIONES: Array<{ valor: Intencion; clave: "Inquilino" | "Propietario" }> = [
+  { valor: "inquilino", clave: "Inquilino" },
+  { valor: "propietario", clave: "Propietario" },
 ];
 
 function BotonGuardar() {
+  const t = useTranslations("onboarding");
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
-      {pending ? "Guardando…" : "Listo, empezar"}
+      {pending ? t("guardando") : t("guardar")}
     </Button>
   );
 }
@@ -40,10 +35,13 @@ export function OnboardingForm({
   volverA: string;
   intencionInicial: Intencion;
 }) {
+  const t = useTranslations("onboarding");
+  const tt = useTranslations();
   const [estado, accion] = useActionState(completarOnboarding, ESTADO_INICIAL);
   const [intencion, setIntencion] = useState<Intencion>(intencionInicial);
   const error = estado.estado === "error" ? estado : undefined;
-  const errorDe = (campo: string) => (error?.campo === campo ? error.mensaje : undefined);
+  const errorDe = (campo: string) =>
+    error?.campo === campo ? texto(tt, error.mensaje) : undefined;
 
   return (
     <form action={accion} noValidate className="flex flex-col gap-5">
@@ -51,18 +49,18 @@ export function OnboardingForm({
       <input type="hidden" name="intencion" value={intencion} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="Nombre" htmlFor="first_name" error={errorDe("first_name")}>
+        <Field label={t("nombre")} htmlFor="first_name" error={errorDe("first_name")}>
           <Input id="first_name" name="first_name" autoComplete="given-name" required />
         </Field>
-        <Field label="Apellido" htmlFor="last_name" error={errorDe("last_name")}>
+        <Field label={t("apellido")} htmlFor="last_name" error={errorDe("last_name")}>
           <Input id="last_name" name="last_name" autoComplete="family-name" required />
         </Field>
       </div>
 
       <Field
-        label="Celular"
+        label={t("celular")}
         htmlFor="phone"
-        hint="Lo usamos para avisarte por WhatsApp. Nunca aparece en tu perfil público."
+        hint={t("pistaCelular")}
         error={errorDe("phone")}
       >
         <Input
@@ -77,7 +75,7 @@ export function OnboardingForm({
       </Field>
 
       <fieldset className="m-0 border-0 p-0">
-        <legend className="mb-2 text-[15px] font-medium">¿Qué querés hacer primero?</legend>
+        <legend className="mb-2 text-[15px] font-medium">{t("quePrimero")}</legend>
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {OPCIONES.map((opcion) => (
             <button
@@ -92,13 +90,15 @@ export function OnboardingForm({
                   : "border-line bg-transparent",
               )}
             >
-              <span className="block text-[16px] font-medium text-ink">{opcion.titulo}</span>
-              <span className="block text-[15px] text-muted">{opcion.detalle}</span>
+              <span className="block text-[16px] font-medium text-ink">
+                {t(`opcion${opcion.clave}Titulo`)}
+              </span>
+              <span className="block text-[15px] text-muted">{t(`opcion${opcion.clave}Detalle`)}</span>
             </button>
           ))}
         </div>
         <p className="mt-2 text-[15px] text-muted">
-          Es solo para saber por dónde empezar: después podés hacer las dos cosas.
+          {t("soloParaEmpezar")}
         </p>
       </fieldset>
 
@@ -107,38 +107,38 @@ export function OnboardingForm({
           id="acepta_terminos"
           name="acepta_terminos"
           label={
-            <>
-              Acepto los{" "}
-              <Link href="/terminos" target="_blank" className="font-medium text-confirm-ink">
-                términos y condiciones
-              </Link>
-              .
-            </>
+            t.rich("aceptoTerminos", {
+              link: (partes) => (
+                <Link href="/terminos" target="_blank" className="font-medium text-confirm-ink">
+                  {partes}
+                </Link>
+              ),
+            })
           }
         />
         <Checkbox
           id="acepta_privacidad"
           name="acepta_privacidad"
           label={
-            <>
-              Leí la{" "}
-              <Link href="/privacidad" target="_blank" className="font-medium text-confirm-ink">
-                política de privacidad
-              </Link>{" "}
-              y acepto el tratamiento de mis datos.
-            </>
+            t.rich("leiPrivacidad", {
+              link: (partes) => (
+                <Link href="/privacidad" target="_blank" className="font-medium text-confirm-ink">
+                  {partes}
+                </Link>
+              ),
+            })
           }
         />
       </div>
 
       {error && !error.campo && (
         <p role="alert" className="text-[15px] text-primary-ink">
-          {error.mensaje}
+          {texto(tt, error.mensaje)}
         </p>
       )}
       {error?.campo?.startsWith("acepta") && (
         <p role="alert" className="text-[15px] text-primary-ink">
-          {error.mensaje}
+          {texto(tt, error.mensaje)}
         </p>
       )}
 
