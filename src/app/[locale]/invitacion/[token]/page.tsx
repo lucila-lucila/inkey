@@ -32,21 +32,21 @@ type Resumen = {
 };
 
 const MENSAJES_ERROR: Record<string, string> = {
-  usada: "Este link ya se usó.",
-  vencida: "Este link venció. Pedile a quien te invitó que te mande uno nuevo.",
-  revocada: "Este link ya no sirve.",
-  ya_no_disponible: "Este alquiler ya fue confirmado o cancelado.",
-  sos_vos: "No podés confirmar tu propia invitación: este link es para la otra parte.",
-  inexistente: "No encontramos esta invitación.",
-  demasiados_intentos: "Probaste varias veces seguidas. Esperá unos minutos.",
-  servidor: "Algo se rompió de nuestro lado. Probá de nuevo en un rato.",
+  usada: "invitacionError.usada",
+  vencida: "invitacionError.vencida",
+  revocada: "invitacionError.revocada",
+  ya_no_disponible: "invitacionError.ya_no_disponible",
+  sos_vos: "invitacionError.sos_vos",
+  inexistente: "invitacionError.inexistente",
+  demasiados_intentos: "invitacionError.demasiados_intentos",
+  servidor: "invitacionError.servidor",
 };
 
 const MENSAJES_ESTADO: Record<string, string> = {
-  vencida: "Este link venció. Pedile a quien te invitó que te mande uno nuevo: es gratis y tarda un segundo.",
-  usada: "Este link ya se usó. Si fuiste vos, entrá con tu mail y vas a ver el alquiler en tu panel.",
-  revocada: "Este link ya no sirve. Puede que hayan generado uno nuevo o cancelado el alquiler.",
-  inexistente: "No encontramos esta invitación. Revisá que hayas copiado el link completo.",
+  vencida: "invitacionEstado.vencida",
+  usada: "invitacionEstado.usada",
+  revocada: "invitacionEstado.revocada",
+  inexistente: "invitacionEstado.inexistente",
 };
 
 function Marco({ children }: { children: React.ReactNode }) {
@@ -125,7 +125,7 @@ export default async function InvitacionPage({
             Este link ya no está disponible
           </h1>
           <p className="mt-0 mb-5 text-body">
-            {MENSAJES_ESTADO[resumen.estado] ?? MENSAJES_ESTADO.inexistente}
+            {t(MENSAJES_ESTADO[resumen.estado] ?? MENSAJES_ESTADO.inexistente)}
           </p>
           <ButtonLink href="/" variant="secondary">
             Conocer Inkey
@@ -197,7 +197,7 @@ export default async function InvitacionPage({
 
         {error && (
           <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
-            {MENSAJES_ERROR[error] ?? MENSAJES_ERROR.servidor}
+            {t(MENSAJES_ERROR[error] ?? MENSAJES_ERROR.servidor)}
           </p>
         )}
 

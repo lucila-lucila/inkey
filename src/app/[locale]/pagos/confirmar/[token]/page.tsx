@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { ButtonLink, Cabecera, Card, Pie } from "@/components/ui";
 import { formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
 import { nombrePeriodo } from "@/lib/domain/pagos";
@@ -25,10 +26,10 @@ type Resumen = {
 };
 
 const MENSAJES: Record<string, string> = {
-  usado: "Este link ya se usó. Si querés revisar el pago, entrá a Inkey con tu mail.",
-  vencido: "Este link venció. Entrá a Inkey con tu mail para responder el pago.",
-  ya_confirmado: "Este pago ya está confirmado. No hace falta que hagas nada.",
-  inexistente: "No encontramos este pago. Revisá que hayas abierto el link completo.",
+  usado: "confirmarPago.usado",
+  vencido: "confirmarPago.vencido",
+  ya_confirmado: "confirmarPago.ya_confirmado",
+  inexistente: "confirmarPago.inexistente",
 };
 
 function Marco({ children }: { children: React.ReactNode }) {
@@ -50,6 +51,7 @@ export default async function ConfirmarDesdeMailPage({
   params: Promise<{ token: string }>;
   searchParams: Promise<{ respuesta?: string; resultado?: string }>;
 }) {
+  const t = await getTranslations();
   const { token } = await params;
   const { respuesta, resultado } = await searchParams;
 
@@ -89,7 +91,7 @@ export default async function ConfirmarDesdeMailPage({
         <Card hero>
           <h1 className="t-titulo mt-0 mb-2">Este link ya no sirve</h1>
           <p className="mt-0 mb-5 text-body">
-            {MENSAJES[resumen.estado] ?? MENSAJES.inexistente}
+            {t(MENSAJES[resumen.estado] ?? MENSAJES.inexistente)}
           </p>
           <ButtonLink href="/ingresar" variant="secondary">
             Entrar a Inkey

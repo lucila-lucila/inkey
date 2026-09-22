@@ -391,5 +391,32 @@
   },
   "alquilerNuevo": {
     "alGuardar": "Al guardar te damos el link para invitar a tu {rol}. El alquiler queda pendiente hasta que lo confirme."
+  },
+  "invitacionError": {
+    "usada": "Este link ya se usó.",
+    "vencida": "Este link venció. Pedile a quien te invitó que te mande uno nuevo.",
+    "revocada": "Este link ya no sirve.",
+    "ya_no_disponible": "Este alquiler ya fue confirmado o cancelado.",
+    "sos_vos": "No podés confirmar tu propia invitación: este link es para la otra parte.",
+    "inexistente": "No encontramos esta invitación.",
+    "demasiados_intentos": "Probaste varias veces seguidas. Esperá unos minutos.",
+    "servidor": "Algo se rompió de nuestro lado. Probá de nuevo en un rato."
+  },
+  "invitacionEstado": {
+    "vencida": "Este link venció. Pedile a quien te invitó que te mande uno nuevo: es gratis y tarda un segundo.",
+    "usada": "Este link ya se usó. Si fuiste vos, entrá con tu mail y vas a ver el alquiler en tu panel.",
+    "revocada": "Este link ya no sirve. Puede que hayan generado uno nuevo o cancelado el alquiler.",
+    "inexistente": "No encontramos esta invitación. Revisá que hayas copiado el link completo."
+  },
+  "confirmarPago": {
+    "usado": "Este link ya se usó. Si querés revisar el pago, entrá a Inkey con tu mail.",
+    "vencido": "Este link venció. Entrá a Inkey con tu mail para responder el pago.",
+    "ya_confirmado": "Este pago ya está confirmado. No hace falta que hagas nada.",
+    "inexistente": "No encontramos este pago. Revisá que hayas abierto el link completo."
+  },
+  "perfilLink": {
+    "revocado": "Quien te lo compartió dio de baja este link. Pedile uno nuevo.",
+    "vencido": "Este link venció. Pedile uno nuevo a quien te lo compartió.",
+    "inexistente": "No encontramos este perfil. Revisá que hayas copiado el link completo."
   }
 }

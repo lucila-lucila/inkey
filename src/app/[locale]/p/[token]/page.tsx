@@ -16,15 +16,14 @@ export async function generateMetadata({
 }: {
   params: Promise<{ token: string }>;
 }): Promise<Metadata> {
+  const t = await getTranslations();
   const { token } = await params;
   const perfil = await perfilDelToken(token);
 
   if (perfil.estado !== "valido") {
-    const t = await getTranslations();
     return { title: t("perfilPublico.noDisponibleMeta"), robots: { index: false, follow: false } };
   }
 
-  const t = await getTranslations();
   const nombre = nombreVisible(perfil.nombre, perfil.inicial_apellido);
   const titulo = `${nombre} · ${t("perfilPublico.tituloMeta")}`;
   const descripcion = resumenParaCompartir(t, perfil.metricas, perfil.rol);
@@ -51,9 +50,9 @@ function Marco({ children }: { children: React.ReactNode }) {
 }
 
 const MENSAJES: Record<string, string> = {
-  revocado: "Quien te lo compartió dio de baja este link. Pedile uno nuevo.",
-  vencido: "Este link venció. Pedile uno nuevo a quien te lo compartió.",
-  inexistente: "No encontramos este perfil. Revisá que hayas copiado el link completo.",
+  revocado: "perfilLink.revocado",
+  vencido: "perfilLink.vencido",
+  inexistente: "perfilLink.inexistente",
 };
 
 export default async function PerfilPublicoPage({
@@ -61,6 +60,7 @@ export default async function PerfilPublicoPage({
 }: {
   params: Promise<{ token: string }>;
 }) {
+  const t = await getTranslations();
   const { token } = await params;
   const perfil = await perfilDelToken(token);
 
@@ -70,7 +70,7 @@ export default async function PerfilPublicoPage({
         <Card hero>
           <h1 className="t-titulo mt-0 mb-2">Este link ya no está disponible</h1>
           <p className="mt-0 mb-5 text-body">
-            {MENSAJES[perfil.estado] ?? MENSAJES.inexistente}
+            {t(MENSAJES[perfil.estado] ?? MENSAJES.inexistente)}
           </p>
           <ButtonLink href="/" variant="secondary">
             Conocer Inkey

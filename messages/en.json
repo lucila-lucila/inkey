@@ -391,5 +391,32 @@
   },
   "alquilerNuevo": {
     "alGuardar": "When you save, we'll give you the link to invite your {rol}. The lease stays pending until they confirm."
+  },
+  "invitacionError": {
+    "usada": "This link has already been used.",
+    "vencida": "This link expired. Ask whoever invited you to send a new one.",
+    "revocada": "This link no longer works.",
+    "ya_no_disponible": "This lease has already been confirmed or cancelled.",
+    "sos_vos": "You can't confirm your own invitation: this link is for the other side.",
+    "inexistente": "We couldn't find this invitation.",
+    "demasiados_intentos": "You've tried several times in a row. Wait a few minutes.",
+    "servidor": "Something broke on our side. Try again in a little while."
+  },
+  "invitacionEstado": {
+    "vencida": "This link expired. Ask whoever invited you to send a new one: it's free and takes a second.",
+    "usada": "This link has already been used. If it was you, sign in with your email and you'll see the lease on your home screen.",
+    "revocada": "This link no longer works. They may have generated a new one or cancelled the lease.",
+    "inexistente": "We couldn't find this invitation. Check that you copied the whole link."
+  },
+  "confirmarPago": {
+    "usado": "This link has already been used. To check the payment, sign in to Inkey with your email.",
+    "vencido": "This link expired. Sign in to Inkey with your email to respond to the payment.",
+    "ya_confirmado": "This payment is already confirmed. There's nothing for you to do.",
+    "inexistente": "We couldn't find this payment. Check that you opened the whole link."
+  },
+  "perfilLink": {
+    "revocado": "Whoever shared this link has taken it down. Ask them for a new one.",
+    "vencido": "This link expired. Ask whoever shared it for a new one.",
+    "inexistente": "We couldn't find this profile. Check that you copied the whole link."
   }
 }
