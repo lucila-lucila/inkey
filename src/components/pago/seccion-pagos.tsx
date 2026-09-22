@@ -124,6 +124,7 @@ export function SeccionPagos({
                   <a
                     href={enlaceWhatsApp(
                       mensajeInsistirPago({
+                        t,
                         mes: nombrePeriodo(actual.periodo),
                         barrio,
                         url: `${siteUrl}/pagos/${actual.pago.id}`,

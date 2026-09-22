@@ -1,3 +1,4 @@
+import type { Traductor } from "@/i18n/texto";
 import type { Moneda, RolAlquiler } from "@/lib/validation/rental";
 
 /** El tono de cada estado. El texto vive en `dominio.estadoAlquiler`. */
@@ -71,10 +72,12 @@ export function vencimientoDelPeriodo(anio: number, mes: number, diaVencimiento:
   return new Date(Date.UTC(anio, mes - 1, Math.min(diaVencimiento, ultimoDia)));
 }
 
-export function textoVencimiento(diaVencimiento: number): string {
-  return diaVencimiento >= 29
-    ? `El ${diaVencimiento} de cada mes (o el último día, si el mes es más corto)`
-    : `El ${diaVencimiento} de cada mes`;
+/*
+ * El día de vencimiento, en palabras. Del 29 en adelante hace falta la
+ * aclaración: febrero no tiene 30.
+ */
+export function claveDeVencimiento(diaVencimiento: number): string {
+  return diaVencimiento >= 29 ? "dominio.vencimiento.conAclaracion" : "dominio.vencimiento.simple";
 }
 
 /** Quién falta en el alquiler: a quién hay que invitar. */
@@ -82,24 +85,24 @@ export function rolInvitado(rolDeQuienCrea: RolAlquiler): "owner" | "tenant" {
   return rolDeQuienCrea === "inquilino" ? "owner" : "tenant";
 }
 
-export function textoRol(rol: "owner" | "tenant"): string {
-  return rol === "owner" ? "dueño" : "inquilino";
+export function claveDeRol(rol: "owner" | "tenant"): string {
+  return rol === "owner" ? "dominio.rol.owner" : "dominio.rol.tenant";
 }
 
 /** Mensaje armado para mandar por WhatsApp. */
 export function mensajeInvitacion(opciones: {
+  t: Traductor;
   rolInvitado: "owner" | "tenant";
   nombre: string;
   barrio: string;
   url: string;
 }): string {
-  const { rolInvitado: rol, nombre, barrio, url } = opciones;
-  const presentacion = nombre ? `Soy ${nombre}. ` : "";
-
-  const cuerpo =
-    rol === "owner"
-      ? `${presentacion}Registré en Inkey el alquiler de ${barrio} para que quede constancia de los pagos. ¿Me lo confirmás? Es un toque, no hace falta crear contraseña.`
-      : `${presentacion}Registré en Inkey el alquiler de ${barrio} para llevar juntos el historial de pagos. ¿Lo confirmás? Es un toque, no hace falta crear contraseña.`;
+  const { t, rolInvitado: rol, nombre, barrio, url } = opciones;
+  const presentacion = nombre ? t("mensajes.soy", { nombre }) : "";
+  const cuerpo = t(rol === "owner" ? "mensajes.invitarDueno" : "mensajes.invitarInquilino", {
+    presentacion,
+    barrio,
+  });
 
   return `${cuerpo}\n\n${url}`;
 }

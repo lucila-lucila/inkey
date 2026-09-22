@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { traductor } from "./apoyo/traductor";
 import {
   contratoTerminado,
   invitacion,
@@ -154,7 +155,7 @@ describe("insistirle al dueño", () => {
   });
 
   it("el mensaje lleva al pago en la app, nunca al link del mail", () => {
-    const mensaje = mensajeInsistirPago({
+    const mensaje = mensajeInsistirPago({ t: traductor("es"),
       mes: "septiembre de 2026",
       barrio: "Palermo, CABA",
       url: `${SITE}/pagos/abc`,

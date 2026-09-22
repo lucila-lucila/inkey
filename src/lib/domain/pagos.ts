@@ -1,3 +1,4 @@
+import type { Traductor } from "@/i18n/texto";
 import { vencimientoDelPeriodo } from "./alquiler";
 
 /** Un período es un mes: lo representamos como el día 1, en formato YYYY-MM-DD. */
@@ -135,9 +136,10 @@ export function sePuedeInsistir(
  * viajar en un mensaje que arma el inquilino.
  */
 export function mensajeInsistirPago(datos: {
+  t: Traductor;
   mes: string;
   barrio: string;
   url: string;
 }): string {
-  return `Hola. Te reportamos en Inkey el pago de ${datos.mes} del alquiler de ${datos.barrio} y todavía figura sin confirmar. ¿Lo mirás cuando puedas? Son dos toques.\n\n${datos.url}`;
+  return `${datos.t("mensajes.insistirPago", { mes: datos.mes, barrio: datos.barrio })}\n\n${datos.url}`;
 }

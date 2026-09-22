@@ -234,6 +234,14 @@
       "donde": "Where is it?",
       "cuando": "Since when, and how much?",
       "ajustes": "Adjustments and lease"
+    },
+    "vencimiento": {
+      "simple": "The {dia} of each month",
+      "conAclaracion": "The {dia} of each month (or the last day, if the month is shorter)"
+    },
+    "rol": {
+      "owner": "landlord",
+      "tenant": "tenant"
     }
   },
   "tarjetaPerfil": {
@@ -346,5 +354,42 @@
     "vacioPropietarioTexto": "Add the place, invite your tenant, and confirm each payment in two taps from your phone.",
     "vacioPropietarioAccion": "Add a place",
     "porMes": "a month"
+  },
+  "alquiler": {
+    "tituloMeta": "Lease · Inkey",
+    "alquilasAca": "You rent here",
+    "loTenesEnAlquiler": "You rent this out",
+    "alquilerMensual": "Monthly rent",
+    "vencimiento": "Due",
+    "desde": "From",
+    "hasta": "Until",
+    "ajuste": "Adjustment",
+    "ajusteCada": "{indice}, every {meses, plural, one {# month} other {# months}}",
+    "sinAjuste": "No adjustment on file",
+    "tuDueno": "Your landlord",
+    "tuInquilino": "Your tenant",
+    "compartieron": "You shared this place from <fuerte>{desde}</fuerte> to <fuerte>{hasta}</fuerte>.",
+    "confirmoElAlquiler": "<fuerte>{quien}</fuerte> confirmed the lease. From here you'll confirm each month's payment.",
+    "rechazado": "The person who got the link said they're not the {rol} of this place. If you sent it to the wrong contact, add the lease again with the right details.",
+    "todaviaNoConfirmo": "They haven't confirmed yet. The lease stays pending until they open the link and say yes.",
+    "linkVence": " The link you sent expires on {fecha}.",
+    "linkVencido": " The last link you sent has expired.",
+    "resenas": "Reviews",
+    "yaDejasteLaTuya": "You already left yours",
+    "estaPublicada": "It's published.",
+    "sePublicaCuando": "It's published when {quien} leaves theirs, or on {fecha}. Until then nobody sees it.",
+    "loQueDijo": "What {quien} said",
+    "todaviaNoVemos": "We haven't seen {quien}'s yet.",
+    "pagos": "Payments",
+    "documentos": "Documents"
+  },
+  "mensajes": {
+    "soy": "It's {nombre}. ",
+    "invitarDueno": "{presentacion}I added the {barrio} lease to Inkey so every payment is on the record. Could you confirm it? It's one tap, no password to create.",
+    "invitarInquilino": "{presentacion}I added the {barrio} lease to Inkey so we can keep the payment history together. Could you confirm it? It's one tap, no password to create.",
+    "insistirPago": "Hi. We reported the {mes} payment for the {barrio} lease on Inkey and it's still unconfirmed. Could you take a look when you can? It's two taps."
+  },
+  "alquilerNuevo": {
+    "alGuardar": "When you save, we'll give you the link to invite your {rol}. The lease stays pending until they confirm."
   }
 }

@@ -5,8 +5,8 @@ import {
   ESTADOS_ALQUILER,
   formatearFecha,
   formatearMonto,
-  textoRol,
-  textoVencimiento,
+  claveDeRol,
+  claveDeVencimiento,
   type EstadoAlquiler,
 } from "@/lib/domain/alquiler";
 import { nombreDeContraparte } from "@/lib/validation/profile";
@@ -45,6 +45,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
   const { id } = await params;
   const supabase = await createClient();
   const t = await getTranslations();
+  const ta = await getTranslations("alquiler");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -145,27 +146,28 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
         </div>
         <p className="m-0 text-body">{alquiler.full_address}</p>
         <p className="m-0 text-[15px] text-muted">
-          {soyInquilino ? "Alquilás acá" : "Lo tenés en alquiler"}
+          {soyInquilino ? ta("alquilasAca") : ta("loTenesEnAlquiler")}
         </p>
       </header>
 
       <Card hero >
         <dl className="m-0 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Dato
-            etiqueta="Alquiler mensual"
+            etiqueta={ta("alquilerMensual")}
             valor={formatearMonto(alquiler.monthly_amount, alquiler.currency as Moneda)}
           />
-          <Dato etiqueta="Vencimiento" valor={textoVencimiento(alquiler.due_day)} />
-          <Dato etiqueta="Desde" valor={formatearFecha(alquiler.start_date)} />
-          <Dato etiqueta="Hasta" valor={formatearFecha(alquiler.end_date)} />
+          <Dato etiqueta={ta("vencimiento")} valor={t(claveDeVencimiento(alquiler.due_day), { dia: alquiler.due_day })} />
+          <Dato etiqueta={ta("desde")} valor={formatearFecha(alquiler.start_date)} />
+          <Dato etiqueta={ta("hasta")} valor={formatearFecha(alquiler.end_date)} />
           <Dato
-            etiqueta="Ajuste"
+            etiqueta={ta("ajuste")}
             valor={
               alquiler.adjustment_index
-                ? `${alquiler.adjustment_index}, cada ${alquiler.adjustment_every_months} ${
-                    alquiler.adjustment_every_months === 1 ? "mes" : "meses"
-                  }`
-                : "Sin ajuste cargado"
+                ? ta("ajusteCada", {
+                    indice: alquiler.adjustment_index,
+                    meses: alquiler.adjustment_every_months ?? 0,
+                  })
+                : ta("sinAjuste")
             }
           />
         </dl>
@@ -173,7 +175,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
 
       <section aria-labelledby="titulo-parte" className="flex flex-col gap-3">
         <h2 id="titulo-parte" className="m-0 t-subtitulo">
-          {soyInquilino ? "Tu dueño" : "Tu inquilino"}
+          {soyInquilino ? ta("tuDueno") : ta("tuInquilino")}
         </h2>
 
         <Card className="flex flex-col gap-4">
@@ -185,37 +187,34 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
             */
             alquiler.status === "ended" ? (
               <p className="m-0 text-[17px]">
-                Compartieron este alquiler desde{" "}
-                <strong>{formatearFecha(alquiler.start_date)}</strong> hasta{" "}
-                {/* La fecha en que cerró de verdad, que puede no ser la pactada. */}
-                <strong>
-                  {formatearFecha(
+                {ta.rich("compartieron", {
+                  desde: formatearFecha(alquiler.start_date),
+                  // La fecha en que cerró de verdad, que puede no ser la pactada.
+                  hasta: formatearFecha(
                     alquiler.ended_at ? String(alquiler.ended_at).slice(0, 10) : alquiler.end_date,
-                  )}
-                </strong>
-                .
+                  ),
+                  fuerte: (partes) => <strong>{partes}</strong>,
+                })}
               </p>
             ) : (
               <p className="m-0 text-[17px]">
-                <strong>{nombreDeContraparte(contraparte)}</strong> confirmó el alquiler. Desde acá
-                van a ir confirmando los pagos mes a mes.
+                {ta.rich("confirmoElAlquiler", {
+                  quien: nombreDeContraparte(contraparte),
+                  fuerte: (partes) => <strong>{partes}</strong>,
+                })}
               </p>
             )
           ) : alquiler.status === "rejected" ? (
             <p className="m-0 text-body">
-              La persona que recibió el link dijo que no es {textoRol(rolContraparte)} de esta
-              propiedad. Si te equivocaste de contacto, cargá el alquiler de nuevo con los datos
-              correctos.
+              {ta("rechazado", { rol: t(claveDeRol(rolContraparte)) })}
             </p>
           ) : (
             <>
               <p className="m-0 text-body">
-                Todavía no confirmó. El alquiler queda pendiente hasta que abra el link y diga que
-                sí.
-                {invitacion && !invitacionVencida && (
-                  <> El link que mandaste vence el {formatearFecha(invitacion.expires_at.slice(0, 10))}.</>
-                )}
-                {invitacionVencida && <> El último link que mandaste ya venció.</>}
+                {ta("todaviaNoConfirmo")}
+                {invitacion && !invitacionVencida &&
+                  ta("linkVence", { fecha: formatearFecha(invitacion.expires_at.slice(0, 10)) })}
+                {invitacionVencida && ta("linkVencido")}
               </p>
               {esCreador && (
                 <NuevoLink rentalId={alquiler.id} hayInvitacionViva={Boolean(invitacion)} />
@@ -236,16 +235,19 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
       {alquiler.status === "ended" && (
         <section aria-labelledby="titulo-resenas" className="flex flex-col gap-3">
           <h2 id="titulo-resenas" className="t-subtitulo m-0">
-            Reseñas
+            {ta("resenas")}
           </h2>
 
           {miResena ? (
             <Card className="flex flex-col gap-2">
-              <h3 className="t-subtitulo mt-0 mb-0">Ya dejaste la tuya</h3>
+              <h3 className="t-subtitulo mt-0 mb-0">{ta("yaDejasteLaTuya")}</h3>
               <p className="m-0 text-body">
                 {miResena.published_at
-                  ? "Está publicada."
-                  : `Se publica cuando ${nombreContraparte} deje la suya, o el ${formatearFecha(sePublicaEl)}. Hasta entonces nadie la ve.`}
+                  ? ta("estaPublicada")
+                  : ta("sePublicaCuando", {
+                      quien: nombreContraparte,
+                      fecha: formatearFecha(sePublicaEl),
+                    })}
               </p>
             </Card>
           ) : (
@@ -259,7 +261,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
 
           {resenaDelOtro ? (
             <div>
-              <p className="t-etiqueta mb-2 text-muted">Lo que dijo {nombreContraparte}</p>
+              <p className="t-etiqueta mb-2 text-muted">{ta("loQueDijo", { quien: nombreContraparte })}</p>
               <ListaResenas
                 resenas={[
                   {
@@ -268,16 +270,14 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
                     // los nombres se muestra en el perfil.
                     etiquetas: [],
                     fecha: resenaDelOtro.published_at ?? resenaDelOtro.created_at,
-                    de: soyInquilino ? "Tu dueño" : "Tu inquilino",
+                    de: soyInquilino ? ta("tuDueno") : ta("tuInquilino"),
                   },
                 ]}
               />
             </div>
           ) : (
             <p className="m-0 text-[15px] text-muted">
-              {miResena
-                ? `Todavía no vemos la de ${nombreContraparte}.`
-                : ""}
+              {miResena ? ta("todaviaNoVemos", { quien: nombreContraparte }) : ""}
             </p>
           )}
         </section>
@@ -286,7 +286,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
       {alquiler.status === "active" && (
         <section aria-labelledby="titulo-pagos" className="flex flex-col gap-3">
           <h2 id="titulo-pagos" className="m-0 t-subtitulo">
-            Pagos
+            {ta("pagos")}
           </h2>
           <SeccionPagos
             rentalId={alquiler.id}

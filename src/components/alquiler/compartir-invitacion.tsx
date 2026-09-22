@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
@@ -11,7 +12,7 @@ import {
   enlaceMail,
   enlaceWhatsApp,
   mensajeInvitacion,
-  textoRol,
+  claveDeRol,
 } from "@/lib/domain/alquiler";
 
 /** El token vive solo en el link: de la base guardamos únicamente su hash. */
@@ -52,8 +53,9 @@ export function CompartirInvitacion({
     estado: "inicial",
   } as EstadoInvitacionMail);
 
-  const mensaje = mensajeInvitacion({ rolInvitado, nombre, barrio, url });
-  const rol = textoRol(rolInvitado);
+  const t = useTranslations();
+  const mensaje = mensajeInvitacion({ t, rolInvitado, nombre, barrio, url });
+  const rol = t(claveDeRol(rolInvitado));
 
   async function copiar() {
     try {

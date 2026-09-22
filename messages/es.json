@@ -234,6 +234,14 @@
       "donde": "¿Dónde es?",
       "cuando": "¿Desde cuándo y cuánto?",
       "ajustes": "Ajustes y contrato"
+    },
+    "vencimiento": {
+      "simple": "El {dia} de cada mes",
+      "conAclaracion": "El {dia} de cada mes (o el último día, si el mes es más corto)"
+    },
+    "rol": {
+      "owner": "dueño",
+      "tenant": "inquilino"
     }
   },
   "tarjetaPerfil": {
@@ -346,5 +354,42 @@
     "vacioPropietarioTexto": "Registrá la propiedad, invitá a tu inquilino y confirmá cada pago en dos toques desde el celular.",
     "vacioPropietarioAccion": "Registrar una propiedad",
     "porMes": "por mes"
+  },
+  "alquiler": {
+    "tituloMeta": "Alquiler · Inkey",
+    "alquilasAca": "Alquilás acá",
+    "loTenesEnAlquiler": "Lo tenés en alquiler",
+    "alquilerMensual": "Alquiler mensual",
+    "vencimiento": "Vencimiento",
+    "desde": "Desde",
+    "hasta": "Hasta",
+    "ajuste": "Ajuste",
+    "ajusteCada": "{indice}, cada {meses, plural, one {# mes} other {# meses}}",
+    "sinAjuste": "Sin ajuste cargado",
+    "tuDueno": "Tu dueño",
+    "tuInquilino": "Tu inquilino",
+    "compartieron": "Compartieron este alquiler desde <fuerte>{desde}</fuerte> hasta <fuerte>{hasta}</fuerte>.",
+    "confirmoElAlquiler": "<fuerte>{quien}</fuerte> confirmó el alquiler. Desde acá van a ir confirmando los pagos mes a mes.",
+    "rechazado": "La persona que recibió el link dijo que no es {rol} de esta propiedad. Si te equivocaste de contacto, cargá el alquiler de nuevo con los datos correctos.",
+    "todaviaNoConfirmo": "Todavía no confirmó. El alquiler queda pendiente hasta que abra el link y diga que sí.",
+    "linkVence": " El link que mandaste vence el {fecha}.",
+    "linkVencido": " El último link que mandaste ya venció.",
+    "resenas": "Reseñas",
+    "yaDejasteLaTuya": "Ya dejaste la tuya",
+    "estaPublicada": "Está publicada.",
+    "sePublicaCuando": "Se publica cuando {quien} deje la suya, o el {fecha}. Hasta entonces nadie la ve.",
+    "loQueDijo": "Lo que dijo {quien}",
+    "todaviaNoVemos": "Todavía no vemos la de {quien}.",
+    "pagos": "Pagos",
+    "documentos": "Documentos"
+  },
+  "mensajes": {
+    "soy": "Soy {nombre}. ",
+    "invitarDueno": "{presentacion}Registré en Inkey el alquiler de {barrio} para que quede constancia de los pagos. ¿Me lo confirmás? Es un toque, no hace falta crear contraseña.",
+    "invitarInquilino": "{presentacion}Registré en Inkey el alquiler de {barrio} para llevar juntos el historial de pagos. ¿Lo confirmás? Es un toque, no hace falta crear contraseña.",
+    "insistirPago": "Hola. Te reportamos en Inkey el pago de {mes} del alquiler de {barrio} y todavía figura sin confirmar. ¿Lo mirás cuando puedas? Son dos toques."
+  },
+  "alquilerNuevo": {
+    "alGuardar": "Al guardar te damos el link para invitar a tu {rol}. El alquiler queda pendiente hasta que lo confirme."
   }
 }

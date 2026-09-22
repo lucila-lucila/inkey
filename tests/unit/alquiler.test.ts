@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { traductor } from "./apoyo/traductor";
 import {
   enlaceWhatsApp,
   conSeparadores,
@@ -6,7 +7,7 @@ import {
   montoParaCampo,
   mensajeInvitacion,
   rolInvitado,
-  textoVencimiento,
+  claveDeVencimiento,
   vencimientoDelPeriodo,
 } from "@/lib/domain/alquiler";
 import { datosAlquilerSchema, parsearMonto } from "@/lib/validation/rental";
@@ -160,8 +161,11 @@ describe("vencimiento", () => {
   });
 
   it("avisa cuando el día puede correrse", () => {
-    expect(textoVencimiento(10)).toBe("El 10 de cada mes");
-    expect(textoVencimiento(31)).toContain("último día");
+    const t = traductor("es");
+    expect(t(claveDeVencimiento(10), { dia: 10 })).toBe("El 10 de cada mes");
+    expect(t(claveDeVencimiento(31), { dia: 31 })).toContain("último día");
+    // Y en inglés la aclaración también tiene que estar.
+    expect(traductor("en")(claveDeVencimiento(31), { dia: 31 })).toContain("last day");
   });
 });
 
@@ -172,7 +176,7 @@ describe("invitación", () => {
   });
 
   it("arma un mensaje con el link y sin datos de más", () => {
-    const mensaje = mensajeInvitacion({
+    const mensaje = mensajeInvitacion({ t: traductor("es"),
       rolInvitado: "owner",
       nombre: "Martina",
       barrio: "Palermo, CABA",

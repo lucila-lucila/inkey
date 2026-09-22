@@ -8,7 +8,7 @@ import { CompartirInvitacion } from "@/components/alquiler/compartir-invitacion"
 import { useTranslations } from "next-intl";
 import { Button, ButtonLink, CampoMonto, Card, Field, Input } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import { textoRol } from "@/lib/domain/alquiler";
+import { claveDeRol } from "@/lib/domain/alquiler";
 import {
   datosAlquilerSchema,
   pasoDelCampo,
@@ -247,8 +247,9 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
         </Field>
 
         <p className="m-0 text-[15px] text-body">
-          Al guardar te damos el link para invitar a tu {textoRol(rol === "inquilino" ? "owner" : "tenant")}.
-          El alquiler queda pendiente hasta que lo confirme.
+          {t("alquilerNuevo.alGuardar", {
+            rol: t(claveDeRol(rol === "inquilino" ? "owner" : "tenant")),
+          })}
         </p>
       </div>
 

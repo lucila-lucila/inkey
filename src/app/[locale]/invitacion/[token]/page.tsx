@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ButtonLink, Cabecera, Card, Pie } from "@/components/ui";
-import { formatearFecha, formatearMonto, textoRol, textoVencimiento } from "@/lib/domain/alquiler";
+import { formatearFecha, formatearMonto, claveDeRol, claveDeVencimiento } from "@/lib/domain/alquiler";
 import type { Moneda } from "@/lib/validation/rental";
 import { hashearToken, pareceToken } from "@/lib/tokens";
 import { createClient } from "@/lib/supabase/server";
@@ -67,6 +68,8 @@ export default async function InvitacionPage({
   params: Promise<{ token: string }>;
   searchParams: Promise<{ error?: string; resultado?: string }>;
 }) {
+  const t = await getTranslations();
+  const ti = await getTranslations("invitacion");
   const { token } = await params;
   const { error, resultado } = await searchParams;
 
@@ -169,7 +172,7 @@ export default async function InvitacionPage({
             <div>
               <dt className="t-etiqueta text-muted">Vencimiento</dt>
               <dd className="m-0 text-[17px] font-medium">
-                {textoVencimiento(alquiler.dia_vencimiento)}
+                {t(claveDeVencimiento(alquiler.dia_vencimiento), { dia: alquiler.dia_vencimiento })}
               </dd>
             </div>
             <div>
@@ -215,8 +218,7 @@ export default async function InvitacionPage({
         </div>
 
         <p className="m-0 text-[15px] text-muted">
-          Al confirmar quedás como {textoRol(rol)} de este alquiler. Vos también vas a poder dejar y
-          recibir reseñas al final del contrato.{" "}
+          {ti("alConfirmar", { rol: t(claveDeRol(rol)) })}{" "}
           <Link href="/" className="font-medium text-primary-ink">
             Cómo funciona Inkey
           </Link>
