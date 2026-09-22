@@ -1,3 +1,4 @@
+import { estaActivo, idiomaDeRespaldo } from "./activos";
 import { IDIOMAS, IDIOMA_POR_DEFECTO, esIdioma, type Idioma } from "./routing";
 
 /*
@@ -74,4 +75,15 @@ export function rutaEnIdioma(pathname: string, idioma: Idioma): string {
   const prefijo = prefijoDe(idioma);
   if (resto === "/") return prefijo === "" ? "/" : prefijo;
   return `${prefijo}${resto}`;
+}
+
+/**
+ * El idioma con el que hablarle a alguien, respetando lo que esté prendido.
+ *
+ * La preferencia guardada no se toca: si alguien eligió inglés y mañana lo
+ * apagamos, ve el castellano, y el día que vuelva a prenderse recupera el
+ * inglés sin tener que elegirlo de nuevo.
+ */
+export function idiomaParaMostrar(guardado: string | null | undefined): Idioma {
+  return guardado && estaActivo(guardado) ? (guardado as Idioma) : idiomaDeRespaldo();
 }

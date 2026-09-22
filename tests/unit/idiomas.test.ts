@@ -3,6 +3,12 @@ import en from "../../messages/en.json";
 import es from "../../messages/es.json";
 import { idiomaDelNavegador, partirRuta, prefijoDe, rutaEnIdioma } from "@/i18n/idioma";
 import { esIdioma, IDIOMAS } from "@/i18n/routing";
+import {
+  estaActivo,
+  haySeleccionDeIdioma,
+  idiomaDeRespaldo,
+  idiomasActivos,
+} from "@/i18n/activos";
 
 function claves(objeto: unknown, prefijo = ""): string[] {
   if (typeof objeto !== "object" || objeto === null) return [prefijo];
@@ -65,5 +71,42 @@ describe("las rutas por idioma", () => {
     expect(IDIOMAS.every(esIdioma)).toBe(true);
     expect(esIdioma("fr")).toBe(false);
     expect(esIdioma(undefined)).toBe(false);
+  });
+});
+
+describe("prender y apagar idiomas", () => {
+  it("lee la variable y respeta el orden del catálogo", () => {
+    expect(idiomasActivos("es,en")).toEqual(["es", "en"]);
+    // Aunque los escriban al revés o con espacios de más.
+    expect(idiomasActivos(" en , es ")).toEqual(["es", "en"]);
+    expect(idiomasActivos("EN")).toEqual(["en"]);
+  });
+
+  it("nunca se queda sin ningún idioma", () => {
+    // Vacía, mal escrita o con idiomas que no existen: hablamos castellano.
+    for (const valor of ["", "   ", "fr", "es-AR", "basura,otra", ",,,"]) {
+      expect(idiomasActivos(valor), `con "${valor}"`).toEqual(["es"]);
+    }
+    expect(idiomasActivos(undefined)).toEqual(["es"]);
+  });
+
+  it("dice cuál está prendido", () => {
+    expect(estaActivo("en", "es,en")).toBe(true);
+    expect(estaActivo("en", "es")).toBe(false);
+    expect(estaActivo("fr", "es,en")).toBe(false);
+  });
+
+  it("el respaldo es el castellano, salvo que lo apaguen", () => {
+    expect(idiomaDeRespaldo("es,en")).toBe("es");
+    expect(idiomaDeRespaldo("es")).toBe("es");
+    // Si apagaron el castellano, cae en el que quede.
+    expect(idiomaDeRespaldo("en")).toBe("en");
+  });
+
+  it("con un solo idioma no hay selector", () => {
+    expect(haySeleccionDeIdioma("es")).toBe(false);
+    expect(haySeleccionDeIdioma("en")).toBe(false);
+    expect(haySeleccionDeIdioma("es,en")).toBe(true);
+    expect(haySeleccionDeIdioma("")).toBe(false);
   });
 });

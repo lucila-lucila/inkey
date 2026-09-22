@@ -213,17 +213,19 @@ parte se prueba a mano. El resto del recorrido sí está cubierto.
 ```
 src/
 ├── app/
-│   ├── (marketing)/     landing
-│   ├── (auth)/          /ingresar y /onboarding
-│   ├── (app)/           pantallas con sesión (/panel, /alquileres, …)
-│   ├── invitacion/      la pantalla que ve quien recibe el link
-│   ├── p/[token]/       el perfil compartible (público, con PDF y preview)
-│   ├── pagos/confirmar/ confirmar un pago desde el mail, sin sesión
+│   └── [locale]/        todas las pantallas, en su idioma
+│       ├── (marketing)/ landing
+│       ├── (auth)/      /ingresar y /onboarding
+│       ├── (app)/       pantallas con sesión (/panel, /alquileres, …)
+│       ├── invitacion/  la pantalla que ve quien recibe el link
+│       ├── p/[token]/   el perfil compartible (público, con PDF y preview)
+│       └── pagos/confirmar/ confirmar un pago desde el mail, sin sesión
 │   ├── api/cron/        los recordatorios diarios
 │   └── auth/callback/   vuelta del magic link y de Google
 ├── components/ui/       componentes base (Button, Card, Field, Pie, …)
 ├── components/legal/    cómo se ve un texto legal
 ├── components/landing/  secciones de la landing
+├── i18n/                idiomas: rutas, cuáles están prendidos, traductor
 ├── lib/
 │   ├── supabase/        clientes server / browser / admin y sesión
 │   ├── validation/      esquemas Zod (mismos en cliente y servidor)
@@ -233,6 +235,8 @@ src/
 │   ├── tokens.ts        32 bytes aleatorios; de la base, solo el hash
 │   └── storage.ts       documentos privados y URLs firmadas
 └── styles/tokens.css    los tokens de diseño, una sola vez
+messages/es.json         todo el texto que lee la gente, en castellano
+messages/en.json         lo mismo, en inglés
 docs/legales/            términos y privacidad (de acá salen las páginas)
 supabase/migrations/     el esquema, versionado
 supabase/seed.sql        datos de ejemplo (solo para desarrollo)
@@ -243,6 +247,58 @@ tests/                   unit · rls · e2e
 reference/landing.html   la landing de la Fase 1 (registro; la identidad
                          vigente es docs/identidad.md)
 ```
+
+## Idiomas
+
+Inkey habla castellano rioplatense e inglés. Todo el texto que lee la gente
+vive en `messages/es.json` y `messages/en.json`: no hay frases sueltas en el
+código, ni siquiera en los mensajes de error, que viajan como claves desde el
+servidor y se traducen al mostrarlos.
+
+El castellano va **sin prefijo** (`/panel`, `/p/<token>`) y el inglés cuelga
+de `/en`. Esto no es una preferencia estética: los links de invitación, de
+perfil compartido y de confirmar un pago ya salieron por mail y por WhatsApp,
+y si cambiaran de forma dejarían de funcionar.
+
+Cómo se elige: la primera visita cae en el idioma del navegador; después manda
+el selector del pie, que deja cookie y, si hay sesión, lo guarda en el perfil
+para que viaje con la persona a otro dispositivo. De ahí salen también los
+mails en el idioma de quien los recibe.
+
+### Prender y apagar un idioma
+
+`IDIOMAS_ACTIVOS` (una variable de entorno en Vercel) decide qué idiomas están
+abiertos al público. Se cambia sin tocar código, pero hay que **redeployar**
+para que tome efecto: la landing se prerenderiza en el build, así que el pie y
+las etiquetas `hreflang` se arman ahí. (Vercel igual te pide redeployar cuando
+cambiás una variable.)
+
+```
+IDIOMAS_ACTIVOS=es        # solo castellano (así está hoy)
+IDIOMAS_ACTIVOS=es,en     # los dos
+```
+
+Con un idioma apagado:
+
+- sus direcciones **redirigen** al idioma activo conservando la ruta
+  (`/en/invitacion/<token>` → `/invitacion/<token>`), así ningún link que
+  alguien ya mandó da error;
+- no aparece en el selector del pie, y si queda uno solo el selector
+  desaparece;
+- la detección por navegador lo ignora;
+- a quien lo tenía elegido se le muestra el activo, **sin borrarle la
+  preferencia**: el día que vuelva a prenderse, la recupera;
+- los mails salen en el idioma activo;
+- sale del sitemap y de las etiquetas `hreflang`, para que no se indexe una
+  dirección que hoy redirige.
+
+Siempre queda al menos uno: si la variable viene vacía o mal escrita, es
+castellano.
+
+Para sumar un idioma nuevo (por ejemplo un castellano neutro para otros
+países) alcanza con declararlo en `src/i18n/routing.ts` y agregar su archivo
+en `messages/`. Un test compara los dos archivos y falla si a uno le falta una
+clave que el otro tiene.
 
 ## Deploy
 

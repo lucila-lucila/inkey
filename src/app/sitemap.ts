@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prefijoDe } from "@/i18n/idioma";
-import { IDIOMAS } from "@/i18n/routing";
+import { idiomasActivos } from "@/i18n/activos";
 import { serverEnv } from "@/lib/env";
 
 /*
@@ -10,6 +10,9 @@ import { serverEnv } from "@/lib/env";
  * Cada entrada declara sus alternativas con `languages`, que es lo que Next
  * escribe como `hreflang` en el sitemap. Sin eso, las dos versiones de la
  * misma página compiten entre sí en el buscador en vez de sumarse.
+ *
+ * Un idioma apagado no entra: no queremos que Google indexe una dirección
+ * que hoy redirige.
  */
 
 const PAGINAS = [
@@ -19,15 +22,16 @@ const PAGINAS = [
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const idiomas = idiomasActivos();
   const url = (ruta: string) => new URL(ruta || "/", serverEnv.siteUrl).toString();
 
   return PAGINAS.flatMap((pagina) => {
     const limpia = pagina.ruta === "/" ? "" : pagina.ruta;
     const alternativas = Object.fromEntries(
-      IDIOMAS.map((idioma) => [idioma, url(`${prefijoDe(idioma)}${limpia}`)]),
+      idiomas.map((idioma) => [idioma, url(`${prefijoDe(idioma)}${limpia}`)]),
     );
 
-    return IDIOMAS.map((idioma) => ({
+    return idiomas.map((idioma) => ({
       url: url(`${prefijoDe(idioma)}${limpia}`),
       changeFrequency: pagina.changeFrequency,
       priority: pagina.priority,

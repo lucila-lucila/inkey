@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { haySeleccionDeIdioma, idiomasActivos } from "@/i18n/activos";
 import { IDIOMA_POR_DEFECTO } from "@/i18n/routing";
 import { Logo } from "./logo";
 import { SelectorDeIdioma } from "./selector-de-idioma";
@@ -8,7 +9,7 @@ import { SelectorDeIdioma } from "./selector-de-idioma";
 export const MAIL_DE_CONTACTO = "contacto@inkeyapp.com";
 
 /** Dónde se apoya el proyecto. Va en el pie y en ningún otro lado. */
-export const LINK_DE_APOYO = "https://liberapay.com/inkey";
+export const LINK_DE_APOYO = "https://liberapay.com/inkeyapp";
 
 /**
  * El pie, igual en todas las pantallas.
@@ -64,7 +65,8 @@ export async function Pie({ conLogo = false }: { conLogo?: boolean }) {
             {t("apoyo")}
           </a>
           <span>{t("hechoEn")}</span>
-          <SelectorDeIdioma />
+          {/* Con un solo idioma prendido no hay nada que elegir. */}
+          {haySeleccionDeIdioma() && <SelectorDeIdioma idiomas={idiomasActivos()} />}
         </nav>
       </div>
 

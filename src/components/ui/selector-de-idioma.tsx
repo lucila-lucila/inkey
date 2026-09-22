@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { rutaEnIdioma } from "@/i18n/idioma";
 import { recordarIdiomaEnElNavegador } from "@/i18n/idioma-cliente";
-import { IDIOMAS, NOMBRE_DEL_IDIOMA, type Idioma } from "@/i18n/routing";
+import { NOMBRE_DEL_IDIOMA, type Idioma } from "@/i18n/routing";
 import { guardarIdioma } from "@/app/acciones-idioma";
 
 /*
@@ -15,7 +15,11 @@ import { guardarIdioma } from "@/app/acciones-idioma";
  * siempre, y perfil si hay sesión— para que la próxima visita ya llegue en
  * el idioma correcto sin pasar por el navegador.
  */
-export function SelectorDeIdioma() {
+/*
+ * Los idiomas prendidos llegan desde el servidor: `IDIOMAS_ACTIVOS` no es una
+ * variable pública y no tiene por qué viajar al navegador.
+ */
+export function SelectorDeIdioma({ idiomas }: { idiomas: Idioma[] }) {
   const actual = useLocale() as Idioma;
   const pathname = usePathname();
   const t = useTranslations("pie");
@@ -28,7 +32,7 @@ export function SelectorDeIdioma() {
 
   return (
     <nav aria-label={t("idioma")} className="flex items-center gap-2">
-      {IDIOMAS.map((idioma, i) => (
+      {idiomas.map((idioma, i) => (
         <span key={idioma} className="flex items-center gap-2">
           {i > 0 && <span aria-hidden="true">·</span>}
           <a

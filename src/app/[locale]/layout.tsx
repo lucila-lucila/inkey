@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ReboteDeLink } from "@/components/auth/rebote-de-link";
-import { routing } from "@/i18n/routing";
+import { estaActivo, idiomasActivos } from "@/i18n/activos";
 import { serverEnv } from "@/lib/env";
 import "../globals.css";
 
@@ -38,9 +38,9 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-/** Las dos versiones se generan estáticas: son las mismas pantallas. */
+/** Se generan estáticas solo las versiones prendidas. */
 export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
+  return idiomasActivos().map((locale) => ({ locale }));
 }
 
 export default async function LocaleLayout({
@@ -51,7 +51,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  if (!hasLocale(routing.locales, locale)) notFound();
+  if (!estaActivo(locale)) notFound();
   setRequestLocale(locale);
 
   return (

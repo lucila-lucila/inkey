@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { COOKIE_IDIOMA, COOKIE_IDIOMA_MAXIMA_EDAD } from "@/i18n/idioma";
+import { estaActivo } from "@/i18n/activos";
 import { esIdioma } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/server";
 
@@ -16,7 +17,8 @@ import { createClient } from "@/lib/supabase/server";
  * ya quedó puesta y la persona no se entera de nada.
  */
 export async function guardarIdioma(idioma: string): Promise<void> {
-  if (!esIdioma(idioma)) return;
+  // Nadie puede guardar un idioma que hoy está apagado.
+  if (!esIdioma(idioma) || !estaActivo(idioma)) return;
 
   const almacen = await cookies();
   almacen.set(COOKIE_IDIOMA, idioma, {

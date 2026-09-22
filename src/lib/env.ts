@@ -23,6 +23,7 @@ export const VARIABLES = {
     "EMAIL_FROM",
     "EMAIL_REPLY_TO",
     "CRON_SECRET",
+    "IDIOMAS_ACTIVOS",
   ],
 } as const;
 

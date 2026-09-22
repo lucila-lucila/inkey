@@ -1,14 +1,15 @@
 import { getRequestConfig } from "next-intl/server";
-import { hasLocale } from "next-intl";
-import { routing } from "./routing";
+import { estaActivo, idiomaDeRespaldo } from "./activos";
 
 /*
  * Los textos que se cargan para cada request. Vienen de `messages/<idioma>.json`,
  * que es el único lugar donde vive el texto que lee la gente.
  */
 export default getRequestConfig(async ({ requestLocale }) => {
+  // Un idioma apagado nunca llega hasta acá (el proxy ya redirigió), pero si
+  // llegara, hablamos el que esté prendido antes que romper la pantalla.
   const pedido = await requestLocale;
-  const locale = hasLocale(routing.locales, pedido) ? pedido : routing.defaultLocale;
+  const locale = pedido && estaActivo(pedido) ? pedido : idiomaDeRespaldo();
 
   return {
     locale,
