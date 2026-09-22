@@ -60,10 +60,12 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
     : { data: null };
 
   const estado = ESTADOS_PAGO[pago.status as EstadoPago];
-  const nombreContraparte = nombreDeContraparte(
-    contraparte,
-    soyDueño ? "tu inquilino" : "tu dueño",
-  );
+  const nombreContraparte = nombreDeContraparte(contraparte, {
+    siNoHay: t(
+      soyDueño ? "dominio.contraparte.tuInquilinoMinuscula" : "dominio.contraparte.tuDuenoMinuscula",
+    ),
+    dadoDeBaja: t("dominio.contraparte.dadoDeBaja"),
+  });
 
   return (
     <div className="flex max-w-[640px] flex-col gap-6">

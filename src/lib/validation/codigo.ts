@@ -14,7 +14,7 @@ export const codigoSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, "Falta el mail.")
+    .min(1, "validacion.mailFalta")
     .email("validacion.mail")
     .transform((valor) => valor.toLowerCase()),
   codigo: z

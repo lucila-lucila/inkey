@@ -191,7 +191,9 @@
       "nombre": "Write your first name.",
       "apellido": "Write your last name.",
       "celular": "Check the phone number: for example +54 9 11 5555 5555.",
-      "intencion": "Choose what you want to do first."
+      "intencion": "Choose what you want to do first.",
+      "nombreLargo": "That first name is too long.",
+      "apellidoLargo": "That surname is too long."
     },
     "mail": "Check the email address.",
     "codigo": "The code is the numbers that arrived in your email.",
@@ -208,7 +210,8 @@
       "textoLargo": "The text can't be longer than 500 characters.",
       "etiquetasDeMas": "Choose up to 10 tags.",
       "algoQueDecir": "Choose at least one tag, or write something."
-    }
+    },
+    "notaLarga": "The note can't be longer than 500 characters."
   },
   "dominio": {
     "estadoAlquiler": {
@@ -299,6 +302,12 @@
     "rol": {
       "owner": "landlord",
       "tenant": "tenant"
+    },
+    "contraparte": {
+      "dadoDeBaja": "Account closed",
+      "laOtraParte": "The other party",
+      "tuDuenoMinuscula": "your landlord",
+      "tuInquilinoMinuscula": "your tenant"
     }
   },
   "tarjetaPerfil": {

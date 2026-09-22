@@ -29,5 +29,5 @@ export type ReportePago = z.infer<typeof reportePagoSchema>;
 export const notaDueñoSchema = z
   .string()
   .trim()
-  .max(500, "La nota no puede pasar de 500 caracteres.")
+  .max(500, "validacion.notaLarga")
   .optional();

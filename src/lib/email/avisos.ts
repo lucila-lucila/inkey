@@ -47,10 +47,11 @@ async function traductorDe(userId: string | null): Promise<Traductor> {
   return t as unknown as Traductor;
 }
 
-async function nombreDe(userId: string | null): Promise<string> {
-  if (!userId) return "La otra parte";
+async function nombreDe(userId: string | null, t: Traductor): Promise<string> {
+  const siNoHay = t("dominio.contraparte.laOtraParte");
+  if (!userId) return siNoHay;
   const supabase = createAdminClient();
-  if (!supabase) return "La otra parte";
+  if (!supabase) return siNoHay;
 
   const { data } = await supabase
     .from("profiles")
@@ -58,7 +59,10 @@ async function nombreDe(userId: string | null): Promise<string> {
     .eq("id", userId)
     .maybeSingle();
 
-  return nombreDeContraparte(data ?? null);
+  return nombreDeContraparte(data ?? null, {
+    siNoHay,
+    dadoDeBaja: t("dominio.contraparte.dadoDeBaja"),
+  });
 }
 
 /** Al dueño: le reportaron un pago. Incluye el link para responder sin entrar. */
@@ -87,10 +91,13 @@ export async function avisarPagoReportado(paymentId: string, recordatorio = fals
     const links = await crearLinkDePago(pago.id);
     if (!links) return;
 
+    /* El nombre va adentro del mail: se arma con el idioma de quien lo recibe. */
+    const t = await traductorDe(alquiler.owner_id);
+
     const mail = pagoReportado(
       {
-        t: await traductorDe(alquiler.owner_id),
-        nombreInquilino: await nombreDe(alquiler.tenant_id),
+        t,
+        nombreInquilino: await nombreDe(alquiler.tenant_id, t),
         periodo: String(pago.period).slice(0, 10),
         monto: String(pago.amount),
         moneda: pago.currency as Moneda,
@@ -173,14 +180,16 @@ export async function avisarInvitacion(datos: {
   rentalId: string;
 }): Promise<boolean> {
   try {
+    // A quien recibe la invitación todavía no lo conocemos: idioma activo.
+    const t = await traductorDe(null);
+
     return await enviarMail({
       tipo: "invitacion.enviada",
       para: datos.para,
       dedupeKey: `invitacion.enviada:${datos.rentalId}:${datos.para}:${Date.now()}`,
       mail: invitacion({
-        // A quien recibe la invitación todavía no lo conocemos: idioma activo.
-        t: await traductorDe(null),
-        quien: await nombreDe(datos.quienId),
+        t,
+        quien: await nombreDe(datos.quienId, t),
         barrio: datos.barrio,
         rol: datos.rol,
         url: datos.url,
@@ -251,14 +260,16 @@ export async function avisarFinDeContrato(rentalId: string): Promise<void> {
       const para = await mailDe(quien);
       if (!para) continue;
 
+      const t = await traductorDe(quien);
+
       await enviarMail({
         tipo: "contrato.terminado",
         para,
         dedupeKey: `contrato.terminado:${alquiler.id}:${quien}`,
         mail: contratoTerminado({
-          t: await traductorDe(quien),
+          t,
           barrio: alquiler.neighborhood_label,
-          quien: await nombreDe(elOtro),
+          quien: await nombreDe(elOtro, t),
           url,
           siteUrl: serverEnv.siteUrl,
         }),

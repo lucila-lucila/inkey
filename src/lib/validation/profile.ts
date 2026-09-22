@@ -25,12 +25,12 @@ export const onboardingSchema = z.object({
     .string()
     .trim()
     .min(2, "validacion.perfil.nombre")
-    .max(60, "Ese nombre es demasiado largo."),
+    .max(60, "validacion.perfil.nombreLargo"),
   last_name: z
     .string()
     .trim()
     .min(2, "validacion.perfil.apellido")
-    .max(60, "Ese apellido es demasiado largo."),
+    .max(60, "validacion.perfil.apellidoLargo"),
   phone: z
     .string()
     .trim()
@@ -62,17 +62,19 @@ export const datosPersonalesSchema = onboardingSchema.pick({
 export type DatosPersonales = z.infer<typeof datosPersonalesSchema>;
 
 /**
- * Cómo se llama alguien que se dio de baja. El historial de la otra parte
- * sigue existiendo, así que el lugar de esa persona no puede quedar vacío.
+ * Cómo se llama la otra parte.
+ *
+ * Los dos textos de reemplazo vienen de afuera ya traducidos: acá abajo no
+ * sabemos en qué idioma está mirando la persona. Alguien que se dio de baja
+ * tampoco puede quedar como un hueco: el historial de la otra parte sigue
+ * existiendo y ese lugar tiene que decir algo.
  */
-export const NOMBRE_DADO_DE_BAJA = "Usuario dado de baja";
-
 export function nombreDeContraparte(
   perfil: { first_name?: string | null; last_name?: string | null; deleted_at?: string | null } | null,
-  siNoHay = "La otra parte",
+  textos: { siNoHay: string; dadoDeBaja: string },
 ): string {
-  if (!perfil) return siNoHay;
-  if (perfil.deleted_at) return NOMBRE_DADO_DE_BAJA;
-  if (!perfil.first_name) return siNoHay;
+  if (!perfil) return textos.siNoHay;
+  if (perfil.deleted_at) return textos.dadoDeBaja;
+  if (!perfil.first_name) return textos.siNoHay;
   return nombrePublico(perfil.first_name, perfil.last_name ?? "");
 }

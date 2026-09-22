@@ -128,10 +128,13 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
         .order("orden")
     : { data: [] };
 
-  const nombreContraparte = nombreDeContraparte(
-    contraparte,
-    soyInquilino ? "tu dueño" : "tu inquilino",
-  );
+  const textosContraparte = {
+    siNoHay: t(
+      soyInquilino ? "dominio.contraparte.tuDuenoMinuscula" : "dominio.contraparte.tuInquilinoMinuscula",
+    ),
+    dadoDeBaja: t("dominio.contraparte.dadoDeBaja"),
+  };
+  const nombreContraparte = nombreDeContraparte(contraparte, textosContraparte);
 
   const sePublicaEl = alquiler.ended_at
     ? fechaDePublicacion(alquiler.ended_at).toISOString().slice(0, 10)
@@ -210,7 +213,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
             ) : (
               <p className="m-0 text-[17px]">
                 {ta.rich("confirmoElAlquiler", {
-                  quien: nombreDeContraparte(contraparte),
+                  quien: nombreContraparte,
                   fuerte: (partes) => <strong>{partes}</strong>,
                 })}
               </p>

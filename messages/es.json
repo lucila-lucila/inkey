@@ -191,7 +191,9 @@
       "nombre": "Escribí tu nombre.",
       "apellido": "Escribí tu apellido.",
       "celular": "Revisá el celular: por ejemplo +54 9 11 5555 5555.",
-      "intencion": "Elegí qué querés hacer primero."
+      "intencion": "Elegí qué querés hacer primero.",
+      "nombreLargo": "Ese nombre es demasiado largo.",
+      "apellidoLargo": "Ese apellido es demasiado largo."
     },
     "mail": "Revisá el mail.",
     "codigo": "El código son los números que te llegaron por mail.",
@@ -208,7 +210,8 @@
       "textoLargo": "El texto no puede pasar de 500 caracteres.",
       "etiquetasDeMas": "Elegí hasta 10 etiquetas.",
       "algoQueDecir": "Elegí al menos una etiqueta o escribí algo."
-    }
+    },
+    "notaLarga": "La nota no puede pasar de 500 caracteres."
   },
   "dominio": {
     "estadoAlquiler": {
@@ -299,6 +302,12 @@
     "rol": {
       "owner": "dueño",
       "tenant": "inquilino"
+    },
+    "contraparte": {
+      "dadoDeBaja": "Usuario dado de baja",
+      "laOtraParte": "La otra parte",
+      "tuDuenoMinuscula": "tu dueño",
+      "tuInquilinoMinuscula": "tu inquilino"
     }
   },
   "tarjetaPerfil": {

@@ -83,20 +83,23 @@ describe("editar mis datos", () => {
 });
 
 describe("quien se dio de baja", () => {
+  /* Los textos de reemplazo llegan traducidos desde la pantalla o el mail. */
+  const TEXTOS = { siNoHay: "tu dueño", dadoDeBaja: "Usuario dado de baja" };
+
   it("tiene un nombre, porque el historial de la otra parte sigue existiendo", () => {
-    expect(nombreDeContraparte({ first_name: null, last_name: null, deleted_at: "2026-09-01" })).toBe(
-      "Usuario dado de baja",
-    );
+    expect(
+      nombreDeContraparte({ first_name: null, last_name: null, deleted_at: "2026-09-01" }, TEXTOS),
+    ).toBe("Usuario dado de baja");
   });
 
   it("se sigue llamando como se llama mientras esté", () => {
-    expect(nombreDeContraparte({ first_name: "Jorge", last_name: "Lema" })).toBe("Jorge L.");
+    expect(nombreDeContraparte({ first_name: "Jorge", last_name: "Lema" }, TEXTOS)).toBe("Jorge L.");
   });
 
   it("cuando todavía no hay nadie, lo dice con el rol", () => {
-    expect(nombreDeContraparte(null, "tu dueño")).toBe("tu dueño");
-    expect(nombreDeContraparte({ first_name: null, last_name: null }, "tu inquilino")).toBe(
-      "tu inquilino",
-    );
+    expect(nombreDeContraparte(null, TEXTOS)).toBe("tu dueño");
+    expect(
+      nombreDeContraparte({ first_name: null, last_name: null }, { ...TEXTOS, siNoHay: "tu inquilino" }),
+    ).toBe("tu inquilino");
   });
 });

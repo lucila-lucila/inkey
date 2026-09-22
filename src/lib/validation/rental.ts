@@ -126,13 +126,13 @@ export function pasoDelCampo(campo: string): number | null {
 
 /** Mandar el link de invitación por mail desde Inkey. */
 export const invitacionPorMailSchema = z.object({
-  rental_id: z.string().uuid("No encontramos ese alquiler."),
+  rental_id: z.string().uuid("validacion.alquilerNoEncontrado"),
   token: z.string().trim().min(1, "validacion.faltaElLink"),
   email: z
     .string()
     .trim()
     .min(1, "validacion.mailDeLaPersona")
-    .max(254, "Ese mail es demasiado largo.")
+    .max(254, "validacion.mailLargo")
     .email("validacion.mailFormato")
     .transform((valor) => valor.toLowerCase()),
 });

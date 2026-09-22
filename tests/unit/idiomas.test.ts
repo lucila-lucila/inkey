@@ -239,20 +239,30 @@ describe("los avisos del servidor son claves", () => {
     expect(frases).toEqual([]);
   });
 
+  /** Sin comentarios: ahí sí se escribe en castellano, y está bien. */
+  function sinComentarios(codigo: string): string {
+    return codigo.replace(/\/\*[\s\S]*?\*\//g, (bloque) => bloque.replace(/[^\n]/g, " "))
+      .replace(/\/\/[^\n]*/g, "");
+  }
+
   it("ningún esquema de validación devuelve una frase escrita a mano", () => {
     const frases: string[] = [];
+
+    /*
+     * Zod recibe el mensaje suelto, sin nombre de campo. Una frase es un
+     * texto con letras a los dos lados de un espacio; las claves no llevan
+     * ninguno, y los separadores como ", " tampoco tienen letras.
+     */
+    const FRASE = /"([^"\n]*\p{L}[^"\n]* [^"\n]*\p{L}[^"\n]*)"/gu;
 
     for (const { nombre, codigo } of archivos(RAIZ)) {
       if (!nombre.startsWith("lib/validation/")) continue;
 
-      /*
-       * Zod recibe el mensaje suelto, sin nombre de campo: acá cualquier
-       * texto con un espacio es una frase, y las claves no llevan ninguno.
-       */
-      for (const coincidencia of codigo.matchAll(/"([^"]* [^"]*)"/g)) {
+      const limpio = sinComentarios(codigo);
+      for (const coincidencia of limpio.matchAll(FRASE)) {
         const valor = coincidencia[1];
         if (existe(valor)) continue;
-        const renglon = codigo.slice(0, coincidencia.index!).split("\n").length;
+        const renglon = limpio.slice(0, coincidencia.index!).split("\n").length;
         frases.push(`${nombre}:${renglon} ${JSON.stringify(valor)}`);
       }
     }
