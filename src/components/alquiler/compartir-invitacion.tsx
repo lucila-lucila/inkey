@@ -86,7 +86,7 @@ export function CompartirInvitacion({
         rel="noopener noreferrer"
         className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-primary px-6 text-[17px] font-medium text-on-primary no-underline hover:brightness-110"
       >
-        Enviar por WhatsApp
+        {t("invitar.porWhatsApp")}
       </a>
 
       <div className="flex flex-col gap-2">
@@ -130,7 +130,7 @@ export function CompartirInvitacion({
               type="email"
               autoComplete="off"
               inputMode="email"
-              placeholder="nombre@mail.com"
+              placeholder={t("invitar.ejemploMail")}
               required
             />
           </Field>

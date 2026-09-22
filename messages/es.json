@@ -291,7 +291,8 @@
     "pedirOtro": "pedir uno nuevo",
     "errorGoogle": "No se pudo abrir Google. Probá con tu mail.",
     "errorMail": "No se pudo mandar el mail. Probá de nuevo en un momento.",
-    "errorCodigo": "Ese código no es correcto o ya venció. Revisalo o pedí uno nuevo."
+    "errorCodigo": "Ese código no es correcto o ya venció. Revisalo o pedí uno nuevo.",
+    "ejemploMail": "nombre@mail.com"
   },
   "rebote": {
     "vencido": "El link venció o ya se usó. Pedí uno nuevo.",
@@ -466,7 +467,9 @@
     "generarNuevo": "Generar un link nuevo",
     "generarPrimero": "Generar el link de invitación",
     "generando": "Generando…",
-    "avisoNuevoLink": "El link anterior deja de funcionar apenas generás uno nuevo."
+    "avisoNuevoLink": "El link anterior deja de funcionar apenas generás uno nuevo.",
+    "verElAlquiler": "Ver el alquiler",
+    "ejemploMail": "nombre@mail.com"
   },
   "contrato": {
     "ver": "Ver el contrato",
@@ -476,12 +479,13 @@
     "subiendo": "Subiendo…",
     "guardado": "Contrato guardado.",
     "pista": "PDF o foto, hasta 10 MB. Queda privado: solo lo ven vos y la otra parte.",
-    "adjunto": "El contrato está adjunto. Se abre con un link que dura un minuto.",
+    "adjunto": "El contrato está adjunto. Se abre con un link que dura un minuto y solo funciona para vos y la otra parte.",
     "cancelar": "Cancelar este alquiler",
     "siCancelar": "Sí, cancelarlo",
     "cancelando": "Cancelando…",
     "mejorNo": "Mejor no",
-    "avisoCancelar": "Se borra el alquiler y el link deja de funcionar. Esto no se puede deshacer."
+    "avisoCancelar": "Se borra el alquiler y el link deja de funcionar. Esto no se puede deshacer.",
+    "documentos": "Documentos"
   },
   "cuenta": {
     "guardar": "Guardar los cambios",
@@ -774,5 +778,10 @@
     "privacidadTitulo": "Política de privacidad",
     "privacidadDescripcion": "Qué datos guardamos, para qué, con quién los compartimos y cómo los controlás.",
     "avisoDeCambios": "Si cambiamos algo importante de este texto, te avisamos antes de que entre en vigencia."
+  },
+  "og": {
+    "noDisponible": "Este link ya no está disponible",
+    "sello": "Confirmado por la otra parte",
+    "bajada": "Historial de alquiler confirmado entre inquilino y dueño"
   }
 }

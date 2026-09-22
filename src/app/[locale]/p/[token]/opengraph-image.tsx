@@ -43,7 +43,7 @@ export default async function Imagen({ params }: { params: Promise<{ token: stri
         >
           <div style={{ display: "flex", color: marca }}>inkey</div>
           <div style={{ display: "flex", fontSize: 32, marginTop: 16 }}>
-            Este link ya no está disponible
+            {t("og.noDisponible")}
           </div>
         </div>
       ),
@@ -98,7 +98,7 @@ export default async function Imagen({ params }: { params: Promise<{ token: stri
               fontWeight: 600,
             }}
           >
-            Confirmado por la otra parte
+            {t("og.sello")}
           </div>
         </div>
 
@@ -135,7 +135,7 @@ export default async function Imagen({ params }: { params: Promise<{ token: stri
         </div>
 
         <div style={{ display: "flex", fontSize: 22, color: verde }}>
-          Historial de alquiler confirmado entre inquilino y dueño
+          {t("og.bajada")}
         </div>
       </div>
     ),

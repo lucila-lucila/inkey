@@ -303,14 +303,13 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
 
       <section aria-labelledby="titulo-documentos" className="flex flex-col gap-3">
         <h2 id="titulo-documentos" className="m-0 t-subtitulo">
-          Documentos
+          {t("contrato.documentos")}
         </h2>
         <Card className="flex flex-col gap-4">
           {alquiler.contract_path ? (
             <>
               <p className="m-0 text-body">
-                El contrato está adjunto. Se abre con un link que dura un minuto y solo funciona
-                para vos y la otra parte.
+                {t("contrato.adjunto")}
               </p>
               <BotonContrato rentalId={alquiler.id} />
             </>

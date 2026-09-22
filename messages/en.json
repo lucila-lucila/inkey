@@ -291,7 +291,8 @@
     "pedirOtro": "ask for a new one",
     "errorGoogle": "We couldn't open Google. Try with your email.",
     "errorMail": "We couldn't send the email. Try again in a moment.",
-    "errorCodigo": "That code isn't right or it expired. Check it or ask for a new one."
+    "errorCodigo": "That code isn't right or it expired. Check it or ask for a new one.",
+    "ejemploMail": "name@email.com"
   },
   "rebote": {
     "vencido": "That link expired or was already used. Ask for a new one.",
@@ -466,7 +467,9 @@
     "generarNuevo": "Generate a new link",
     "generarPrimero": "Generate the invitation link",
     "generando": "Generating…",
-    "avisoNuevoLink": "The previous link stops working as soon as you generate a new one."
+    "avisoNuevoLink": "The previous link stops working as soon as you generate a new one.",
+    "verElAlquiler": "View the lease",
+    "ejemploMail": "name@email.com"
   },
   "contrato": {
     "ver": "View the lease",
@@ -476,12 +479,13 @@
     "subiendo": "Uploading…",
     "guardado": "Lease saved.",
     "pista": "PDF or photo, up to 10 MB. It stays private: only you and the other side see it.",
-    "adjunto": "The lease is attached. It opens with a link that lasts a minute.",
+    "adjunto": "The lease is attached. It opens with a link that lasts a minute and works only for you and the other side.",
     "cancelar": "Cancel this lease",
     "siCancelar": "Yes, cancel it",
     "cancelando": "Cancelling…",
     "mejorNo": "Never mind",
-    "avisoCancelar": "The lease is deleted and the link stops working. This can't be undone."
+    "avisoCancelar": "The lease is deleted and the link stops working. This can't be undone.",
+    "documentos": "Documents"
   },
   "cuenta": {
     "guardar": "Save changes",
@@ -774,5 +778,10 @@
     "privacidadTitulo": "Privacy Policy",
     "privacidadDescripcion": "What data we keep, what for, who we share it with, and how you control it.",
     "avisoDeCambios": "If we change anything important in this text, we'll tell you before it takes effect."
+  },
+  "og": {
+    "noDisponible": "This link is no longer available",
+    "sello": "Confirmed by the other side",
+    "bajada": "Rental history confirmed between tenant and landlord"
   }
 }

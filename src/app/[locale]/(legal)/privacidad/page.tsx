@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { alternativasDeIdioma } from "@/i18n/alternativas";
 import { TextoLegal } from "@/components/legal/texto-legal";
 import { leerLegal, LEGALES, ultimaActualizacion } from "@/lib/legales";
 
 const CUAL = "privacidad" as const;
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("legal");
-  const idioma = await getLocale();
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: idioma } = await params;
+  const t = await getTranslations({ locale: idioma, namespace: "legal" });
 
   return {
     title: `${t("privacidadTitulo")} · Inkey`,
@@ -19,9 +23,20 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function PaginaLegal() {
+export default async function PaginaLegal({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  /*
+   * La pantalla se prerenderiza: sin esto, el build la arma en el idioma por
+   * defecto y el inglés termina mostrando el texto castellano.
+   */
+  const { locale: idioma } = await params;
+  setRequestLocale(idioma);
+
   const t = await getTranslations("legal");
-  const bloques = leerLegal(CUAL, await getLocale());
+  const bloques = leerLegal(CUAL, idioma);
   const actualizado = ultimaActualizacion(bloques);
 
   return (

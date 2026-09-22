@@ -56,7 +56,7 @@ export function NuevoLink({
       />
       {hayInvitacionViva && (
         <p className="m-0 text-[15px] text-muted">
-          El link anterior deja de funcionar apenas generás uno nuevo.
+          {t("invitar.avisoNuevoLink")}
         </p>
       )}
       {estado.estado === "error" && (
@@ -113,7 +113,7 @@ export function SubirContrato({ rentalId }: { rentalId: string }) {
     <form action={accion} className="flex flex-col gap-3">
       <input type="hidden" name="rental_id" value={rentalId} />
       <label htmlFor="contrato" className="text-[15px] font-medium">
-        Adjuntar el contrato
+        {t("contrato.adjuntar")}
       </label>
       <input
         id="contrato"
@@ -123,9 +123,9 @@ export function SubirContrato({ rentalId }: { rentalId: string }) {
         className="min-h-[52px] w-full rounded-campo border border-line bg-surface-sunk p-3 text-[15px] file:mr-3 file:min-h-[36px] file:rounded-lg file:border-0 file:bg-surface-sunk file:px-3 file:font-medium file:text-ink"
       />
       <p className="m-0 text-[15px] text-muted">
-        PDF o foto, hasta 10 MB. Queda privado: solo lo ven vos y la otra parte.
+        {t("contrato.pista")}
       </p>
-      <BotonEnvio texto="Subir" enCurso={t("contrato.subiendo")} />
+      <BotonEnvio texto={t("contrato.subir")} enCurso={t("contrato.subiendo")} />
       {estado.estado === "error" && (
         <p role="alert" className="m-0 text-[15px] text-primary-ink">
           {traducirMensaje(t, estado.mensaje)}
@@ -142,7 +142,7 @@ export function CancelarAlquiler({ rentalId }: { rentalId: string }) {
   if (!confirmando) {
     return (
       <Button type="button" variant="quiet" onClick={() => setConfirmando(true)}>
-        Cancelar este alquiler
+        {t("contrato.cancelar")}
       </Button>
     );
   }
@@ -151,12 +151,12 @@ export function CancelarAlquiler({ rentalId }: { rentalId: string }) {
     <form action={cancelarAlquiler} className="flex flex-col gap-3">
       <input type="hidden" name="rental_id" value={rentalId} />
       <p className="m-0 text-[15px] text-body">
-        Se borra el alquiler y el link deja de funcionar. Esto no se puede deshacer.
+        {t("contrato.avisoCancelar")}
       </p>
       <div className="flex flex-wrap gap-3">
         <BotonEnvio texto={t("contrato.siCancelar")} enCurso={t("contrato.cancelando")} />
         <Button type="button" variant="quiet" onClick={() => setConfirmando(false)}>
-          Mejor no
+          {t("contrato.mejorNo")}
         </Button>
       </div>
     </form>

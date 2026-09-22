@@ -150,7 +150,7 @@ export function IngresoForm({
             type="email"
             inputMode="email"
             autoComplete="email"
-            placeholder="nombre@mail.com"
+            placeholder={t("ejemploMail")}
             required
             aria-describedby={estado.estado === "error" ? "email-error" : "email-hint"}
           />

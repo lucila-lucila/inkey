@@ -88,7 +88,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
 
         <div className="flex flex-wrap gap-3">
           <ButtonLink href={`/alquileres/${estado.rentalId}`} variant="secondary">
-            Ver el alquiler
+            {t("invitar.verElAlquiler")}
           </ButtonLink>
           <Link href="/panel" className="self-center text-[15px] font-medium text-confirm-ink">
             {tn("volverAlPanel")}
