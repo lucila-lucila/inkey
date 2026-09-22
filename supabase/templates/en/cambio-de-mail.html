@@ -1,0 +1,31 @@
+Subject: Confirm your new email on Inkey
+
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Confirm your new email on Inkey</title></head>
+<body style="margin:0;padding:24px 12px;background:#FFF6EA;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;">
+    <tr><td style="padding:8px 4px 20px;">
+      <span style="font:700 28px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;letter-spacing:-1.1px;color:#23201C;vertical-align:baseline;">inkey</span><img src="{{ .SiteURL }}/brand/inkey-simbolo.png" width="24" height="10" alt="" style="vertical-align:baseline;margin-left:2px;border:0;">
+    </td></tr>
+    <tr><td style="background:#FFFFFF;border-radius:24px;padding:28px;">
+      <h1 style="font:700 24px/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;letter-spacing:-0.6px;color:#23201C;margin:0 0 12px;">Confirm your new email</h1>
+      <p style="font:400 16px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;color:#57504A;margin:0 0 16px;">
+        You asked to change your Inkey email to this address. Confirm it here and you're done.
+      </p>
+      <div style="margin:0 0 24px;"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#B8451A;color:#FFF6EA;font:600 16px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;text-decoration:none;padding:16px 28px;border-radius:999px;">Confirm the change</a></div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F1E7D8;border-radius:16px;padding:20px;margin:0 0 20px;"><tr><td align="center">
+        <div style="font:600 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;letter-spacing:1px;text-transform:uppercase;color:#8B8179;margin:0 0 10px;">Or type this code</div>
+        <div style="font:700 34px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;letter-spacing:8px;color:#23201C;">{{ .Token }}</div>
+        <div style="font:400 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;color:#57504A;margin:12px 0 0;">Type it on the screen where you asked for the email. It works even if the link doesn't.</div>
+      </td></tr></table>
+      <p style="font:400 16px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;color:#57504A;margin:0 0 16px;font-size:14px;color:#8B8179;margin:0;">
+        If you didn't ask for this change, ignore this email and your account stays as it is.
+      </p>
+    </td></tr>
+    <tr><td style="padding:20px 8px;font:400 13px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;color:#8B8179;">
+      You're getting this because you asked to change your Inkey account email.
+      <br>Inkey · Your rental history, confirmed
+    </td></tr>
+  </table>
+</body></html>

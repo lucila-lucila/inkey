@@ -31,3 +31,23 @@ El código de 6 dígitos y el link son dos caminos al mismo lugar, y los dos
 tienen que estar: algunos servicios de correo abren los links solos para
 revisarlos y los gastan antes de que la persona los toque. La pantalla para
 escribir el código es `/ingresar`, después de pedir el mail.
+
+## Las versiones en inglés
+
+En `en/` están las mismas cinco plantillas traducidas.
+
+Una advertencia que importa: **Supabase manda una sola plantilla para todo el
+mundo**. No sabe en qué idioma usa la app cada persona —y en el mail de alta
+todavía no hay cuenta ni preferencia guardada—, así que no puede elegir. Los
+mails de la app (pagos, invitaciones, reseñas) sí salen en el idioma de quien
+los recibe, porque los arma Inkey leyendo el perfil.
+
+Entonces, con los dos idiomas prendidos, hay que elegir una:
+
+- **castellano** (los archivos de esta carpeta), que es lo que conviene
+  mientras la mayoría del tráfico sea de acá;
+- **inglés** (`en/`), si algún día el público cambia.
+
+Si hiciera falta que cada persona lo reciba en su idioma, habría que sacarle
+a Supabase el envío de estos mails y mandarlos desde la app con Resend, como
+los demás. No está hecho: es una decisión de producto, no una tarea pendiente.

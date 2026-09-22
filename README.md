@@ -295,6 +295,13 @@ Con un idioma apagado:
 Siempre queda al menos uno: si la variable viene vacía o mal escrita, es
 castellano.
 
+Los mails de la app salen en el idioma de quien los recibe (sale del perfil,
+porque el cron no tiene navegador del otro lado). Los de ingreso los manda
+Supabase, que solo admite una plantilla para todo el mundo: en
+`supabase/templates/` está la castellana y en `supabase/templates/en/` la
+inglesa, y hay que elegir cuál cargar. El detalle está en
+`supabase/templates/_fuente.md`.
+
 Para sumar un idioma nuevo (por ejemplo un castellano neutro para otros
 países) alcanza con declararlo en `src/i18n/routing.ts` y agregar su archivo
 en `messages/`. Un test compara los dos archivos y falla si a uno le falta una
