@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Avatar } from "@/components/ui";
 
 /*
@@ -25,22 +26,21 @@ function Maqueta({ children }: { children: React.ReactNode }) {
 
 /** 1. El mensaje que le llega al dueño por WhatsApp, con su vista previa. */
 export function MaquetaInvitacion() {
+  const t = useTranslations("landing.maquetas");
   return (
     <Maqueta>
       <div className="rounded-campo bg-surface-sunk p-3.5">
         <p className="m-0 text-[15px] leading-[1.45] text-body">
-          Hola Carlos, confirmemos el alquiler en Inkey así queda registrado cada pago.
+          {t("mensaje")}
         </p>
         {/* La tarjeta de vista previa del link, como la arma WhatsApp. */}
         <div className="mt-2.5 rounded-[10px] bg-surface p-3">
-          <b className="block text-[14px] font-bold">Confirmá el alquiler de Martina</b>
-          <small className="block text-[13px] text-muted">inkeyapp.com/invitacion</small>
+          <b className="block text-[14px] font-bold">{t("previewTitulo")}</b>
+          <small className="block text-[13px] text-muted">{t("previewUrl")}</small>
         </div>
       </div>
       <small className="mt-2.5 block self-end text-right text-[13px] leading-[1.3] text-muted">
-        Enviado por
-        <br />
-        WhatsApp
+        {t("enviadoPor")}
       </small>
     </Maqueta>
   );
@@ -48,24 +48,25 @@ export function MaquetaInvitacion() {
 
 /** 2. Lo que ve el dueño: el monto y dos botones grandes. */
 export function MaquetaConfirmacion() {
+  const t = useTranslations("landing.maquetas");
   return (
     <Maqueta>
       <div className="flex items-center gap-2.5">
         <Avatar initials="MR" className="size-8 text-[13px]" />
-        <b className="text-[15px] font-bold">Martina te avisó que pagó</b>
+        <b className="text-[15px] font-bold">{t("avisoPago")}</b>
       </div>
       <p className="t-monto mt-3.5 mb-0 text-[30px] whitespace-nowrap">$ 450.000</p>
-      <small className="mt-1 block text-[14px] text-muted">Septiembre · con comprobante</small>
+      <small className="mt-1 block text-[14px] text-muted">{t("periodoPago")}</small>
       <div className="mt-4 flex flex-wrap gap-2.5">
         {/*
           El único verde de toda la sección: acá el verde es el "recibido",
           que es exactamente lo que el verde significa en Inkey.
         */}
         <span className="rounded-full bg-confirm px-4 py-2 text-[14px] font-medium text-on-confirm">
-          Recibido
+          {t("recibido")}
         </span>
         <span className="rounded-full bg-surface-sunk px-4 py-2 text-[14px] font-medium text-ink">
-          Todavía no
+          {t("todaviaNo")}
         </span>
       </div>
     </Maqueta>
@@ -74,6 +75,7 @@ export function MaquetaConfirmacion() {
 
 /** 3. El link del historial, listo para copiar y mandar. */
 export function MaquetaCompartir() {
+  const t = useTranslations("landing.maquetas");
   return (
     <Maqueta>
       <div className="flex items-baseline gap-2.5">
@@ -81,17 +83,17 @@ export function MaquetaCompartir() {
           36
         </span>
         <span className="text-[14px] leading-[1.35] text-body">
-          meses confirmados · 100% en fecha
+          {t("mesesConfirmados")}
         </span>
       </div>
       <div className="mt-4 flex items-center gap-2 rounded-campo bg-surface-sunk p-2 pl-3.5">
-        <span className="min-w-0 flex-1 truncate text-[14px] text-body">inkeyapp.com/p/martina</span>
+        <span className="min-w-0 flex-1 truncate text-[14px] text-body">{t("linkPerfil")}</span>
         <span className="shrink-0 rounded-full bg-invertido px-3.5 py-1.5 text-[13px] font-medium text-invertido-ink">
-          Copiar
+          {t("copiar")}
         </span>
       </div>
       <small className="mt-2.5 block text-[13px] text-muted">
-        Para la inmobiliaria de Palermo · abierto 3 veces
+        {t("aberturas")}
       </small>
     </Maqueta>
   );

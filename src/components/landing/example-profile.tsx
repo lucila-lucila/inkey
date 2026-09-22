@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Avatar, CheckIcon, Pill } from "@/components/ui";
 
 /*
@@ -7,8 +8,6 @@ import { Avatar, CheckIcon, Pill } from "@/components/ui";
  * confirmados— porque es la que importa; el resto acompaña en chico.
  */
 
-const PRIMER_MES = "Oct 2025";
-const ULTIMO_MES = "Sep 2026";
 const MESES = 12;
 
 /* "Oct 2025" se parte en dos renglones: en la tira el mes manda y el año acompaña. */
@@ -24,8 +23,10 @@ function Punta({ mes, alineado }: { mes: string; alineado: "left" | "right" }) {
 }
 
 export function ExampleProfile() {
+  const t = useTranslations("landing.ejemplo");
+
   return (
-    <div className="flex justify-center" aria-label="Perfil de ejemplo">
+    <div className="flex justify-center" aria-label={t("etiqueta")}>
       {/*
         `pb`/`pl` de más abajo a la izquierda: el aviso flotante se apoya sobre
         el borde de la tarjeta y necesita lugar para hacerlo sin taparla.
@@ -36,13 +37,13 @@ export function ExampleProfile() {
             <div className="flex items-center gap-3.5">
               <Avatar initials="MR" />
               <div>
-                <b className="block text-[19px] font-bold">Martina R.</b>
-                <small className="block text-[15px] whitespace-nowrap text-muted">Inquilina · Palermo</small>
+                <b className="block text-[19px] font-bold">{t("nombre")}</b>
+                <small className="block text-[15px] whitespace-nowrap text-muted">{t("rol")}</small>
               </div>
             </div>
             <Pill tone="confirm">
               <CheckIcon size={14} />
-              Verificado
+              {t("verificado")}
             </Pill>
           </div>
 
@@ -54,34 +55,34 @@ export function ExampleProfile() {
           <div className="mt-6 flex flex-col">
             <div className="flex items-center gap-4">
               <span className="t-numero font-display text-[52px] leading-none font-extrabold tracking-[-2px]">
-                36
+                {t("meses")}
               </span>
               <span className="max-w-[12em] text-[17px] leading-[1.35] text-body">
-                meses pagados, confirmados por su dueño
+                {t("mesesTexto")}
               </span>
             </div>
 
             <p className="mt-2 mb-0 text-[15px] text-muted max-[560px]:order-3 max-[560px]:mt-4">
-              100% en fecha · 2 contratos cumplidos
+              {t("resumen")}
             </p>
 
             <div className="mt-6 max-[560px]:order-2 max-[560px]:mt-5">
-              <div className="flex gap-[5px]" aria-label={`${MESES} meses confirmados`}>
+              <div className="flex gap-[5px]" aria-label={t("tira", { meses: MESES })}>
                 {Array.from({ length: MESES }, (_, i) => (
                   <i key={i} className="block h-[26px] flex-1 rounded-[6px] bg-confirm" />
                 ))}
               </div>
               <div className="mt-2 flex justify-between text-[13px] leading-[1.25] text-muted max-[560px]:hidden">
-                <Punta mes={PRIMER_MES} alineado="left" />
-                <Punta mes={ULTIMO_MES} alineado="right" />
+                <Punta mes={t("desde")} alineado="left" />
+                <Punta mes={t("hasta")} alineado="right" />
               </div>
             </div>
 
             <div className="mt-6 rounded-campo bg-bg p-4 max-[560px]:hidden">
               <q className="quote block text-[17px] leading-[1.6] text-body italic">
-                Siempre al día, y cuando se rompió el calefón avisó enseguida.
+                {t("cita")}
               </q>
-              <small className="mt-2 block text-[15px] text-muted">Su dueño anterior</small>
+              <small className="mt-2 block text-[15px] text-muted">{t("citaAutor")}</small>
             </div>
           </div>
         </div>
@@ -97,10 +98,10 @@ export function ExampleProfile() {
           </span>
           <div>
             <b className="block text-[15px] font-medium whitespace-nowrap">
-              Pago de septiembre confirmado
+              {t("avisoTitulo")}
             </b>
             <small className="block text-[13px] opacity-70 max-[560px]:hidden">
-              Tu dueño marcó “Recibido”
+              {t("avisoDetalle")}
             </small>
           </div>
         </div>

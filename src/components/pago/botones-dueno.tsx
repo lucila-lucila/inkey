@@ -6,7 +6,7 @@ import {
   confirmarPago,
   marcarNoRecibido,
   type EstadoConfirmacion,
-} from "@/app/(app)/pagos/[id]/actions";
+} from "@/app/[locale]/(app)/pagos/[id]/actions";
 import { Button } from "@/components/ui";
 
 const ESTADO_INICIAL: EstadoConfirmacion = { estado: "inicial" };

@@ -1,10 +1,34 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
-import { cerrarSesion } from "@/app/(auth)/ingresar/actions";
+import { cerrarSesion } from "@/app/[locale]/(auth)/ingresar/actions";
 import { BotonSalir, MenuDeCuenta } from "@/components/app/menu-de-cuenta";
 import { Logo, Pie } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { iniciales } from "@/lib/validation/profile";
+
+const LINKS = [
+  { href: "/panel", clave: "panel" },
+  { href: "/perfil", clave: "miPerfil" },
+  { href: "/cuenta", clave: "miCuenta" },
+] as const;
+
+function BarraDeNavegacion() {
+  const t = useTranslations("header");
+  return (
+    <nav className="flex gap-5 text-[15px] font-medium max-[760px]:hidden">
+      {LINKS.map((link) => (
+        <Link
+          key={link.href}
+          href={link.href}
+          className="text-ink no-underline hover:underline hover:underline-offset-4"
+        >
+          {t(link.clave)}
+        </Link>
+      ))}
+    </nav>
+  );
+}
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -30,17 +54,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-7">
             <Logo href="/panel" size="sm" />
             {/* En el celular esta barra no entra: los links viven en el menú. */}
-            <nav className="flex gap-5 text-[15px] font-medium max-[760px]:hidden">
-              <Link href="/panel" className="text-ink no-underline hover:underline hover:underline-offset-4">
-                Panel
-              </Link>
-              <Link href="/perfil" className="text-ink no-underline hover:underline hover:underline-offset-4">
-                Mi perfil
-              </Link>
-              <Link href="/cuenta" className="text-ink no-underline hover:underline hover:underline-offset-4">
-                Mi cuenta
-              </Link>
-            </nav>
+            <BarraDeNavegacion />
           </div>
           <div className="flex items-center gap-3">
             {nombre ? (

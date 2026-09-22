@@ -9,6 +9,7 @@ import {
   type EstadoCodigo,
   type EstadoIngreso,
 } from "./actions";
+import { Link } from "@/i18n/navigation";
 import { Button, Field, Input } from "@/components/ui";
 import type { Intencion } from "@/lib/validation/profile";
 import { LARGO_CODIGO } from "@/lib/validation/codigo";
@@ -99,9 +100,9 @@ function Revisa({
 
       <p className="m-0 text-[15px] text-muted">
         ¿No te llegó? Volvé a{" "}
-        <a href="/ingresar" className="font-medium text-confirm-ink">
+        <Link href="/ingresar" className="font-medium text-confirm-ink">
           pedir uno nuevo
-        </a>
+        </Link>
         .
       </p>
     </div>

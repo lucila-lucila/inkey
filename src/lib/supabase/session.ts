@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { partirRuta, prefijoDe } from "@/i18n/idioma";
 import { codigoDeRebote, esRebote } from "@/lib/auth/errores-link";
 
 /** Rutas que exigen sesión iniciada. */
@@ -11,18 +12,24 @@ const RUTAS_PRIVADAS = ["/panel", "/onboarding", "/alquileres", "/pagos", "/perf
  */
 const RUTAS_ABIERTAS = ["/pagos/confirmar"];
 
+/*
+ * Las rutas se comparan sin el prefijo de idioma: `/panel` y `/en/panel` son
+ * la misma pantalla y las dos piden sesión.
+ */
 function esRutaPrivada(pathname: string): boolean {
-  if (RUTAS_ABIERTAS.some((ruta) => pathname === ruta || pathname.startsWith(`${ruta}/`))) {
+  const { resto } = partirRuta(pathname);
+  if (RUTAS_ABIERTAS.some((ruta) => resto === ruta || resto.startsWith(`${ruta}/`))) {
     return false;
   }
-  return RUTAS_PRIVADAS.some((ruta) => pathname === ruta || pathname.startsWith(`${ruta}/`));
+  return RUTAS_PRIVADAS.some((ruta) => resto === ruta || resto.startsWith(`${ruta}/`));
 }
 
 function aIngresar(request: NextRequest): NextResponse {
   // Guardamos a dónde iba, con sus parámetros, para volver exactamente ahí
-  // después de entrar.
+  // después de entrar. Y lo mandamos a entrar en su mismo idioma.
   const destino = `${request.nextUrl.pathname}${request.nextUrl.search}`;
-  const url = new URL("/ingresar", request.nextUrl.origin);
+  const { idioma } = partirRuta(request.nextUrl.pathname);
+  const url = new URL(`${prefijoDe(idioma)}/ingresar`, request.nextUrl.origin);
   url.searchParams.set("volver_a", destino);
   return NextResponse.redirect(url);
 }
@@ -34,9 +41,10 @@ function aIngresar(request: NextRequest): NextResponse {
  */
 function reboteDeIngreso(request: NextRequest): NextResponse | null {
   const { pathname, searchParams, origin } = request.nextUrl;
-  if (pathname === "/ingresar" || !esRebote(searchParams)) return null;
+  const { idioma, resto } = partirRuta(pathname);
+  if (resto === "/ingresar" || !esRebote(searchParams)) return null;
 
-  const url = new URL("/ingresar", origin);
+  const url = new URL(`${prefijoDe(idioma)}/ingresar`, origin);
   const codigo = codigoDeRebote({
     error: searchParams.get("error"),
     error_code: searchParams.get("error_code"),
@@ -54,9 +62,19 @@ function reboteDeIngreso(request: NextRequest): NextResponse | null {
  * Refresca la sesión en cada request y corta el paso a las rutas privadas.
  * Es la primera barrera, no la única: cada consulta pasa además por RLS.
  */
-export async function updateSession(request: NextRequest) {
+export async function updateSession(request: NextRequest, reescribirA: URL | null = null) {
   const rebote = reboteDeIngreso(request);
   if (rebote) return rebote;
+
+  /*
+   * Una sola respuesta para todo. La reescritura del idioma y las cookies que
+   * refrescan la sesión tienen que viajar juntas: si se arman por separado,
+   * una de las dos se pierde.
+   */
+  const seguir = () =>
+    reescribirA
+      ? NextResponse.rewrite(reescribirA, { request })
+      : NextResponse.next({ request });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -64,12 +82,10 @@ export async function updateSession(request: NextRequest) {
   // Sin Supabase configurado (por ejemplo, un clon recién bajado) la landing
   // tiene que seguir funcionando; lo privado queda cerrado.
   if (!url || !anonKey) {
-    return esRutaPrivada(request.nextUrl.pathname)
-      ? aIngresar(request)
-      : NextResponse.next({ request });
+    return esRutaPrivada(request.nextUrl.pathname) ? aIngresar(request) : seguir();
   }
 
-  let response = NextResponse.next({ request });
+  let response = seguir();
 
   const supabase = createServerClient(url, anonKey, {
     cookies: {
@@ -80,7 +96,7 @@ export async function updateSession(request: NextRequest) {
         for (const { name, value } of cookiesToSet) {
           request.cookies.set(name, value);
         }
-        response = NextResponse.next({ request });
+        response = seguir();
         for (const { name, value, options } of cookiesToSet) {
           response.cookies.set(name, value, options);
         }

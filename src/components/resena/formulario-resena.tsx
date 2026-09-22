@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { dejarResena, type EstadoResena } from "@/app/(app)/alquileres/[id]/fin-actions";
+import { dejarResena, type EstadoResena } from "@/app/[locale]/(app)/alquileres/[id]/fin-actions";
 import { Button, Card } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { formatearFecha } from "@/lib/domain/alquiler";

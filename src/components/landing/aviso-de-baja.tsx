@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 /**
  * "Listo, tu cuenta quedó dada de baja", al volver de la baja a la landing.
@@ -10,6 +11,7 @@ import { useSearchParams } from "next/navigation";
  * única que conviene servir estática.
  */
 export function AvisoDeBaja() {
+  const t = useTranslations("landing");
   const parametros = useSearchParams();
   if (parametros.get("baja") !== "lista") return null;
 
@@ -19,8 +21,7 @@ export function AvisoDeBaja() {
         role="status"
         className="m-0 rounded-campo bg-confirm-soft p-4 text-[15px] text-confirm-ink"
       >
-        Listo, tu cuenta quedó dada de baja y borramos tus datos personales. Gracias por haber
-        usado Inkey. Si algún día querés volver, tu mail está libre.
+        {t("avisoDeBaja")}
       </p>
     </div>
   );

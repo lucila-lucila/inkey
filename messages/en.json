@@ -1,0 +1,119 @@
+{
+  "sitio": {
+    "titulo": "Inkey · Your rental history, confirmed",
+    "descripcion": "You and your landlord confirm every payment, month by month. Your rental history is yours, and it comes with you to your next place."
+  },
+  "pie": {
+    "hechoEn": "Made in Buenos Aires",
+    "terminos": "Terms",
+    "privacidad": "Privacy",
+    "apoyo": "Support the project",
+    "idioma": "Language",
+    "cambiarA": "View Inkey in {idioma}",
+    "paraArgentina": "Inkey is built for rentals in Argentina: amounts are in pesos and adjustments follow Argentine indexes."
+  },
+  "header": {
+    "comoFunciona": "How it works",
+    "paraQuien": "Who it's for",
+    "ingresar": "Sign in",
+    "panel": "Home",
+    "miPerfil": "My profile",
+    "miCuenta": "My account",
+    "salir": "Sign out",
+    "tuCuenta": "Your account"
+  },
+  "landing": {
+    "eyebrow": "Your rental history, confirmed",
+    "titulo": "You've paid on time for years.",
+    "tituloDestacado": "Now you can prove it.",
+    "bajada": "You and your landlord confirm every payment, month by month. That history is yours, and it comes with you to your next place.",
+    "crearHistorial": "Start my history",
+    "tengoPropiedad": "I have a place to rent out",
+    "letraChica": "Sign in with your email. No passwords, no credit checks.",
+    "ejemplo": {
+      "etiqueta": "Example profile",
+      "nombre": "Martina R.",
+      "rol": "Tenant · Palermo",
+      "verificado": "Verified",
+      "meses": "36",
+      "mesesTexto": "months paid, confirmed by her landlord",
+      "resumen": "100% on time · 2 leases completed",
+      "tira": "{meses} months confirmed",
+      "desde": "Oct 2025",
+      "hasta": "Sep 2026",
+      "cita": "Always paid on time, and when the water heater broke she told me right away.",
+      "citaAutor": "Her previous landlord",
+      "avisoTitulo": "September payment confirmed",
+      "avisoDetalle": "Your landlord marked it received"
+    },
+    "pasos": {
+      "eyebrow": "How it works",
+      "titulo": "Three steps. Ten seconds a month.",
+      "uno": {
+        "titulo": "You invite your landlord",
+        "texto": "They get a link. One tap to confirm, no password to create."
+      },
+      "dos": {
+        "titulo": "Each month, you both confirm",
+        "texto": "You say you paid. Your landlord marks it received. You both get the receipt."
+      },
+      "tres": {
+        "titulo": "You share your history",
+        "texto": "When you're looking for your next place, you send the link. Revoke it whenever you want."
+      }
+    },
+    "maquetas": {
+      "mensaje": "Hi Carlos, let's confirm the lease on Inkey so every payment is on the record.",
+      "previewTitulo": "Confirm Martina's lease",
+      "previewUrl": "inkeyapp.com/invitation",
+      "enviadoPor": "Sent on WhatsApp",
+      "avisoPago": "Martina says she paid",
+      "periodoPago": "September · with proof of payment",
+      "recibido": "Received",
+      "todaviaNo": "Not yet",
+      "mesesConfirmados": "months confirmed · 100% on time",
+      "linkPerfil": "inkeyapp.com/p/martina",
+      "copiar": "Copy",
+      "aberturas": "For the Palermo rental agency · opened 3 times"
+    },
+    "publicos": {
+      "inquilino": {
+        "etiqueta": "If you rent",
+        "titulo": "Show up to every viewing with proof, not promises.",
+        "punto1": "Your confirmed history, ready to send.",
+        "punto2": "Your receipts in one place.",
+        "punto3": "Before you sign, see what the landlord is like according to their tenants.",
+        "accion": "Start my history"
+      },
+      "propietario": {
+        "etiqueta": "If you rent out a place",
+        "titulo": "Choose a tenant with more than a gut feeling.",
+        "punto1": "The candidate's real history, confirmed by other landlords.",
+        "punto2": "An automatic receipt every time you confirm a payment.",
+        "punto3": "Your reputation as a good landlord, visible to anyone looking.",
+        "accion": "Add my place"
+      }
+    },
+    "reglas": {
+      "eyebrow": "House rules",
+      "titulo": "Your history is yours. And nobody gets publicly shamed.",
+      "una": {
+        "titulo": "You decide who sees it",
+        "texto": "Nothing is public. You create each link yourself and revoke it whenever you want."
+      },
+      "dos": {
+        "titulo": "Only what's confirmed counts",
+        "texto": "A month counts when you both confirm it. No blacklists, no black marks."
+      },
+      "tres": {
+        "titulo": "No credit data",
+        "texto": "We don't check banks or credit bureaus. It's your word and your landlord's."
+      }
+    },
+    "cierre": {
+      "titulo": "You kept your word.",
+      "tituloDestacado": "Put it in writing."
+    },
+    "avisoDeBaja": "Your account is closed. Thanks for using Inkey."
+  }
+}

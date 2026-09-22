@@ -1,0 +1,119 @@
+{
+  "sitio": {
+    "titulo": "Inkey · Tu historial de alquiler, confirmado",
+    "descripcion": "Vos y tu dueño confirman cada pago, mes a mes. Tu historial de alquiler es tuyo y lo llevás a tu próximo alquiler."
+  },
+  "pie": {
+    "hechoEn": "Hecho en Buenos Aires",
+    "terminos": "Términos",
+    "privacidad": "Privacidad",
+    "apoyo": "Apoyá el proyecto",
+    "idioma": "Idioma",
+    "cambiarA": "Ver Inkey en {idioma}",
+    "paraArgentina": "Inkey está pensado para alquileres en Argentina: los montos van en pesos y los ajustes siguen los índices de acá."
+  },
+  "header": {
+    "comoFunciona": "Cómo funciona",
+    "paraQuien": "Para quién",
+    "ingresar": "Ingresar",
+    "panel": "Panel",
+    "miPerfil": "Mi perfil",
+    "miCuenta": "Mi cuenta",
+    "salir": "Salir",
+    "tuCuenta": "Tu cuenta"
+  },
+  "landing": {
+    "eyebrow": "Tu historial de alquiler, confirmado",
+    "titulo": "Pagaste puntual durante años.",
+    "tituloDestacado": "Ahora demostralo.",
+    "bajada": "Vos y tu dueño confirman cada pago, mes a mes. Ese historial es tuyo y lo llevás a tu próximo alquiler.",
+    "crearHistorial": "Crear mi historial",
+    "tengoPropiedad": "Tengo una propiedad en alquiler",
+    "letraChica": "Entrás con tu mail. Sin contraseñas ni datos crediticios.",
+    "ejemplo": {
+      "etiqueta": "Perfil de ejemplo",
+      "nombre": "Martina R.",
+      "rol": "Inquilina · Palermo",
+      "verificado": "Verificado",
+      "meses": "36",
+      "mesesTexto": "meses pagados, confirmados por su dueño",
+      "resumen": "100% en fecha · 2 contratos cumplidos",
+      "tira": "{meses} meses confirmados",
+      "desde": "Oct 2025",
+      "hasta": "Sep 2026",
+      "cita": "Siempre al día, y cuando se rompió el calefón avisó enseguida.",
+      "citaAutor": "Su dueño anterior",
+      "avisoTitulo": "Pago de septiembre confirmado",
+      "avisoDetalle": "Tu dueño marcó “Recibido”"
+    },
+    "pasos": {
+      "eyebrow": "Cómo funciona",
+      "titulo": "Tres pasos. Diez segundos por mes.",
+      "uno": {
+        "titulo": "Invitás a tu dueño",
+        "texto": "Le llega un link. Confirma con un toque, sin crear contraseña."
+      },
+      "dos": {
+        "titulo": "Cada mes, confirman el pago",
+        "texto": "Vos avisás que pagaste. Tu dueño marca “Recibido”. Los dos quedan con el recibo."
+      },
+      "tres": {
+        "titulo": "Compartís tu historial",
+        "texto": "Cuando buscás tu próximo alquiler, mandás el link. Lo revocás cuando quieras."
+      }
+    },
+    "maquetas": {
+      "mensaje": "Hola Carlos, confirmemos el alquiler en Inkey así queda registrado cada pago.",
+      "previewTitulo": "Confirmá el alquiler de Martina",
+      "previewUrl": "inkeyapp.com/invitacion",
+      "enviadoPor": "Enviado por WhatsApp",
+      "avisoPago": "Martina te avisó que pagó",
+      "periodoPago": "Septiembre · con comprobante",
+      "recibido": "Recibido",
+      "todaviaNo": "Todavía no",
+      "mesesConfirmados": "meses confirmados · 100% en fecha",
+      "linkPerfil": "inkeyapp.com/p/martina",
+      "copiar": "Copiar",
+      "aberturas": "Para la inmobiliaria de Palermo · abierto 3 veces"
+    },
+    "publicos": {
+      "inquilino": {
+        "etiqueta": "Si alquilás",
+        "titulo": "Llegá a cada visita con pruebas, no con promesas.",
+        "punto1": "Tu historial confirmado, listo para mandar.",
+        "punto2": "Tus recibos ordenados en un solo lugar.",
+        "punto3": "Antes de firmar, ves cómo es el dueño según sus inquilinos.",
+        "accion": "Crear mi historial"
+      },
+      "propietario": {
+        "etiqueta": "Si tenés una propiedad",
+        "titulo": "Elegí inquilino con algo más que intuición.",
+        "punto1": "El historial real del candidato, confirmado por otros dueños.",
+        "punto2": "Un recibo automático cada vez que confirmás un pago.",
+        "punto3": "Tu reputación de buen dueño, a la vista de quien alquila.",
+        "accion": "Sumar mi propiedad"
+      }
+    },
+    "reglas": {
+      "eyebrow": "Las reglas de la casa",
+      "titulo": "Tu historial es tuyo. Y nadie queda escrachado.",
+      "una": {
+        "titulo": "Vos decidís quién lo ve",
+        "texto": "Nada es público. Cada link lo creás vos y lo revocás cuando quieras."
+      },
+      "dos": {
+        "titulo": "Solo suma lo que se confirma",
+        "texto": "Un mes cuenta cuando lo confirman los dos. No hay listas negras ni marcas en contra."
+      },
+      "tres": {
+        "titulo": "Sin datos crediticios",
+        "texto": "No consultamos bancos ni Veraz. Es tu palabra y la de tu dueño."
+      }
+    },
+    "cierre": {
+      "titulo": "Lo que cumpliste,",
+      "tituloDestacado": "que quede escrito."
+    },
+    "avisoDeBaja": "Listo, tu cuenta quedó dada de baja. Gracias por haber usado Inkey."
+  }
+}

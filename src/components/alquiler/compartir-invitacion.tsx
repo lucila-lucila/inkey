@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom";
 import {
   enviarInvitacionPorMail,
   type EstadoInvitacionMail,
-} from "@/app/(app)/alquileres/invitacion-actions";
+} from "@/app/[locale]/(app)/alquileres/invitacion-actions";
 import { Button, Field, Input } from "@/components/ui";
 import {
   enlaceMail,

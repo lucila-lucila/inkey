@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { cancelarFin, confirmarFin, proponerFin, type EstadoFin } from "@/app/(app)/alquileres/[id]/fin-actions";
+import { cancelarFin, confirmarFin, proponerFin, type EstadoFin } from "@/app/[locale]/(app)/alquileres/[id]/fin-actions";
 import { Button, Card } from "@/components/ui";
 
 const ESTADO_INICIAL: EstadoFin = { estado: "inicial" };

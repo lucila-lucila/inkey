@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { verComprobante } from "@/app/(app)/pagos/[id]/actions";
+import { verComprobante } from "@/app/[locale]/(app)/pagos/[id]/actions";
 import { Button } from "@/components/ui";
 
 /** El comprobante se abre con una URL firmada que dura un minuto. */

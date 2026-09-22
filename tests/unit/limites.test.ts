@@ -57,7 +57,8 @@ describe("límites de frecuencia", () => {
   });
 
   for (const { ruta, fuente } of sospechosos) {
-    const relativa = ruta.slice(RAIZ.length);
+    // Sin el segmento de idioma: `[locale]/(app)/x` y `(app)/x` son lo mismo.
+    const relativa = ruta.slice(RAIZ.length).replace(/^\[locale\]\//, "");
     const motivo = EXCEPCIONES[relativa];
 
     it(`${relativa}${motivo ? " (exceptuada)" : ""}`, () => {

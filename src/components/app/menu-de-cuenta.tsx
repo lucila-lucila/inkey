@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "@/i18n/navigation";
 import { Avatar, Button } from "@/components/ui";
 
 /*
@@ -16,10 +17,10 @@ import { Avatar, Button } from "@/components/ui";
  */
 
 const LINKS = [
-  { href: "/panel", texto: "Panel" },
-  { href: "/perfil", texto: "Mi perfil" },
-  { href: "/cuenta", texto: "Mi cuenta" },
-];
+  { href: "/panel", clave: "panel" },
+  { href: "/perfil", clave: "miPerfil" },
+  { href: "/cuenta", clave: "miCuenta" },
+] as const;
 
 export function MenuDeCuenta({
   iniciales,
@@ -28,6 +29,7 @@ export function MenuDeCuenta({
   iniciales: string;
   cerrarSesion: () => Promise<void>;
 }) {
+  const t = useTranslations("header");
   const [abierto, setAbierto] = useState(false);
   const caja = useRef<HTMLDivElement>(null);
 
@@ -57,7 +59,7 @@ export function MenuDeCuenta({
         onClick={() => setAbierto((estaba) => !estaba)}
         aria-expanded={abierto}
         aria-haspopup="menu"
-        aria-label="Tu cuenta"
+        aria-label={t("tuCuenta")}
         className="grid cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0"
       >
         <Avatar initials={iniciales} className="size-10 text-[16px]" />
@@ -76,7 +78,7 @@ export function MenuDeCuenta({
               onClick={() => setAbierto(false)}
               className="rounded-[10px] px-3 py-2.5 text-[16px] font-medium text-ink no-underline hover:bg-surface-sunk min-[760px]:hidden"
             >
-              {link.texto}
+              {t(link.clave)}
             </Link>
           ))}
 
@@ -86,7 +88,7 @@ export function MenuDeCuenta({
               role="menuitem"
               className="w-full cursor-pointer rounded-[10px] border-0 bg-transparent px-3 py-2.5 text-left text-[16px] font-medium text-ink hover:bg-surface-sunk"
             >
-              Salir
+              {t("salir")}
             </button>
           </form>
         </div>
@@ -97,10 +99,11 @@ export function MenuDeCuenta({
 
 /** Sin nombre todavía no hay iniciales: el menú igual tiene que existir. */
 export function BotonSalir({ cerrarSesion }: { cerrarSesion: () => Promise<void> }) {
+  const t = useTranslations("header");
   return (
     <form action={cerrarSesion}>
       <Button type="submit" variant="quiet" size="md">
-        Salir
+        {t("salir")}
       </Button>
     </form>
   );

@@ -1,6 +1,9 @@
+import { useTranslations } from "next-intl";
 import { ButtonLink, Logo } from "@/components/ui";
 
 export function SiteHeader() {
+  const t = useTranslations("header");
+
   return (
     <header>
       <div className="wrap flex items-center justify-between py-4 min-[640px]:py-6">
@@ -12,16 +15,16 @@ export function SiteHeader() {
             href="#como"
             className="text-ink no-underline hover:underline hover:underline-offset-4 max-[760px]:hidden"
           >
-            Cómo funciona
+            {t("comoFunciona")}
           </a>
           <a
             href="#para-quien"
             className="text-ink no-underline hover:underline hover:underline-offset-4 max-[760px]:hidden"
           >
-            Para quién
+            {t("paraQuien")}
           </a>
           <ButtonLink href="/ingresar" size="md" variant="outline" className="whitespace-nowrap">
-            Ingresar
+            {t("ingresar")}
           </ButtonLink>
         </nav>
       </div>

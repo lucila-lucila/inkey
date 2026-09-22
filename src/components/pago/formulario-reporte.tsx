@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { reportarPago, type EstadoReporte } from "@/app/(app)/alquileres/[id]/actions";
+import { reportarPago, type EstadoReporte } from "@/app/[locale]/(app)/alquileres/[id]/actions";
 import { Button, CampoMonto, Field, Input } from "@/components/ui";
 import { nombrePeriodo } from "@/lib/domain/pagos";
 

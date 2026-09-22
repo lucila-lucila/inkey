@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui";
+import { getLocale } from "next-intl/server";
+import { prefijoDe } from "@/i18n/idioma";
 import { createClient } from "@/lib/supabase/server";
 import { BorrarCuenta, MisDatos } from "./piezas";
 
@@ -39,6 +41,7 @@ function Seccion({
 
 export default async function CuentaPage() {
   const supabase = await createClient();
+  const idioma = await getLocale();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -75,14 +78,19 @@ export default async function CuentaPage() {
         bajada="Todo lo que guardamos de vos, en un archivo. Es tuyo y te lo llevás cuando quieras."
       >
         <div className="flex flex-wrap gap-3">
+          {/*
+            Un `<a>` de verdad y no un `Link`: esto no navega a una pantalla,
+            descarga un archivo. Lleva el idioma en la URL para que el archivo
+            salga con los encabezados en el idioma de quien lo pide.
+          */}
           <a
-            href="/cuenta/exportar?formato=json"
+            href={`${prefijoDe(idioma)}/cuenta/exportar?formato=json`}
             className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-surface-sunk px-6 text-[17px] font-medium text-ink no-underline hover:brightness-[0.97]"
           >
             Descargar en JSON
           </a>
           <a
-            href="/cuenta/exportar?formato=csv"
+            href={`${prefijoDe(idioma)}/cuenta/exportar?formato=csv`}
             className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-surface-sunk px-6 text-[17px] font-medium text-ink no-underline hover:brightness-[0.97]"
           >
             Descargar en CSV

@@ -16,6 +16,10 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
+      /*
+       * Las mismas pantallas privadas existen con prefijo de idioma: hay que
+       * nombrar las dos formas o el inglés queda abierto.
+       */
       disallow: [
         "/panel",
         "/onboarding",
@@ -28,6 +32,15 @@ export default function robots(): MetadataRoute.Robots {
         "/invitacion/",
         "/api/",
         "/auth/",
+        "/en/panel",
+        "/en/onboarding",
+        "/en/ingresar",
+        "/en/alquileres",
+        "/en/pagos",
+        "/en/perfil",
+        "/en/cuenta",
+        "/en/p/",
+        "/en/invitacion/",
       ],
     },
     sitemap: new URL("/sitemap.xml", site).toString(),
