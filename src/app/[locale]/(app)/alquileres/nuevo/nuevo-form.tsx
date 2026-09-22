@@ -6,6 +6,7 @@ import { useFormStatus } from "react-dom";
 import { crearAlquiler, type EstadoNuevoAlquiler } from "./actions";
 import { CompartirInvitacion } from "@/components/alquiler/compartir-invitacion";
 import { useTranslations } from "next-intl";
+import { traducirMensaje } from "@/i18n/texto";
 import { Button, ButtonLink, CampoMonto, Card, Field, Input } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { claveDeRol } from "@/lib/domain/alquiler";
@@ -19,10 +20,11 @@ import {
 const ESTADO_INICIAL: EstadoNuevoAlquiler = { estado: "inicial" };
 
 function BotonGuardar() {
+  const tn = useTranslations("alquilerNuevo");
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Guardando…" : "Guardar e invitar"}
+      {pending ? tn("guardando") : tn("guardarEInvitar")}
     </Button>
   );
 }
@@ -30,13 +32,18 @@ function BotonGuardar() {
 export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
   const [estado, accion] = useActionState(crearAlquiler, ESTADO_INICIAL);
   const t = useTranslations();
+  const tn = useTranslations("alquilerNuevo");
   const [paso, setPaso] = useState(0);
   const [errores, setErrores] = useState<Record<string, string>>({});
   const formRef = useRef<HTMLFormElement>(null);
 
   const errorDelServidor = estado.estado === "error" ? estado : undefined;
-  const errorDe = (campo: string) =>
-    errores[campo] ?? (errorDelServidor?.campo === campo ? errorDelServidor.mensaje : undefined);
+  /* Lo que llega es una clave: el texto lo pone el archivo de idiomas. */
+  const errorDe = (campo: string) => {
+    const clave =
+      errores[campo] ?? (errorDelServidor?.campo === campo ? errorDelServidor.mensaje : undefined);
+    return clave ? traducirMensaje(t, clave) : undefined;
+  };
 
   /** Valida solo los campos del paso actual antes de dejar avanzar. */
   function continuar() {
@@ -63,7 +70,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
     return (
       <div className="flex flex-col gap-6">
         <Card hero >
-          <p className="t-etiqueta mt-0 mb-2 text-confirm-ink">Alquiler guardado</p>
+          <p className="t-etiqueta mt-0 mb-2 text-primary-ink">{tn("alquilerGuardado")}</p>
           <CompartirInvitacion
             url={estado.url}
             rentalId={estado.rentalId}
@@ -84,7 +91,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
             Ver el alquiler
           </ButtonLink>
           <Link href="/panel" className="self-center text-[15px] font-medium text-confirm-ink">
-            Volver al panel
+            {tn("volverAlPanel")}
           </Link>
         </div>
       </div>
@@ -107,7 +114,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
           role="alert"
           className="flex flex-col items-start gap-3 rounded-campo bg-primary-soft p-4 text-[15px] text-primary-ink"
         >
-          <p className="m-0">{errorDelServidor.mensaje}</p>
+          <p className="m-0">{traducirMensaje(t, errorDelServidor.mensaje)}</p>
           {pasoDelError !== null && pasoDelError !== paso && (
             <Button
               type="button"
@@ -118,7 +125,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
                 setPaso(pasoDelError);
               }}
             >
-              Ir al paso {pasoDelError + 1}
+              {tn("irAlPaso", { paso: pasoDelError + 1 })}
             </Button>
           )}
         </div>
@@ -126,7 +133,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
 
       <div>
         <p className="t-etiqueta m-0 text-muted">
-          Paso {paso + 1} de {PASOS_ALQUILER.length}
+          {tn("pasoDe", { paso: paso + 1, total: PASOS_ALQUILER.length })}
         </p>
         <h1 className="mt-1 mb-0 t-titulo">
           {t(`dominio.pasoAlquiler.${PASOS_ALQUILER[paso].clave}`)}
@@ -136,9 +143,9 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
       {/* Los pasos quedan montados: así no se pierde lo ya cargado al volver. */}
       <div hidden={paso !== 0} className="flex flex-col gap-4">
         <Field
-          label="Dirección"
+          label={tn("direccion")}
           htmlFor="full_address"
-          hint="Con altura y piso. Es privada: solo la ven vos y la otra parte."
+          hint={tn("pistaDireccion")}
           error={errorDe("full_address")}
         >
           <Input
@@ -149,9 +156,9 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
           />
         </Field>
         <Field
-          label="Barrio y ciudad"
+          label={tn("barrioCiudad")}
           htmlFor="neighborhood_label"
-          hint="Es lo único de la ubicación que puede aparecer en tu perfil público."
+          hint={tn("pistaBarrio")}
           error={errorDe("neighborhood_label")}
         >
           <Input id="neighborhood_label" name="neighborhood_label" placeholder="Palermo, CABA" />
@@ -160,13 +167,13 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
 
       <div hidden={paso !== 1} className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Empezó el" htmlFor="start_date" error={errorDe("start_date")}>
+          <Field label={tn("empezoEl")} htmlFor="start_date" error={errorDe("start_date")}>
             <Input id="start_date" name="start_date" type="date" />
           </Field>
           <Field
-            label="Termina el"
+            label={tn("terminaEl")}
             htmlFor="end_date"
-            hint="Si todavía no sabés, dejalo vacío."
+            hint={tn("pistaTermina")}
             error={errorDe("end_date")}
           >
             <Input id="end_date" name="end_date" type="date" />
@@ -174,26 +181,26 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-[2fr_1fr]">
-          <Field label="Cuánto pagás por mes" htmlFor="monthly_amount" error={errorDe("monthly_amount")}>
+          <Field label={tn("cuantoPagas")} htmlFor="monthly_amount" error={errorDe("monthly_amount")}>
             <CampoMonto id="monthly_amount" name="monthly_amount" placeholder="450.000" />
           </Field>
-          <Field label="Moneda" htmlFor="currency" error={errorDe("currency")}>
+          <Field label={tn("moneda")} htmlFor="currency" error={errorDe("currency")}>
             <select
               id="currency"
               name="currency"
               defaultValue="ARS"
               className="min-h-[52px] w-full rounded-campo border border-line bg-surface-sunk px-4 text-[17px] text-ink"
             >
-              <option value="ARS">Pesos</option>
-              <option value="USD">Dólares</option>
+              <option value="ARS">{tn("pesos")}</option>
+              <option value="USD">{tn("dolares")}</option>
             </select>
           </Field>
         </div>
 
         <Field
-          label="Día de vencimiento"
+          label={tn("diaVencimiento")}
           htmlFor="due_day"
-          hint="Si el mes no tiene ese día, vence el último."
+          hint={tn("pistaDia")}
           error={errorDe("due_day")}
         >
           <Input id="due_day" name="due_day" type="number" min={1} max={31} placeholder="10" />
@@ -203,17 +210,17 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
       <div hidden={paso !== 2} className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
-            label="Índice de ajuste"
+            label={tn("indice")}
             htmlFor="adjustment_index"
-            hint="ICL, IPC, fijo… Como diga el contrato."
+            hint={tn("pistaIndice")}
             error={errorDe("adjustment_index")}
           >
             <Input id="adjustment_index" name="adjustment_index" placeholder="ICL" list="indices" />
           </Field>
           <Field
-            label="Ajusta cada"
+            label={tn("ajustaCada")}
             htmlFor="adjustment_every_months"
-            hint="En meses. Por ejemplo, 6."
+            hint={tn("pistaAjusta")}
             error={errorDe("adjustment_every_months")}
           >
             <Input
@@ -233,9 +240,9 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
         </datalist>
 
         <Field
-          label="Contrato (opcional)"
+          label={tn("contrato")}
           htmlFor="contrato"
-          hint="PDF o foto, hasta 10 MB. Queda privado: solo lo ven vos y la otra parte."
+          hint={tn("pistaContrato")}
         >
           <input
             id="contrato"
@@ -263,14 +270,14 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
               setPaso((actual) => actual - 1);
             }}
           >
-            Volver
+            {tn("volver")}
           </Button>
         )}
         {esUltimo ? (
           <BotonGuardar />
         ) : (
           <Button type="button" onClick={continuar}>
-            Continuar
+            {tn("continuar")}
           </Button>
         )}
       </div>

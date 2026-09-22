@@ -15,7 +15,7 @@ export type Traductor = {
   has(clave: string): boolean;
 };
 
-export function texto(
+export function traducirMensaje(
   t: Traductor,
   clave: string | undefined | null,
   valores?: Valores,

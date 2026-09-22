@@ -1,15 +1,18 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { traducirMensaje } from "@/i18n/texto";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { borrarCuenta, guardarDatos, type EstadoBaja, type EstadoDatos } from "./actions";
 import { Button, Field, Input } from "@/components/ui";
 
 function BotonGuardar() {
+  const t = useTranslations();
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} variant="secondary">
-      {pending ? "Guardando…" : "Guardar los cambios"}
+      {pending ? t("cuenta.guardando") : t("cuenta.guardar")}
     </Button>
   );
 }
@@ -24,25 +27,26 @@ export function MisDatos({
   apellido: string;
   celular: string;
 }) {
+  const t = useTranslations();
   const [estado, accion] = useActionState(guardarDatos, { estado: "inicial" } as EstadoDatos);
   const errorDe = (campo: string) =>
-    estado.estado === "error" && estado.campo === campo ? estado.mensaje : undefined;
+    estado.estado === "error" && estado.campo === campo ? traducirMensaje(t, estado.mensaje) : undefined;
 
   return (
     <form action={accion} noValidate className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="Nombre" htmlFor="first_name" error={errorDe("first_name")}>
+        <Field label={t("cuenta.nombre")} htmlFor="first_name" error={errorDe("first_name")}>
           <Input id="first_name" name="first_name" defaultValue={nombre} autoComplete="given-name" required />
         </Field>
-        <Field label="Apellido" htmlFor="last_name" error={errorDe("last_name")}>
+        <Field label={t("cuenta.apellido")} htmlFor="last_name" error={errorDe("last_name")}>
           <Input id="last_name" name="last_name" defaultValue={apellido} autoComplete="family-name" required />
         </Field>
       </div>
 
       <Field
-        label="Celular"
+        label={t("cuenta.celular")}
         htmlFor="phone"
-        hint="Para que tu dueño o tu inquilino puedan ubicarte. No se muestra en tu perfil público."
+        hint={t("cuenta.pistaCelular")}
         error={errorDe("phone")}
       >
         <Input
@@ -60,12 +64,12 @@ export function MisDatos({
         <BotonGuardar />
         {estado.estado === "guardado" && (
           <p role="status" className="m-0 text-[15px] font-medium text-confirm-ink">
-            Listo, guardado.
+            {t("cuenta.guardado")}
           </p>
         )}
         {estado.estado === "error" && !estado.campo && (
           <p role="alert" className="m-0 text-[15px] text-primary-ink">
-            {estado.mensaje}
+            {traducirMensaje(t, estado.mensaje)}
           </p>
         )}
       </div>
@@ -74,10 +78,11 @@ export function MisDatos({
 }
 
 function BotonBaja() {
+  const t = useTranslations();
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} variant="secondary">
-      {pending ? "Dando de baja…" : "Dar de baja mi cuenta"}
+      {pending ? t("cuenta.dandoDeBaja") : t("cuenta.darDeBaja")}
     </Button>
   );
 }
@@ -88,6 +93,7 @@ function BotonBaja() {
  */
 export function BorrarCuenta() {
   const [abierto, setAbierto] = useState(false);
+  const t = useTranslations();
   const [estado, accion] = useActionState(borrarCuenta, { estado: "inicial" } as EstadoBaja);
 
   if (!abierto) {
@@ -102,7 +108,7 @@ export function BorrarCuenta() {
         onClick={() => setAbierto(true)}
         className="cursor-pointer self-start border-0 bg-transparent p-0 text-left text-[16px] font-medium text-body underline underline-offset-4 hover:text-ink"
       >
-        Quiero dar de baja mi cuenta
+        {t("cuenta.quieroBaja")}
       </button>
     );
   }
@@ -110,31 +116,29 @@ export function BorrarCuenta() {
   return (
     <form action={accion} className="flex flex-col gap-4">
       <div className="rounded-campo bg-surface-sunk p-4 text-[15px] text-body">
-        <p className="mt-0 mb-2 font-medium text-ink">Qué pasa cuando te das de baja</p>
+        <p className="mt-0 mb-2 font-medium text-ink">{t("cuenta.quePasa")}</p>
         <ul className="m-0 flex list-disc flex-col gap-1.5 pl-5">
-          <li>Se borran tu nombre, tu apellido, tu celular y tu foto.</li>
-          <li>Tus links compartidos dejan de funcionar en el momento.</li>
+          <li>{t("cuenta.baja1")}</li>
+          <li>{t("cuenta.baja2")}</li>
           <li>
-            Los alquileres y los pagos confirmados siguen existiendo para la otra parte: ese
-            historial también es suyo. Vas a figurar como “Usuario dado de baja”.
+            {t("cuenta.baja3")}
           </li>
-          <li>Las reseñas que recibiste dejan de mostrarse. Las que escribiste quedan, ya anónimas.</li>
+          <li>{t("cuenta.baja4")}</li>
           <li>
-            Los comprobantes y contratos que subiste se borran a los 30 días, y le avisamos a la
-            otra parte para que pueda descargarlos si los necesita.
+            {t("cuenta.baja5")}
           </li>
-          <li>Tu mail queda libre: podés volver a registrarte cuando quieras y empezás de cero.</li>
+          <li>{t("cuenta.baja6")}</li>
         </ul>
       </div>
 
       <p className="m-0 text-[15px] text-body">
-        Antes de seguir, descargá tus datos: después de la baja ya no vas a poder.
+        {t("cuenta.antesDeSeguir")}
       </p>
 
       <Field
-        label="Escribí BORRAR para confirmar"
+        label={t("cuenta.escribiBorrar")}
         htmlFor="confirmacion"
-        error={estado.estado === "error" ? estado.mensaje : undefined}
+        error={estado.estado === "error" ? traducirMensaje(t, estado.mensaje) : undefined}
       >
         <Input
           id="confirmacion"
@@ -148,7 +152,7 @@ export function BorrarCuenta() {
       <div className="flex flex-wrap gap-3">
         <BotonBaja />
         <Button type="button" variant="quiet" onClick={() => setAbierto(false)}>
-          Mejor no
+          {t("cuenta.mejorNo")}
         </Button>
       </div>
     </form>

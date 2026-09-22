@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { traducirMensaje } from "@/i18n/texto";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { cambiarMontos, crearLink, revocarLink, verLink, type EstadoLinkPerfil } from "./actions";
@@ -9,16 +11,18 @@ import { formatearFecha } from "@/lib/domain/alquiler";
 const ESTADO_INICIAL: EstadoLinkPerfil = { estado: "inicial" };
 
 function BotonCrear() {
+  const t = useTranslations();
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Creando…" : "Crear el link"}
+      {pending ? t("links.creando") : t("links.crear")}
     </Button>
   );
 }
 
 /** Copiar al portapapeles, con aviso de que se copió. */
 function BotonCopiar({ url }: { url: string }) {
+  const t = useTranslations();
   const [copiado, setCopiado] = useState(false);
 
   return (
@@ -36,7 +40,7 @@ function BotonCopiar({ url }: { url: string }) {
         }
       }}
     >
-      {copiado ? "¡Copiado!" : "Copiar"}
+      {copiado ? t("links.copiado") : t("links.copiar")}
     </Button>
   );
 }
@@ -53,6 +57,7 @@ function NuevoLink({
   rol: "tenant" | "owner";
   alCrear: (link: { id: string; url: string }) => void;
 }) {
+  const t = useTranslations();
   const [estado, accion] = useActionState(crearLink, ESTADO_INICIAL);
   const [avisado, setAvisado] = useState<string | null>(null);
 
@@ -65,31 +70,31 @@ function NuevoLink({
   return (
     <Card className="flex flex-col gap-4">
       <div>
-        <h3 className="t-subtitulo mt-0 mb-1.5">Crear un link nuevo</h3>
+        <h3 className="t-subtitulo mt-0 mb-1.5">{t("links.crearNuevo")}</h3>
         <p className="m-0 text-body">
-          Podés tener varios y revocar el que quieras. Nadie ve esto sin tu permiso.
+          {t("links.bajada")}
         </p>
       </div>
 
       <form action={accion} className="flex flex-col gap-4">
         <input type="hidden" name="rol" value={rol} />
         <Field
-          label="¿Para quién es? (opcional)"
+          label={t("links.paraQuien")}
           htmlFor="etiqueta"
-          hint="Solo para que lo reconozcas en tu lista."
+          hint={t("links.pistaNombre")}
         >
-          <Input id="etiqueta" name="etiqueta" maxLength={60} placeholder="Inmobiliaria de Palermo" />
+          <Input id="etiqueta" name="etiqueta" maxLength={60} placeholder={t("links.ejemploNombre")} />
         </Field>
 
         <Checkbox
           id="montos"
           name="montos"
-          label="Mostrar los montos de mis alquileres en este link"
+          label={t("links.mostrarMontos")}
         />
 
         {estado.estado === "error" && (
           <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
-            {estado.mensaje}
+            {traducirMensaje(t, estado.mensaje)}
           </p>
         )}
 
@@ -119,6 +124,7 @@ export type LinkGuardado = {
  * copiar, en la misma lista donde van a estar todos los demás.
  */
 export function SeccionDeLinks({ rol, links }: { rol: "tenant" | "owner"; links: LinkGuardado[] }) {
+  const t = useTranslations();
   const [abierto, setAbierto] = useState<string | null>(null);
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -146,7 +152,7 @@ export function SeccionDeLinks({ rol, links }: { rol: "tenant" | "owner"; links:
         links={links}
         abierto={abierto}
         url={url}
-        error={error}
+        error={traducirMensaje(t, error)}
         mostrar={mostrar}
       />
     </>
@@ -166,12 +172,12 @@ function ListaDeLinks({
   error: string | null;
   mostrar: (id: string) => void;
 }) {
+  const t = useTranslations();
   if (links.length === 0) {
     return (
       <Card>
         <p className="m-0 text-body">
-          Todavía no compartiste tu historial con nadie. Cuando crees un link, va a aparecer acá con
-          las veces que lo abrieron.
+          {t("links.vacio")}
         </p>
       </Card>
     );
@@ -195,20 +201,16 @@ function ListaDeLinks({
                     <p className="m-0 text-[17px] font-medium">{link.label}</p>
                   ) : (
                     <p className="m-0 text-[17px] font-medium text-body">
-                      Ponele un nombre para acordarte a quién se lo mandaste
+                      {t("links.sinNombre")}
                     </p>
                   )}
                   <p className="m-0 text-[15px] text-muted">
-                    Creado el {formatearFecha(link.created_at.slice(0, 10))} ·{" "}
-                    {link.view_count === 0
-                      ? "todavía no lo abrieron"
-                      : link.view_count === 1
-                        ? "lo abrieron 1 vez"
-                        : `lo abrieron ${link.view_count} veces`}
+                    {t("links.creado", { fecha: formatearFecha(link.created_at.slice(0, 10)) })} ·{" "}
+                    {t("links.aperturas", { cantidad: link.view_count })}
                   </p>
                 </div>
                 <Pill tone={revocado ? "neutral" : "confirm"}>
-                  {revocado ? "Revocado" : "Activo"}
+                  {revocado ? t("links.revocado") : t("links.activo")}
                 </Pill>
               </div>
 
@@ -216,14 +218,14 @@ function ListaDeLinks({
                 <>
                   <div className="flex flex-wrap items-center gap-2.5">
                     <Button type="button" variant="secondary" size="md" onClick={() => mostrar(link.id)}>
-                      Ver el link
+                      {t("links.verElLink")}
                     </Button>
 
                     <form action={cambiarMontos}>
                       <input type="hidden" name="link_id" value={link.id} />
                       <input type="hidden" name="mostrar" value={String(!link.show_amounts)} />
                       <Button type="submit" variant="quiet" size="md">
-                        {link.show_amounts ? "Ocultar los montos" : "Mostrar los montos"}
+                        {link.show_amounts ? t("links.ocultarMontos") : t("links.mostrarLosMontos")}
                       </Button>
                     </form>
 
@@ -233,7 +235,7 @@ function ListaDeLinks({
                         type="submit"
                         className="cursor-pointer border-0 bg-transparent p-0 text-[15px] text-muted underline underline-offset-4 hover:text-ink"
                       >
-                        Revocar
+                        {t("links.revocar")}
                       </button>
                     </form>
                   </div>
@@ -242,9 +244,9 @@ function ListaDeLinks({
                     <div className="flex gap-2.5 max-[560px]:flex-col">
                       <input
                         readOnly
-                        value={url ?? "Buscando el link…"}
+                        value={url ?? t("links.buscando")}
                         onFocus={(evento) => evento.currentTarget.select()}
-                        aria-label="Link de tu perfil"
+                        aria-label={t("links.linkDeTuPerfil")}
                         className="min-h-[52px] w-full min-w-0 flex-1 rounded-campo border border-line bg-surface-sunk px-4 text-[15px] text-ink"
                       />
                       {url && <BotonCopiar url={url} />}

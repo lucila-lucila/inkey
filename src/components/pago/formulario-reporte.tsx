@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { traducirMensaje } from "@/i18n/texto";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { reportarPago, type EstadoReporte } from "@/app/[locale]/(app)/alquileres/[id]/actions";
@@ -9,10 +11,11 @@ import { nombrePeriodo } from "@/lib/domain/pagos";
 const ESTADO_INICIAL: EstadoReporte = { estado: "inicial" };
 
 function BotonGuardar() {
+  const t = useTranslations();
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-      {pending ? "Guardando…" : "Listo, ya pagué"}
+      {pending ? t("pago.guardando") : t("pago.listoYaPague")}
     </Button>
   );
 }
@@ -31,6 +34,7 @@ export function FormularioReporte({
   hoy: string;
   onCancelar?: () => void;
 }) {
+  const t = useTranslations();
   const [estado, accion] = useActionState(reportarPago, ESTADO_INICIAL);
   const error = estado.estado === "error" ? estado : undefined;
 
@@ -45,27 +49,27 @@ export function FormularioReporte({
 
       {error && (
         <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
-          {error.mensaje}
+          {traducirMensaje(t, error.mensaje)}
         </p>
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="Cuánto pagaste" htmlFor={`amount-${periodo}`}>
+        <Field label={t("pago.cuantoPagaste")} htmlFor={`amount-${periodo}`}>
           <CampoMonto
             id={`amount-${periodo}`}
             name="amount"
             defaultValue={montoSugerido}
           />
         </Field>
-        <Field label="Cuándo lo pagaste" htmlFor={`paid_on-${periodo}`}>
+        <Field label={t("pago.cuandoPagaste")} htmlFor={`paid_on-${periodo}`}>
           <Input id={`paid_on-${periodo}`} name="paid_on" type="date" defaultValue={hoy} max={hoy} />
         </Field>
       </div>
 
       <Field
-        label="Comprobante (opcional)"
+        label={t("pago.comprobante")}
         htmlFor={`comprobante-${periodo}`}
-        hint="Captura de la transferencia o recibo. PDF o foto, hasta 10 MB. Lo ven solo vos y tu dueño."
+        hint={t("pago.pistaComprobante")}
       >
         <input
           id={`comprobante-${periodo}`}

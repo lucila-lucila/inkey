@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { traducirMensaje } from "@/i18n/texto";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { dejarResena, type EstadoResena } from "@/app/[locale]/(app)/alquileres/[id]/fin-actions";
@@ -11,10 +13,11 @@ import { TOPE_TEXTO_RESENA, type EtiquetaResena } from "@/lib/domain/resenas";
 const ESTADO_INICIAL: EstadoResena = { estado: "inicial" };
 
 function BotonGuardar() {
+  const t = useTranslations();
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Guardando…" : "Dejar mi reseña"}
+      {pending ? t("resena.guardando") : t("resena.dejarMiResena")}
     </Button>
   );
 }
@@ -34,6 +37,7 @@ export function FormularioResena({
   quien: string;
   sePublicaEl: string;
 }) {
+  const t = useTranslations();
   const [estado, accion] = useActionState(dejarResena, ESTADO_INICIAL);
   const [elegidas, setElegidas] = useState<string[]>([]);
   const [texto, setTexto] = useState("");
@@ -41,11 +45,11 @@ export function FormularioResena({
   if (estado.estado === "guardada") {
     return (
       <Card className="flex flex-col gap-2">
-        <h3 className="t-subtitulo mt-0 mb-0">Listo, quedó guardada</h3>
+        <h3 className="t-subtitulo mt-0 mb-0">{t("resena.quedoGuardada")}</h3>
         <p className="m-0 text-body">
           {estado.publicada
-            ? "Como los dos ya dejaron la suya, se publicaron las dos al mismo tiempo."
-            : `Se publica cuando ${quien} deje la suya, o el ${formatearFecha(sePublicaEl)}, lo que pase primero. Hasta entonces nadie la ve.`}
+            ? t("resena.sePublicaronJuntas")
+            : t("resena.sePublicaCuando", { quien, fecha: formatearFecha(sePublicaEl) })}
         </p>
       </Card>
     );
@@ -54,10 +58,9 @@ export function FormularioResena({
   return (
     <Card className="flex flex-col gap-4">
       <div>
-        <h3 className="t-subtitulo mt-0 mb-1.5">Contá cómo fue</h3>
+        <h3 className="t-subtitulo mt-0 mb-1.5">{t("resena.contaComoFue")}</h3>
         <p className="m-0 text-body">
-          Nadie ve tu reseña hasta que {quien} deje la suya, o hasta el{" "}
-          {formatearFecha(sePublicaEl)}. Así nadie escribe mirando lo que dijo el otro.
+          {t("resena.nadieVe", { quien, fecha: formatearFecha(sePublicaEl) })}
         </p>
       </div>
 
@@ -68,7 +71,7 @@ export function FormularioResena({
         ))}
 
         <fieldset className="m-0 border-0 p-0">
-          <legend className="t-etiqueta mb-3 text-muted">Lo que mejor lo describe</legend>
+          <legend className="t-etiqueta mb-3 text-muted">{t("resena.loQueDescribe")}</legend>
           <div className="flex flex-wrap gap-2">
             {etiquetas.map((etiqueta) => {
               const activa = elegidas.includes(etiqueta.code);
@@ -109,7 +112,7 @@ export function FormularioResena({
             maxLength={TOPE_TEXTO_RESENA}
             value={texto}
             onChange={(evento) => setTexto(evento.target.value)}
-            placeholder="Por ejemplo: cuando se rompió el calefón lo resolvió en dos días."
+            placeholder={t("resena.ejemplo")}
             className="w-full rounded-campo border border-line bg-surface-sunk p-3 text-[16px] text-ink"
           />
           <p className="m-0 text-[15px] text-muted">
@@ -119,7 +122,7 @@ export function FormularioResena({
 
         {estado.estado === "error" && (
           <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
-            {estado.mensaje}
+            {traducirMensaje(t, estado.mensaje)}
           </p>
         )}
 

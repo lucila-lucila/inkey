@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { traducirMensaje } from "@/i18n/texto";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
@@ -21,10 +22,11 @@ function tokenDelEnlace(url: string): string {
 }
 
 function BotonMail() {
+  const t = useTranslations();
   const { pending } = useFormStatus();
   return (
     <Button type="submit" variant="secondary" disabled={pending}>
-      {pending ? "Enviando…" : "Enviar"}
+      {pending ? t("invitar.enviando") : t("invitar.enviar")}
     </Button>
   );
 }
@@ -71,11 +73,10 @@ export function CompartirInvitacion({
     <div className="flex flex-col gap-4">
       <div>
         <h2 className="mt-0 mb-1.5 t-subtitulo">
-          Invitá a tu {rol}
+          {t("invitar.titulo", { rol })}
         </h2>
         <p className="m-0 text-body">
-          Mandale este link. Lo abre, ve el resumen y confirma con un toque: no necesita crear
-          contraseña.
+          {t("invitar.bajada")}
         </p>
       </div>
 
@@ -90,7 +91,7 @@ export function CompartirInvitacion({
 
       <div className="flex flex-col gap-2">
         <label htmlFor="link-invitacion" className="text-[15px] font-medium">
-          O copiá el link
+          {t("invitar.oCopia")}
         </label>
         <div className="flex gap-2.5 max-[560px]:flex-col">
           <input
@@ -101,27 +102,27 @@ export function CompartirInvitacion({
             className="min-h-[52px] w-full min-w-0 flex-1 rounded-campo border border-line bg-surface-sunk px-4 text-[15px] text-ink"
           />
           <Button type="button" variant="secondary" onClick={copiar}>
-            {copiado ? "¡Copiado!" : "Copiar"}
+            {copiado ? t("invitar.copiado") : t("invitar.copiar")}
           </Button>
         </div>
         <p aria-live="polite" className="sr-only">
-          {copiado ? "Link copiado" : ""}
+          {copiado ? t("invitar.linkCopiado") : ""}
         </p>
       </div>
 
       {/* Por mail, desde Inkey: le llega el link con el resumen del alquiler. */}
       {estadoMail.estado === "listo" ? (
         <p className="m-0 rounded-campo bg-confirm-soft p-3 text-[15px] text-confirm-ink">
-          Le mandamos el link a {estadoMail.para}. Si no lo ve, que revise el correo no deseado.
+          {t("invitar.mandamosA", { para: estadoMail.para })}
         </p>
       ) : porMail ? (
         <form action={enviarPorMail} className="flex flex-col gap-3">
           <input type="hidden" name="rental_id" value={rentalId} />
           <input type="hidden" name="token" value={tokenDelEnlace(url)} />
           <Field
-            label={`Mail de tu ${rol}`}
+            label={t("invitar.mailDe", { rol })}
             htmlFor="mail-invitacion"
-            error={estadoMail.estado === "error" ? estadoMail.mensaje : undefined}
+            error={estadoMail.estado === "error" ? traducirMensaje(t, estadoMail.mensaje) : undefined}
           >
             <Input
               id="mail-invitacion"
@@ -136,14 +137,14 @@ export function CompartirInvitacion({
           <div className="flex flex-wrap gap-3">
             <BotonMail />
             <Button type="button" variant="quiet" onClick={() => setPorMail(false)}>
-              Mejor no
+              {t("invitar.mejorNo")}
             </Button>
           </div>
           <a
-            href={enlaceMail({ asunto: `Confirmá el alquiler de ${barrio} en Inkey`, mensaje })}
+            href={enlaceMail({ asunto: t("invitar.asuntoMail", { barrio }), mensaje })}
             className="text-[15px] font-medium text-confirm-ink"
           >
-            Prefiero mandarlo desde mi correo
+            {t("invitar.desdeMiCorreo")}
           </a>
         </form>
       ) : (
@@ -152,13 +153,12 @@ export function CompartirInvitacion({
           onClick={() => setPorMail(true)}
           className="self-start border-0 bg-transparent p-0 text-[15px] font-medium text-confirm-ink underline-offset-2 hover:underline"
         >
-          Prefiero mandarlo por mail
+          {t("invitar.porMail")}
         </button>
       )}
 
       <p className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
-        Guardalo ahora: por seguridad, este link no se vuelve a mostrar. Si lo perdés, generá uno
-        nuevo desde el alquiler. Vence en 7 días.
+        {t("invitar.guardalo")}
       </p>
     </div>
   );

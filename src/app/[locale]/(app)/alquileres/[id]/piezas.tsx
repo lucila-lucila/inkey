@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { traducirMensaje } from "@/i18n/texto";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
@@ -30,6 +32,7 @@ export function NuevoLink({
   rentalId: string;
   hayInvitacionViva: boolean;
 }) {
+  const t = useTranslations();
   const [estado, accion] = useActionState(generarNuevoLink, { estado: "inicial" } as EstadoLink);
 
   if (estado.estado === "listo") {
@@ -48,8 +51,8 @@ export function NuevoLink({
     <form action={accion} className="flex flex-col gap-2">
       <input type="hidden" name="rental_id" value={rentalId} />
       <BotonEnvio
-        texto={hayInvitacionViva ? "Generar un link nuevo" : "Generar el link de invitación"}
-        enCurso="Generando…"
+        texto={hayInvitacionViva ? t("invitar.generarNuevo") : t("invitar.generarPrimero")}
+        enCurso={t("invitar.generando")}
       />
       {hayInvitacionViva && (
         <p className="m-0 text-[15px] text-muted">
@@ -58,7 +61,7 @@ export function NuevoLink({
       )}
       {estado.estado === "error" && (
         <p role="alert" className="m-0 text-[15px] text-primary-ink">
-          {estado.mensaje}
+          {traducirMensaje(t, estado.mensaje)}
         </p>
       )}
     </form>
@@ -67,6 +70,7 @@ export function NuevoLink({
 
 /** El contrato se abre con una URL firmada que dura un minuto. */
 export function BotonContrato({ rentalId }: { rentalId: string }) {
+  const t = useTranslations();
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,11 +90,11 @@ export function BotonContrato({ rentalId }: { rentalId: string }) {
   return (
     <div className="flex flex-col gap-2">
       <Button type="button" variant="secondary" onClick={abrir} disabled={cargando}>
-        {cargando ? "Abriendo…" : "Ver el contrato"}
+        {cargando ? t("contrato.abriendo") : t("contrato.ver")}
       </Button>
       {error && (
         <p role="alert" className="m-0 text-[15px] text-primary-ink">
-          {error}
+          {traducirMensaje(t, error)}
         </p>
       )}
     </div>
@@ -98,10 +102,11 @@ export function BotonContrato({ rentalId }: { rentalId: string }) {
 }
 
 export function SubirContrato({ rentalId }: { rentalId: string }) {
+  const t = useTranslations();
   const [estado, accion] = useActionState(subirContrato, { estado: "inicial" } as EstadoContrato);
 
   if (estado.estado === "listo") {
-    return <p className="m-0 text-[15px] text-confirm-ink">Contrato guardado.</p>;
+    return <p className="m-0 text-[15px] text-confirm-ink">{t("contrato.guardado")}</p>;
   }
 
   return (
@@ -120,10 +125,10 @@ export function SubirContrato({ rentalId }: { rentalId: string }) {
       <p className="m-0 text-[15px] text-muted">
         PDF o foto, hasta 10 MB. Queda privado: solo lo ven vos y la otra parte.
       </p>
-      <BotonEnvio texto="Subir" enCurso="Subiendo…" />
+      <BotonEnvio texto="Subir" enCurso={t("contrato.subiendo")} />
       {estado.estado === "error" && (
         <p role="alert" className="m-0 text-[15px] text-primary-ink">
-          {estado.mensaje}
+          {traducirMensaje(t, estado.mensaje)}
         </p>
       )}
     </form>
@@ -131,6 +136,7 @@ export function SubirContrato({ rentalId }: { rentalId: string }) {
 }
 
 export function CancelarAlquiler({ rentalId }: { rentalId: string }) {
+  const t = useTranslations();
   const [confirmando, setConfirmando] = useState(false);
 
   if (!confirmando) {
@@ -148,7 +154,7 @@ export function CancelarAlquiler({ rentalId }: { rentalId: string }) {
         Se borra el alquiler y el link deja de funcionar. Esto no se puede deshacer.
       </p>
       <div className="flex flex-wrap gap-3">
-        <BotonEnvio texto="Sí, cancelarlo" enCurso="Cancelando…" />
+        <BotonEnvio texto={t("contrato.siCancelar")} enCurso={t("contrato.cancelando")} />
         <Button type="button" variant="quiet" onClick={() => setConfirmando(false)}>
           Mejor no
         </Button>
