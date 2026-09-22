@@ -32,6 +32,16 @@ tienen que estar: algunos servicios de correo abren los links solos para
 revisarlos y los gastan antes de que la persona los toque. La pantalla para
 escribir el código es `/ingresar`, después de pedir el mail.
 
+## Las versiones bilingües (`bilingue/`) — las que conviene cargar
+
+Las cinco, con el castellano arriba y una versión corta en inglés abajo,
+separadas por una línea. Como el botón y el código son los mismos para los
+dos, el bloque en inglés no los repite: dice qué es y remite a lo de arriba.
+
+**Estas son las que hay que cargar en Supabase**, porque resuelven de una vez
+lo que Supabase no puede resolver solo (ver abajo). El pie también va en los
+dos idiomas.
+
 ## Las versiones en inglés
 
 En `en/` están las mismas cinco plantillas traducidas.
@@ -42,11 +52,13 @@ todavía no hay cuenta ni preferencia guardada—, así que no puede elegir. Los
 mails de la app (pagos, invitaciones, reseñas) sí salen en el idioma de quien
 los recibe, porque los arma Inkey leyendo el perfil.
 
-Entonces, con los dos idiomas prendidos, hay que elegir una:
+Entonces hay tres opciones:
 
-- **castellano** (los archivos de esta carpeta), que es lo que conviene
-  mientras la mayoría del tráfico sea de acá;
-- **inglés** (`en/`), si algún día el público cambia.
+- **bilingüe** (`bilingue/`), que es la recomendada y la que está cargada:
+  todo el mundo entiende su mail sin que tengamos que elegir por nadie;
+- **castellano** (los archivos de esta carpeta), si algún día el inglés se
+  apaga del todo;
+- **inglés** (`en/`), si el público cambia.
 
 Si hiciera falta que cada persona lo reciba en su idioma, habría que sacarle
 a Supabase el envío de estos mails y mandarlos desde la app con Resend, como
