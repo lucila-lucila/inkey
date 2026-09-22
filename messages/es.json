@@ -767,5 +767,12 @@
     "archivosTexto3": "Descargalos desde acá: {url}",
     "archivosTexto4": "Tu historial de pagos confirmados no se toca.",
     "codigoIdioma": "es"
+  },
+  "legal": {
+    "terminosTitulo": "Términos y condiciones",
+    "terminosDescripcion": "Qué es Inkey, qué no es, y qué nos comprometemos a hacer vos y nosotros.",
+    "privacidadTitulo": "Política de privacidad",
+    "privacidadDescripcion": "Qué datos guardamos, para qué, con quién los compartimos y cómo los controlás.",
+    "avisoDeCambios": "Si cambiamos algo importante de este texto, te avisamos antes de que entre en vigencia."
   }
 }

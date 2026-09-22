@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { LEGALES, parsearMarkdown, partirInline, ultimaActualizacion } from "@/lib/legales";
+import { leerLegal, LEGALES, parsearMarkdown, partirInline, ultimaActualizacion } from "@/lib/legales";
 
 const TEXTOS = Object.entries(LEGALES).map(([clave, datos]) => ({
   clave,
@@ -84,5 +84,24 @@ describe.each(TEXTOS)("$titulo", ({ fuente, titulo }) => {
     // Cada renglón cae en algún bloque (varios pueden unirse en un párrafo).
     expect(partes).toBeGreaterThan(0);
     expect(partes).toBeLessThanOrEqual(renglones);
+  });
+});
+
+describe("los legales en inglés", () => {
+  it("existen los dos y dicen que la versión que vale es la castellana", () => {
+    for (const cual of ["terminos", "privacidad"] as const) {
+      const bloques = leerLegal(cual, "en");
+      const aviso = bloques.find((bloque) => bloque.tipo === "aviso");
+
+      expect(aviso, `${cual} sin nota de prevalencia`).toBeDefined();
+      const texto = aviso!.partes.map((parte) => parte.texto).join("");
+      expect(texto).toContain("courtesy translation");
+      expect(texto).toContain("Spanish version prevails");
+    }
+  });
+
+  it("un idioma sin traducción cae en el castellano antes que romperse", () => {
+    const bloques = leerLegal("terminos", "fr");
+    expect(bloques[0]).toEqual({ tipo: "titulo", texto: "Términos y condiciones de Inkey" });
   });
 });

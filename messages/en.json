@@ -767,5 +767,12 @@
     "archivosTexto3": "Download them here: {url}",
     "archivosTexto4": "Your confirmed payment history isn't touched.",
     "codigoIdioma": "en"
+  },
+  "legal": {
+    "terminosTitulo": "Terms and Conditions",
+    "terminosDescripcion": "What Inkey is, what it isn't, and what you and we each commit to.",
+    "privacidadTitulo": "Privacy Policy",
+    "privacidadDescripcion": "What data we keep, what for, who we share it with, and how you control it.",
+    "avisoDeCambios": "If we change anything important in this text, we'll tell you before it takes effect."
   }
 }

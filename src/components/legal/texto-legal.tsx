@@ -53,6 +53,17 @@ export function TextoLegal({ bloques }: { bloques: Bloque[] }) {
           );
         }
 
+        if (bloque.tipo === "aviso") {
+          return (
+            <p
+              key={i}
+              className="m-0 rounded-campo bg-primary-soft p-4 text-[16px] leading-[1.6] text-primary-ink"
+            >
+              <Partes partes={bloque.partes} />
+            </p>
+          );
+        }
+
         if (bloque.tipo === "lista") {
           return (
             <ul key={i} className="m-0 flex list-none flex-col gap-3 p-0">

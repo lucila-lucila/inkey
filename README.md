@@ -295,6 +295,9 @@ Con un idioma apagado:
 Siempre queda al menos uno: si la variable viene vacía o mal escrita, es
 castellano.
 
+Las decisiones de traducción —por qué "dueño" es *landlord* y no *owner*,
+cómo se dice "escrachado"— están en `docs/traduccion.md`.
+
 Los mails de la app salen en el idioma de quien los recibe (sale del perfil,
 porque el cron no tiene navegador del otro lado). Los de ingreso los manda
 Supabase, que solo admite una plantilla para todo el mundo: en

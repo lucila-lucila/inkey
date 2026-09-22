@@ -1,5 +1,5 @@
 import "server-only";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 /*
@@ -28,7 +28,9 @@ export type Bloque =
   | { tipo: "titulo"; texto: string }
   | { tipo: "seccion"; texto: string }
   | { tipo: "parrafo"; partes: Inline[] }
-  | { tipo: "lista"; items: Array<{ partes: Inline[]; sub: Inline[][] }> };
+  | { tipo: "lista"; items: Array<{ partes: Inline[]; sub: Inline[][] }> }
+  /* La nota de "esto es una traducción de cortesía". */
+  | { tipo: "aviso"; partes: Inline[] };
 
 /** `**negrita**` y `[texto](url)`, que es todo lo que usan estos textos. */
 export function partirInline(texto: string): Inline[] {
@@ -85,6 +87,12 @@ export function parsearMarkdown(fuente: string): Bloque[] {
       continue;
     }
 
+    if (linea.startsWith("> ")) {
+      cerrarParrafo();
+      bloques.push({ tipo: "aviso", partes: partirInline(linea.slice(2).trim()) });
+      continue;
+    }
+
     if (linea.startsWith("## ")) {
       cerrarParrafo();
       bloques.push({ tipo: "seccion", texto: linea.slice(3).trim() });
@@ -117,9 +125,19 @@ export function parsearMarkdown(fuente: string): Bloque[] {
   return bloques;
 }
 
-/** Lee el archivo del repo. Solo se llama en el servidor, al renderizar. */
-export function leerLegal(cual: Legal): Bloque[] {
-  const ruta = join(process.cwd(), "docs", "legales", LEGALES[cual].archivo);
+/*
+ * Lee el archivo del repo. Solo se llama en el servidor, al renderizar.
+ *
+ * El castellano es la versión que vale. La inglesa está de cortesía y lo dice
+ * en su primera línea; si algún día falta, se muestra la castellana antes que
+ * dejar la pantalla vacía.
+ */
+export function leerLegal(cual: Legal, idioma = "es"): Bloque[] {
+  const carpeta = join(process.cwd(), "docs", "legales");
+  const traducida = join(carpeta, idioma, LEGALES[cual].archivo);
+  const ruta = idioma !== "es" && existsSync(traducida)
+    ? traducida
+    : join(carpeta, LEGALES[cual].archivo);
   return parsearMarkdown(readFileSync(ruta, "utf8"));
 }
 
