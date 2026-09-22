@@ -29,6 +29,7 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const supabase = await createClient();
   const t = await getTranslations();
+  const tp = await getTranslations("pagoDetalle");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -83,16 +84,16 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
       <Card hero >
         <dl className="m-0 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Dato
-            etiqueta="Monto"
+            etiqueta={tp("monto")}
             valor={formatearMonto(pago.amount, pago.currency as Moneda)}
           />
-          <Dato etiqueta="Fecha de pago" valor={formatearFecha(String(pago.paid_on).slice(0, 10))} />
+          <Dato etiqueta={tp("fechaDePago")} valor={formatearFecha(String(pago.paid_on).slice(0, 10))} />
           {/*
             Las dos fechas alcanzan: quien mira saca su propia conclusión. Una
             etiqueta que diga "después del vencimiento" es un reproche, y acá
             no marcamos a nadie en falta.
           */}
-          <Dato etiqueta="Vencía el" valor={formatearFecha(String(pago.due_date).slice(0, 10))} />
+          <Dato etiqueta={tp("venciaEl")} valor={formatearFecha(String(pago.due_date).slice(0, 10))} />
         </dl>
 
         {pago.receipt_path && (
@@ -106,12 +107,14 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
         <Card className="flex flex-col gap-4">
           <div>
             <h2 className="mt-0 mb-1 t-subtitulo">
-              ¿Te llegó este pago?
+              {tp("teLlego")}
             </h2>
             <p className="m-0 text-body">
-              {nombreContraparte} reportó que pagó{" "}
-              {formatearMonto(pago.amount, pago.currency as Moneda)} el{" "}
-              {formatearFecha(String(pago.paid_on).slice(0, 10))}.
+              {tp("reporto", {
+                quien: nombreContraparte,
+                monto: formatearMonto(pago.amount, pago.currency as Moneda),
+                fecha: formatearFecha(String(pago.paid_on).slice(0, 10)),
+              })}
             </p>
           </div>
           <BotonesDueño pagoId={pago.id} />
@@ -121,8 +124,7 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
       {pago.status === "reported" && !soyDueño && (
         <Card >
           <p className="m-0 text-body">
-            Esperando que {nombreContraparte} lo confirme. Cuando lo haga, los dos van a tener el
-            recibo y este mes suma a tu historial.
+            {tp("esperando", { quien: nombreContraparte })}
           </p>
         </Card>
       )}
@@ -130,7 +132,7 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
       {pago.status === "not_received" && (
         <Card className="flex flex-col gap-3">
           <h2 className="mt-0 mb-0 t-subtitulo">
-            {soyDueño ? "Dijiste que todavía no te llegó" : "Tu dueño todavía no lo recibió"}
+            {soyDueño ? tp("dijisteQueNo") : tp("tuDuenoNoRecibio")}
           </h2>
           {pago.owner_note && (
             <p className="m-0 text-body">
@@ -138,16 +140,13 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
             </p>
           )}
           <p className="m-0 text-[15px] text-muted">
-            Esto queda entre ustedes: no aparece en ningún perfil público ni cuenta como algo
-            negativo.{" "}
-            {soyDueño
-              ? "Si aparece, tu inquilino puede volver a reportarlo y vos confirmarlo."
-              : "Si ya lo pagaste, volvé a reportarlo desde el alquiler con el comprobante."}
+            {tp("quedaEntreUstedes")}{" "}
+            {soyDueño ? tp("siAparece") : tp("siYaPagaste")}
           </p>
           {!soyDueño && (
             <div>
               <ButtonLink href={`/alquileres/${alquiler.id}`} variant="secondary" size="md">
-                Volver a reportarlo
+                {tp("volverAReportarlo")}
               </ButtonLink>
             </div>
           )}
@@ -157,15 +156,22 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
       {pago.status === "confirmed" && (
         <Card className="flex flex-col gap-4">
           <div>
-            <h2 className="mt-0 mb-1 t-subtitulo">Mes confirmado</h2>
+            <h2 className="mt-0 mb-1 t-subtitulo">{tp("mesConfirmado")}</h2>
             <p className="m-0 text-body">
-              {soyDueño ? "Confirmaste" : `${nombreContraparte} confirmó`} este pago el{" "}
-              {formatearFecha(String(pago.confirmed_at).slice(0, 10))}. Los dos tienen el recibo.
+              {soyDueño
+                ? tp("confirmaste", {
+                    fecha: formatearFecha(String(pago.confirmed_at).slice(0, 10)),
+                  })
+                : tp("confirmoElOtro", {
+                    quien: nombreContraparte,
+                    fecha: formatearFecha(String(pago.confirmed_at).slice(0, 10)),
+                  })}{" "}
+              {tp("losDosTienenRecibo")}
             </p>
           </div>
           <div>
             <ButtonLink href={`/pagos/${pago.id}/recibo`} target="_blank" size="md">
-              Descargar el recibo
+              {tp("descargarRecibo")}
             </ButtonLink>
           </div>
         </Card>

@@ -77,10 +77,9 @@ export default async function InvitacionPage({
     return (
       <Marco>
         <Card hero >
-          <h1 className="mt-0 mb-2 t-titulo">Listo, gracias</h1>
+          <h1 className="mt-0 mb-2 t-titulo">{ti("listoGracias")}</h1>
           <p className="mt-0 mb-0 text-body">
-            Le avisamos a quien te mandó el link que se equivocó de contacto. No vas a recibir nada
-            más de este alquiler.
+            {ti("avisamosAlOtro")}
           </p>
         </Card>
       </Marco>
@@ -92,13 +91,13 @@ export default async function InvitacionPage({
       <Marco>
         <Card hero >
           <h1 className="mt-0 mb-2 t-titulo">
-            Ese link no parece válido
+            {ti("linkInvalido")}
           </h1>
           <p className="mt-0 mb-5 text-body">
-            Revisá que lo hayas copiado completo, o pedile a quien te invitó que te mande uno nuevo.
+            {ti("revisaCompleto")}
           </p>
           <ButtonLink href="/" variant="secondary">
-            Ir a Inkey
+            {ti("irAInkey")}
           </ButtonLink>
         </Card>
       </Marco>
@@ -122,13 +121,13 @@ export default async function InvitacionPage({
       <Marco>
         <Card hero >
           <h1 className="mt-0 mb-2 t-titulo">
-            Este link ya no está disponible
+            {ti("yaNoDisponible")}
           </h1>
           <p className="mt-0 mb-5 text-body">
             {t(MENSAJES_ESTADO[resumen.estado] ?? MENSAJES_ESTADO.inexistente)}
           </p>
           <ButtonLink href="/" variant="secondary">
-            Conocer Inkey
+            {ti("conocerInkey")}
           </ButtonLink>
         </Card>
       </Marco>
@@ -145,47 +144,46 @@ export default async function InvitacionPage({
     <Marco>
       <div className="flex flex-col gap-5">
         <div>
-          <p className="t-etiqueta m-0 text-primary-ink">Invitación a confirmar</p>
+          <p className="t-etiqueta m-0 text-primary-ink">{ti("eyebrow")}</p>
           <h1 className="mt-1.5 mb-2 t-titulo">
-            {quien} te invita a confirmar este alquiler
+            {ti("teInvita", { quien })}
           </h1>
           <p className="m-0 text-body">
-            En Inkey las dos partes confirman cada pago. Así el historial vale: nadie puede
-            inventarse un mes que no pagó.
+            {ti("comoFunciona")}
           </p>
         </div>
 
         <Card hero className="flex flex-col gap-5">
           <div>
-            <p className="t-etiqueta m-0 text-muted">La propiedad</p>
+            <p className="t-etiqueta m-0 text-muted">{ti("laPropiedad")}</p>
             <p className="m-0 text-[19px] font-medium">{alquiler.direccion}</p>
             <p className="m-0 text-[15px] text-muted">{alquiler.barrio}</p>
           </div>
 
           <dl className="m-0 grid grid-cols-1 gap-4 border-t-[1.5px] border-dashed border-line pt-5 sm:grid-cols-2">
             <div>
-              <dt className="t-etiqueta text-muted">Alquiler mensual</dt>
+              <dt className="t-etiqueta text-muted">{ti("alquilerMensual")}</dt>
               <dd className="m-0 text-[17px] font-medium">
                 {formatearMonto(alquiler.monto, alquiler.moneda)}
               </dd>
             </div>
             <div>
-              <dt className="t-etiqueta text-muted">Vencimiento</dt>
+              <dt className="t-etiqueta text-muted">{ti("vencimiento")}</dt>
               <dd className="m-0 text-[17px] font-medium">
                 {t(claveDeVencimiento(alquiler.dia_vencimiento), { dia: alquiler.dia_vencimiento })}
               </dd>
             </div>
             <div>
-              <dt className="t-etiqueta text-muted">Desde</dt>
+              <dt className="t-etiqueta text-muted">{ti("desde")}</dt>
               <dd className="m-0 text-[17px] font-medium">{formatearFecha(alquiler.desde)}</dd>
             </div>
             <div>
-              <dt className="t-etiqueta text-muted">Hasta</dt>
+              <dt className="t-etiqueta text-muted">{ti("hasta")}</dt>
               <dd className="m-0 text-[17px] font-medium">{formatearFecha(alquiler.hasta)}</dd>
             </div>
             {alquiler.indice_ajuste && (
               <div>
-                <dt className="t-etiqueta text-muted">Ajuste</dt>
+                <dt className="t-etiqueta text-muted">{ti("ajuste")}</dt>
                 <dd className="m-0 text-[17px] font-medium">
                   {alquiler.indice_ajuste}, cada {alquiler.ajuste_cada_meses}{" "}
                   {alquiler.ajuste_cada_meses === 1 ? "mes" : "meses"}
@@ -207,10 +205,10 @@ export default async function InvitacionPage({
           ) : (
             <>
               <ButtonLink href={`/ingresar?volver_a=/invitacion/${token}`} className="w-full">
-                Entrar para confirmar
+                {ti("entrarParaConfirmar")}
               </ButtonLink>
               <p className="m-0 text-center text-[15px] text-muted">
-                Entrás con tu mail. Sin contraseñas.
+                {ti("entrasConTuMail")}
               </p>
             </>
           )}
@@ -220,7 +218,7 @@ export default async function InvitacionPage({
         <p className="m-0 text-[15px] text-muted">
           {ti("alConfirmar", { rol: t(claveDeRol(rol)) })}{" "}
           <Link href="/" className="font-medium text-primary-ink">
-            Cómo funciona Inkey
+            {ti("comoFuncionaInkey")}
           </Link>
         </p>
       </div>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { prefijoDe } from "@/i18n/idioma";
 import { createClient } from "@/lib/supabase/server";
 import { BorrarCuenta, MisDatos } from "./piezas";
@@ -42,6 +42,8 @@ function Seccion({
 export default async function CuentaPage() {
   const supabase = await createClient();
   const idioma = await getLocale();
+  const t = await getTranslations();
+  const tc = await getTranslations("cuentaPagina");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -57,25 +59,29 @@ export default async function CuentaPage() {
   return (
     <div className="flex max-w-[720px] flex-col gap-9">
       <header>
-        <h1 className="mt-0 mb-2 t-titulo">Mi cuenta</h1>
-        <p className="m-0 text-body">Tus datos, tu privacidad y qué hacemos con tu información.</p>
+        <h1 className="mt-0 mb-2 t-titulo">{tc("titulo")}</h1>
+        <p className="m-0 text-body">{tc("bajada")}</p>
       </header>
 
-      <Seccion titulo="Tus datos">
+      <Seccion titulo={tc("tusDatos")}>
         <MisDatos
           nombre={perfil?.first_name ?? ""}
           apellido={perfil?.last_name ?? ""}
           celular={perfil?.phone ?? ""}
         />
         <p className="m-0 border-t-[1.5px] border-dashed border-line pt-4 text-[15px] text-muted">
-          Entrás con <strong className="font-medium text-ink">{user.email}</strong>. Si querés
-          cambiar de mail, escribinos y lo hacemos.
+          {tc.rich("entrasCon", {
+            mail: user.email ?? "",
+            fuerte: (partes: React.ReactNode) => (
+              <strong className="font-medium text-ink">{partes}</strong>
+            ),
+          })}
         </p>
       </Seccion>
 
       <Seccion
-        titulo="Descargar mis datos"
-        bajada="Todo lo que guardamos de vos, en un archivo. Es tuyo y te lo llevás cuando quieras."
+        titulo={tc("descargar")}
+        bajada={tc("descargarBajada")}
       >
         <div className="flex flex-wrap gap-3">
           {/*
@@ -87,57 +93,52 @@ export default async function CuentaPage() {
             href={`${prefijoDe(idioma)}/cuenta/exportar?formato=json`}
             className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-surface-sunk px-6 text-[17px] font-medium text-ink no-underline hover:brightness-[0.97]"
           >
-            Descargar en JSON
+            {tc("enJson")}
           </a>
           <a
             href={`${prefijoDe(idioma)}/cuenta/exportar?formato=csv`}
             className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-surface-sunk px-6 text-[17px] font-medium text-ink no-underline hover:brightness-[0.97]"
           >
-            Descargar en CSV
+            {tc("enCsv")}
           </a>
         </div>
         <p className="m-0 text-[15px] text-muted">
-          El JSON es la copia completa. El CSV se abre en una planilla. Ninguno de los dos incluye
-          datos personales de la otra parte: esos no son tuyos.
+          {tc("notaFormatos")}
         </p>
       </Seccion>
 
       <Seccion
-        titulo="Privacidad"
-        bajada="Qué hacemos y qué no hacemos con lo que nos contás."
+        titulo={tc("privacidad")}
+        bajada={tc("privacidadBajada")}
       >
         <ul className="m-0 flex list-none flex-col gap-3 p-0 text-body">
           <li>
-            <strong className="font-medium text-ink">Nada es público por defecto.</strong> Tu
-            historial solo se ve si vos creás un link, y lo podés revocar cuando quieras.
+            <strong className="font-medium text-ink">{tc("priv1Titulo")}</strong> {tc("priv1")}
           </li>
           <li>
-            <strong className="font-medium text-ink">No consultamos bancos ni Veraz.</strong> No
-            hacemos scoring crediticio de ningún tipo.
+            <strong className="font-medium text-ink">{tc("priv2Titulo")}</strong> {tc("priv2")}
           </li>
           <li>
-            <strong className="font-medium text-ink">Solo se muestra lo confirmado.</strong> Un mes
-            sin confirmar no suma y no aparece en ningún lado. No existen listas de morosos.
+            <strong className="font-medium text-ink">{tc("priv3Titulo")}</strong> {tc("priv3")}
           </li>
           <li>
-            <strong className="font-medium text-ink">Tus comprobantes son privados.</strong> Los ven
-            solo vos y la otra parte de ese alquiler, con links que vencen en un minuto.
+            <strong className="font-medium text-ink">{tc("priv4Titulo")}</strong> {tc("priv4")}
           </li>
         </ul>
         <p className="m-0 border-t-[1.5px] border-dashed border-line pt-4 text-[15px] text-muted">
           <Link href="/privacidad" className="font-medium text-confirm-ink">
-            Política de privacidad
+            {t("pie.privacidad")}
           </Link>{" "}
           ·{" "}
           <Link href="/terminos" className="font-medium text-confirm-ink">
-            Términos y condiciones
+            {t("pie.terminos")}
           </Link>
         </p>
       </Seccion>
 
       <Seccion
-        titulo="Dar de baja mi cuenta"
-        bajada="Se borran tus datos personales. El historial confirmado sigue existiendo para la otra parte, porque también es suyo."
+        titulo={tc("baja")}
+        bajada={tc("bajaBajada")}
         sinTarjeta
       >
         <BorrarCuenta />

@@ -61,6 +61,7 @@ export default async function PerfilPublicoPage({
   params: Promise<{ token: string }>;
 }) {
   const t = await getTranslations();
+  const tpp = await getTranslations("perfilPublicoPagina");
   const { token } = await params;
   const perfil = await perfilDelToken(token);
 
@@ -68,12 +69,12 @@ export default async function PerfilPublicoPage({
     return (
       <Marco>
         <Card hero>
-          <h1 className="t-titulo mt-0 mb-2">Este link ya no está disponible</h1>
+          <h1 className="t-titulo mt-0 mb-2">{tpp("yaNoDisponible")}</h1>
           <p className="mt-0 mb-5 text-body">
             {t(MENSAJES[perfil.estado] ?? MENSAJES.inexistente)}
           </p>
           <ButtonLink href="/" variant="secondary">
-            Conocer Inkey
+            {tpp("conocerInkey")}
           </ButtonLink>
         </Card>
       </Marco>
@@ -86,15 +87,16 @@ export default async function PerfilPublicoPage({
     <Marco>
       <div className="flex flex-col gap-5">
         <div>
-          <p className="t-etiqueta m-0 text-primary-ink">Historial confirmado</p>
+          <p className="t-etiqueta m-0 text-primary-ink">{tpp("eyebrow")}</p>
           <h1 className="t-titulo mt-2 mb-2">
             {esInquilino
-              ? `El historial de alquiler de ${nombreVisible(perfil.nombre, perfil.inicial_apellido)}`
-              : `${nombreVisible(perfil.nombre, perfil.inicial_apellido)} como propietario`}
+              ? tpp("titulo", { nombre: nombreVisible(perfil.nombre, perfil.inicial_apellido) })
+              : tpp("tituloPropietario", {
+                  nombre: nombreVisible(perfil.nombre, perfil.inicial_apellido),
+                })}
           </h1>
           <p className="m-0 text-body">
-            Cada mes que ves acá lo confirmaron las dos partes: quien pagó y quien cobró. Nadie
-            puede inventarse un mes.
+            {tpp("bajada")}
           </p>
         </div>
 
@@ -108,9 +110,7 @@ export default async function PerfilPublicoPage({
         {perfil.resenas.length > 0 && (
           <section aria-labelledby="titulo-resenas" className="flex flex-col gap-3">
             <h2 id="titulo-resenas" className="t-subtitulo m-0">
-              {perfil.resenas.length === 1
-                ? "Lo que dijo la otra parte"
-                : "Lo que dijeron las otras partes"}
+              {perfil.resenas.length === 1 ? tpp("loQueDijo") : tpp("loQueDijeron")}
             </h2>
             <ListaResenas resenas={perfil.resenas} />
           </section>
@@ -118,19 +118,17 @@ export default async function PerfilPublicoPage({
 
         <Card className="flex flex-col items-start gap-3">
           <p className="m-0 text-body">
-            ¿Querés guardarlo o imprimirlo? Bajate el perfil en PDF.
+            {tpp("guardarloPdf")}
           </p>
           <ButtonLink href={`/p/${token}/pdf`} target="_blank" variant="secondary" size="md">
-            Descargar en PDF
+            {tpp("descargarPdf")}
           </ButtonLink>
         </Card>
 
         <p className="m-0 text-[15px] text-muted">
-          Inkey no muestra la dirección, el teléfono ni el mail de nadie, y tampoco los meses sin
-          confirmar. Quien comparte este link decide qué se ve y puede darlo de baja cuando
-          quiera.{" "}
+          {tpp("nota")}{" "}
           <Link href="/" className="font-medium text-primary-ink">
-            Cómo funciona Inkey
+            {tpp("comoFuncionaInkey")}
           </Link>
         </p>
       </div>

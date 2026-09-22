@@ -58,6 +58,7 @@ export function SeccionPagos({
   siteUrl: string;
 }) {
   const t = useTranslations();
+  const ts = useTranslations("pagosSeccion");
   const [reportando, setReportando] = useState<string | null>(null);
 
   if (filas.length === 0) {
@@ -81,7 +82,7 @@ export function SeccionPagos({
         <Card hero className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="t-etiqueta m-0 text-muted">Mes en curso</p>
+              <p className="t-etiqueta m-0 text-muted">{ts("mesEnCurso")}</p>
               <p className="m-0 t-subtitulo capitalize">
                 {nombrePeriodo(actual.periodo)}
               </p>
@@ -110,7 +111,7 @@ export function SeccionPagos({
               <p className="m-0 text-body">
                 Ya lo reportaste. Le avisamos a tu dueño para que lo confirme.{" "}
                 <Link href={`/pagos/${actual.pago.id}`} className="font-medium text-confirm-ink">
-                  Ver el detalle
+                  {ts("verDetalle")}
                 </Link>
               </p>
 
@@ -134,11 +135,10 @@ export function SeccionPagos({
                     rel="noopener noreferrer"
                     className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-surface-sunk px-6 text-[17px] font-medium text-ink no-underline hover:brightness-[0.97]"
                   >
-                    Recordárselo por WhatsApp
+                    {ts("recordarWhatsApp")}
                   </a>
                   <p className="m-0 text-[15px] text-muted">
-                    Pasó más de una semana y todavía no respondió. Ya le mandamos un mail; si
-                    querés, escribile vos.
+                    {ts("pasoUnaSemana")}
                   </p>
                 </div>
               )}
@@ -148,7 +148,7 @@ export function SeccionPagos({
           {actual.pago?.status === "not_received" && (
             <div className="flex flex-col gap-3">
               <p className="m-0 text-body">
-                Tu dueño dice que todavía no le llegó
+                {ts("diceQueNoLlego")}
                 {actual.pago.owner_note ? `: “${actual.pago.owner_note}”` : "."} Si ya lo pagaste,
                 volvé a reportarlo con el comprobante.
               </p>
@@ -162,7 +162,7 @@ export function SeccionPagos({
                 />
               ) : (
                 <Button type="button" onClick={() => setReportando(actual.periodo)}>
-                  Volver a reportarlo
+                  {ts("volverAReportarlo")}
                 </Button>
               )}
             </div>
@@ -188,7 +188,7 @@ export function SeccionPagos({
           {pendientesDelDueño.map((fila) => (
             <Card key={fila.periodo} hero className="flex flex-col gap-4">
               <div>
-                <p className="t-etiqueta m-0 text-muted">Te reportaron un pago</p>
+                <p className="t-etiqueta m-0 text-muted">{ts("teReportaron")}</p>
                 <p className="m-0 t-subtitulo capitalize">
                   {nombrePeriodo(fila.periodo)}
                 </p>
@@ -202,7 +202,7 @@ export function SeccionPagos({
                 href={`/pagos/${fila.pago!.id}`}
                 className="text-[15px] font-medium text-confirm-ink"
               >
-                Ver el detalle y el comprobante
+                {ts("verDetalleYComprobante")}
               </Link>
             </Card>
           ))}
@@ -210,7 +210,7 @@ export function SeccionPagos({
       ) : (
         <Card >
           <p className="m-0 text-body">
-            No hay pagos esperando tu confirmación. Cuando tu inquilino reporte uno, te aparece acá.
+            {ts("sinPendientes")}
           </p>
         </Card>
       )}
@@ -218,7 +218,7 @@ export function SeccionPagos({
       {/* Historial */}
       {anteriores.length > 0 && (
         <div>
-          <h3 className="t-etiqueta mt-0 mb-3 text-muted">Meses anteriores</h3>
+          <h3 className="t-etiqueta mt-0 mb-3 text-muted">{ts("mesesAnteriores")}</h3>
           <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {anteriores.map((fila) => (
               <li key={fila.periodo}>
@@ -259,7 +259,7 @@ export function SeccionPagos({
                         </Button>
                       )
                     ) : (
-                      <Pill>Sin reportar</Pill>
+                      <Pill>{ts("sinReportar")}</Pill>
                     )}
                   </div>
 
@@ -279,7 +279,7 @@ export function SeccionPagos({
             ))}
           </ul>
           <p className="mt-3 mb-0 text-[15px] text-muted">
-            Un mes sin confirmar simplemente no suma. Nunca aparece como algo negativo.
+            {ts("notaSinConfirmar")}
           </p>
         </div>
       )}

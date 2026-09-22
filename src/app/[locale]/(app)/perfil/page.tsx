@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 };
 
 const ERRORES: Record<string, string> = {
-  revocar: "No se pudo revocar el link. Probá de nuevo en un momento.",
-  montos: "No se pudo cambiar la configuración de montos. Probá de nuevo en un momento.",
+  revocar: "perfilPagina.errorRevocar",
+  montos: "perfilPagina.errorMontos",
 };
 
 export default async function PerfilPage({
@@ -30,6 +30,7 @@ export default async function PerfilPage({
 
   const supabase = await createClient();
   const t = await getTranslations();
+  const tf = await getTranslations("perfilPagina");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -76,7 +77,7 @@ export default async function PerfilPage({
     texto: resena.text,
     etiquetas: resena.tags.map((codigo) => nombreEtiqueta.get(codigo) ?? codigo),
     fecha: resena.published_at ?? resena.created_at,
-    de: rol === "tenant" ? "Su dueño" : "Su inquilino",
+    de: rol === "tenant" ? tf("suDueno") : tf("suInquilino"),
   }));
 
   return (
@@ -84,14 +85,14 @@ export default async function PerfilPage({
       <div>
         <h1 className="t-titulo mt-0 mb-2">{t(`dominio.rolPerfil.${rol}.titulo`)}</h1>
         <p className="m-0 text-body">
-          Esto es exactamente lo que ve quien abre tu link. Nadie lo ve sin tu permiso.
+          {tf("bajada")}
         </p>
       </div>
 
       {/* Una misma cuenta puede tener historial de los dos lados. */}
       <div
         role="group"
-        aria-label="Qué historial estás viendo"
+        aria-label={tf("queHistorial")}
         className="inline-grid w-fit grid-cols-2 gap-1.5 rounded-full bg-surface-sunk p-1.5"
       >
         {ROLES_PERFIL.map((valor) => (
@@ -125,8 +126,7 @@ export default async function PerfilPage({
       {metricas?.meses_confirmados === 0 && rol === "tenant" && (
         <Card>
           <p className="m-0 text-body">
-            Tu historial empieza a llenarse cuando tu dueño confirme el primer pago. Podés compartir
-            el link igual: va a mostrar lo que haya hasta ese momento.
+            {tf("sinMeses")}
           </p>
         </Card>
       )}
@@ -134,7 +134,7 @@ export default async function PerfilPage({
       {resenasVisibles.length > 0 && (
         <section aria-labelledby="titulo-resenas" className="flex flex-col gap-3">
           <h2 id="titulo-resenas" className="t-subtitulo m-0">
-            Lo que dijeron de vos
+            {tf("loQueDijeron")}
           </h2>
           <ListaResenas resenas={resenasVisibles} />
         </section>
@@ -142,7 +142,7 @@ export default async function PerfilPage({
 
       <section aria-labelledby="titulo-links" className="flex flex-col gap-4">
         <h2 id="titulo-links" className="t-subtitulo m-0">
-          Tus links
+          {tf("tusLinks")}
         </h2>
         <SeccionDeLinks rol={rol} links={(links ?? []) as LinkGuardado[]} />
       </section>

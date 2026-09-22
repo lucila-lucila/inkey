@@ -8,8 +8,14 @@ import { SelectorDeIdioma } from "./selector-de-idioma";
 /** Una sola dirección de contacto en todo el producto. */
 export const MAIL_DE_CONTACTO = "contacto@inkeyapp.com";
 
-/** Dónde se apoya el proyecto. Va en el pie y en ningún otro lado. */
-export const LINK_DE_APOYO = "https://liberapay.com/inkeyapp";
+/*
+ * Dónde se apoya el proyecto. Va en el pie y en ningún otro lado.
+ *
+ * Sin el prefijo `es.`: Liberapay muestra la página en el idioma de quien la
+ * abre, y forzarla al castellano dejaría en castellano a quien vino leyendo
+ * Inkey en inglés.
+ */
+export const LINK_DE_APOYO = "https://liberapay.com/inkeyapp/";
 
 /**
  * El pie, igual en todas las pantallas.
