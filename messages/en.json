@@ -115,5 +115,144 @@
       "tituloDestacado": "Put it in writing."
     },
     "avisoDeBaja": "Your account is closed. Thanks for using Inkey."
+  },
+  "errores": {
+    "inesperado": "We couldn't save that. Try again in a moment. If it keeps happening, send us this code: {ref}",
+    "pagoNoSeGuardo": "We couldn't save the payment. Try again in a moment.",
+    "noSePudo": "That didn't work. Try again in a moment."
+  },
+  "validacion": {
+    "fecha": {
+      "formato": "Use a date in day/month/year format."
+    },
+    "monto": {
+      "mayorACero": "The amount has to be more than zero.",
+      "demasiadoGrande": "That amount is too large."
+    },
+    "alquiler": {
+      "rol": "Choose whether you're adding this as a tenant or as a landlord.",
+      "direccionCorta": "Write the full address, with the street number.",
+      "direccionLarga": "That address is too long.",
+      "barrioCorto": "Write the neighbourhood and city. For example: Palermo, CABA.",
+      "barrioLargo": "Just the neighbourhood and city.",
+      "montoFalta": "Write how much you pay each month.",
+      "moneda": "Choose the currency.",
+      "diaFalta": "Choose the day rent is due.",
+      "diaFueraDeRango": "The day goes from 1 to 31.",
+      "indiceLargo": "Keep it short: ICL, IPC, fixed…",
+      "ajusteFueraDeRango": "Adjustments go from 1 to 60 months.",
+      "finAntesDeInicio": "The end date can't come before the start date.",
+      "ajusteIncompleto": "Fill in both the index and how often it adjusts, or leave both empty."
+    }
+  },
+  "dominio": {
+    "estadoAlquiler": {
+      "pending": "Waiting to be confirmed",
+      "active": "Confirmed",
+      "pending_end": "Ending",
+      "ended": "Ended",
+      "rejected": "Not their property"
+    },
+    "estadoPago": {
+      "confirmed": "Confirmed",
+      "reported": "Waiting to be confirmed",
+      "not_received": "Hasn't arrived yet"
+    },
+    "mensajePago": {
+      "sin_sesion": "Sign in again to continue.",
+      "no_encontrado": "We couldn't find that payment.",
+      "alquiler_inactivo": "This lease hasn't been confirmed by both sides yet.",
+      "periodo_fuera_del_contrato": "That month falls outside the lease.",
+      "periodo_futuro": "You can't report a month that hasn't started yet.",
+      "monto_invalido": "Check the amount.",
+      "fecha_futura": "The payment date can't be in the future.",
+      "fecha_muy_vieja": "That date is too far before the month you're reporting.",
+      "ya_reportado": "You already reported that month.",
+      "ya_confirmado": "That payment is already confirmed.",
+      "no_sos_el_dueño": "Only the landlord can confirm a payment."
+    },
+    "mensajeResena": {
+      "sin_sesion": "Sign in again to continue.",
+      "no_encontrado": "We couldn't find that lease.",
+      "no_esta_activo": "This lease isn't active.",
+      "no_esta_terminando": "This lease isn't waiting for anyone to confirm it's over.",
+      "lo_propusiste_vos": "You're the one who proposed it: the other side has to confirm.",
+      "todavia_no_termino": "Reviews are written once the lease ends.",
+      "sin_contraparte": "This lease doesn't have the other side confirmed.",
+      "vacia": "Pick at least one tag or write something.",
+      "texto_largo": "The text can't go over 500 characters.",
+      "etiqueta_invalida": "That tag doesn't belong to this review.",
+      "ya_la_dejaste": "You already left your review for this lease."
+    },
+    "cifra": {
+      "inquilino": "{numero, plural, one {month paid, confirmed by their landlord} other {months paid, confirmed by their landlord}}",
+      "propietario": "{numero, plural, one {lease on Inkey} other {leases on Inkey}}"
+    },
+    "resumen": {
+      "enFecha": "{cantidad}% on time",
+      "pagosConfirmados": "{cantidad, plural, one {# payment confirmed} other {# payments confirmed}}",
+      "contratosCumplidos": "{cantidad, plural, one {# lease completed} other {# leases completed}}"
+    },
+    "compartir": {
+      "propietario": "{cantidad, plural, one {# lease on Inkey} other {# leases on Inkey}}",
+      "sinHistorial": "Rental history on Inkey",
+      "meses": "{cantidad, plural, one {# month confirmed} other {# months confirmed}}"
+    },
+    "nivel": {
+      "confirmadoPorElDueno": {
+        "titulo": "Confirmed by the landlord",
+        "detalle": "{cantidad, plural, =0 {No months confirmed yet} one {# month confirmed by the other side} other {# months confirmed by the other side}}"
+      },
+      "conComprobante": {
+        "titulo": "With proof of payment",
+        "detalle": "{cantidad, plural, =0 {No proof of payment attached} one {# payment with proof attached} other {# payments with proof attached}}"
+      },
+      "conContrato": {
+        "titulo": "With the lease attached",
+        "detalle": "{cantidad, plural, =0 {No lease attached} one {# lease attached} other {# leases attached}}"
+      }
+    },
+    "rolPerfil": {
+      "tenant": {
+        "titulo": "My history as a tenant",
+        "corto": "As a tenant"
+      },
+      "owner": {
+        "titulo": "My reputation as a landlord",
+        "corto": "As a landlord"
+      }
+    },
+    "pasoAlquiler": {
+      "donde": "Where is it?",
+      "cuando": "Since when, and how much?",
+      "ajustes": "Adjustments and lease"
+    }
+  },
+  "tarjetaPerfil": {
+    "ultimos12": "Last 12 months",
+    "mesesLlenos": "Filled months are the ones the other side confirmed.",
+    "queEstaConfirmado": "What's confirmed",
+    "alquiloEn": "Rented in",
+    "alquilaEn": "Rents in",
+    "montos": "Amounts",
+    "alquilerActual": "Current rent:",
+    "porMes": "a month",
+    "totalConfirmado": "Total confirmed:"
+  },
+  "pdfPerfil": {
+    "titulo": "Rental history",
+    "sello": "CONFIRMED BY THE OTHER SIDE",
+    "inquilino": "Tenant on Inkey",
+    "propietario": "Landlord on Inkey",
+    "desde": "since {fecha}",
+    "loQueDijo": "What the other side said",
+    "nota": "Every confirmed month in this history was reported by the tenant and confirmed by the landlord. Inkey never shows an address, phone number, email or proof of payment, and unconfirmed months don't appear. We don't check banks or credit bureaus.",
+    "generado": "Generated on {fecha} at the request of whoever shared the profile.",
+    "pie": "Inkey · Your rental history, confirmed",
+    "pagina": "Page {pagina} of {total}"
+  },
+  "perfilPublico": {
+    "tituloMeta": "Confirmed rental history",
+    "noDisponibleMeta": "Profile unavailable · Inkey"
   }
 }

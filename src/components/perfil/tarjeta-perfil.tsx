@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Avatar, Card, CheckIcon, Pill } from "@/components/ui";
 import { formatearMonto } from "@/lib/domain/alquiler";
 import { nombrePeriodo } from "@/lib/domain/pagos";
@@ -31,6 +32,8 @@ export function TarjetaPerfil({
   const esInquilino = rol === "tenant";
   const meses = metricas.ultimos_12 ?? [];
   const cifra = cifraPrincipal(metricas, esInquilino);
+  const t = useTranslations();
+  const tt = useTranslations("tarjetaPerfil");
 
   return (
     <Card hero className="flex flex-col gap-7">
@@ -55,17 +58,21 @@ export function TarjetaPerfil({
           <span className="t-numero font-display text-[52px] leading-none font-extrabold tracking-[-2px]">
             {cifra.numero}
           </span>
-          <span className="max-w-[12em] text-[17px] leading-[1.35] text-body">{cifra.texto}</span>
+          <span className="max-w-[12em] text-[17px] leading-[1.35] text-body">
+            {t(cifra.clave, { numero: cifra.numero })}
+          </span>
         </div>
 
         <p className="mt-2 mb-0 text-[15px] text-muted">
-          {resumenDeMetricas(metricas, esInquilino)}
+          {resumenDeMetricas(metricas, esInquilino)
+            .map((parte) => t(parte.clave, { cantidad: parte.cantidad }))
+            .join(" · ")}
         </p>
       </div>
 
       {meses.length > 0 && (
         <div>
-          <p className="t-etiqueta mb-3 text-muted">Últimos 12 meses</p>
+          <p className="t-etiqueta mb-3 text-muted">{tt("ultimos12")}</p>
           <div className="grid grid-cols-12 gap-[5px]">
             {meses.map((mes) => (
               <div
@@ -85,16 +92,16 @@ export function TarjetaPerfil({
             ))}
           </div>
           <p className="mt-3 mb-0 text-[15px] text-muted">
-            Los meses llenos son los que confirmó la otra parte.
+            {tt("mesesLlenos")}
           </p>
         </div>
       )}
 
       <div className="border-t border-line pt-6">
-        <p className="t-etiqueta mb-3 text-muted">Qué está confirmado</p>
+        <p className="t-etiqueta mb-3 text-muted">{tt("queEstaConfirmado")}</p>
         <ul className="m-0 flex list-none flex-col gap-3 p-0">
           {niveles.map((nivel) => (
-            <li key={nivel.titulo} className="flex items-start gap-3">
+            <li key={nivel.clave} className="flex items-start gap-3">
               <span
                 className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-full ${
                   nivel.logrado ? "bg-confirm-soft text-confirm-ink" : "bg-surface-sunk text-muted"
@@ -103,8 +110,12 @@ export function TarjetaPerfil({
                 <CheckIcon size={14} />
               </span>
               <span>
-                <b className="block text-[16px] font-medium">{nivel.titulo}</b>
-                <span className="text-[15px] text-muted">{nivel.detalle}</span>
+                <b className="block text-[16px] font-medium">
+                  {t(`dominio.nivel.${nivel.clave}.titulo`)}
+                </b>
+                <span className="text-[15px] text-muted">
+                  {t(`dominio.nivel.${nivel.clave}.detalle`, { cantidad: nivel.cantidad })}
+                </span>
               </span>
             </li>
           ))}
@@ -114,7 +125,7 @@ export function TarjetaPerfil({
       {metricas.barrios?.length > 0 && (
         <div className="border-t border-line pt-6">
           <p className="t-etiqueta mb-2 text-muted">
-            {esInquilino ? "Alquiló en" : "Alquila en"}
+            {esInquilino ? tt("alquiloEn") : tt("alquilaEn")}
           </p>
           <div className="flex flex-wrap gap-2">
             {metricas.barrios.map((barrio) => (
@@ -126,22 +137,22 @@ export function TarjetaPerfil({
 
       {metricas.montos && (
         <div className="border-t border-line pt-6">
-          <p className="t-etiqueta mb-2 text-muted">Montos</p>
+          <p className="t-etiqueta mb-2 text-muted">{tt("montos")}</p>
           {metricas.montos.mensual_actual && (
             <p className="m-0 text-[17px]">
-              Alquiler actual:{" "}
+              {tt("alquilerActual")}{" "}
               <span className="t-monto">
                 {formatearMonto(
                   metricas.montos.mensual_actual.monto,
                   metricas.montos.mensual_actual.moneda as Moneda,
                 )}
               </span>{" "}
-              por mes
+              {tt("porMes")}
             </p>
           )}
           {Object.entries(metricas.montos.total_confirmado ?? {}).map(([moneda, total]) => (
             <p key={moneda} className="m-0 text-[15px] text-muted">
-              Total confirmado: {formatearMonto(total, moneda as Moneda)}
+              {tt("totalConfirmado")} {formatearMonto(total, moneda as Moneda)}
             </p>
           ))}
         </div>

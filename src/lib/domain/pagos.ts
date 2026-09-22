@@ -64,13 +64,16 @@ export function periodosDelAlquiler(
 }
 
 /*
- * "Todavía no lo confirmó" va en neutro a propósito: no es un incumplimiento
- * ni una alarma, es un mes que todavía no suma.
+ * El tono de cada estado. El texto sale del archivo de idiomas, bajo
+ * `dominio.estadoPago`.
+ *
+ * "Todavía no le llegó" va en neutro a propósito: no es un incumplimiento ni
+ * una alarma, es un mes que todavía no suma.
  */
 export const ESTADOS_PAGO = {
-  confirmed: { texto: "Confirmado", tono: "confirm" },
-  reported: { texto: "Falta que lo confirme", tono: "primary" },
-  not_received: { texto: "Todavía no le llegó", tono: "neutral" },
+  confirmed: { tono: "confirm" },
+  reported: { tono: "primary" },
+  not_received: { tono: "neutral" },
 } as const;
 
 export type EstadoPago = keyof typeof ESTADOS_PAGO;
@@ -83,19 +86,24 @@ export function cuentaEnFecha(pago: { status: string; on_time: boolean | null })
   return pago.status === "confirmed" && pago.on_time === true;
 }
 
-export const MENSAJES_PAGO: Record<string, string> = {
-  sin_sesion: "Volvé a entrar para seguir.",
-  no_encontrado: "No encontramos ese pago.",
-  alquiler_inactivo: "Este alquiler todavía no está confirmado por las dos partes.",
-  periodo_fuera_del_contrato: "Ese mes queda fuera del contrato.",
-  periodo_futuro: "Todavía no se puede reportar un mes que no empezó.",
-  monto_invalido: "Revisá el monto.",
-  fecha_futura: "La fecha de pago no puede ser posterior a hoy.",
-  fecha_muy_vieja: "Esa fecha es demasiado anterior al mes que estás reportando.",
-  ya_reportado: "Ese mes ya lo reportaste.",
-  ya_confirmado: "Ese pago ya está confirmado.",
-  "no_sos_el_dueño": "Solo el dueño del alquiler puede confirmar un pago.",
-};
+/*
+ * Los códigos que devuelven las funciones de la base. El texto de cada uno
+ * vive en `dominio.mensajePago`, y `MENSAJES_PAGO` existe para que un código
+ * nuevo sin traducir salte en los tests y no en la cara de la persona.
+ */
+export const MENSAJES_PAGO = [
+  "sin_sesion",
+  "no_encontrado",
+  "alquiler_inactivo",
+  "periodo_fuera_del_contrato",
+  "periodo_futuro",
+  "monto_invalido",
+  "fecha_futura",
+  "fecha_muy_vieja",
+  "ya_reportado",
+  "ya_confirmado",
+  "no_sos_el_dueño",
+] as const;
 
 /**
  * Insistirle al dueño por WhatsApp.

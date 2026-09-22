@@ -41,16 +41,20 @@ export function fechaDePublicacion(finDelContrato: string): Date {
   return fin;
 }
 
-export const MENSAJES_RESENA: Record<string, string> = {
-  sin_sesion: "Volvé a entrar para seguir.",
-  no_encontrado: "No encontramos ese alquiler.",
-  no_esta_activo: "Este alquiler no está activo.",
-  no_esta_terminando: "Este alquiler no está esperando que confirmen el fin.",
-  lo_propusiste_vos: "Lo propusiste vos: lo tiene que confirmar la otra parte.",
-  todavia_no_termino: "Las reseñas se escriben cuando el contrato termina.",
-  sin_contraparte: "Este alquiler no tiene a la otra parte confirmada.",
-  vacia: "Elegí al menos una etiqueta o escribí algo.",
-  texto_largo: "El texto no puede pasar de 500 caracteres.",
-  etiqueta_invalida: "Esa etiqueta no corresponde a esta reseña.",
-  ya_la_dejaste: "Ya dejaste tu reseña de este alquiler.",
-};
+/*
+ * Los códigos que devuelven las funciones de reseñas. El texto de cada uno
+ * vive en `dominio.mensajeResena`.
+ */
+export const MENSAJES_RESENA = [
+  "sin_sesion",
+  "no_encontrado",
+  "no_esta_activo",
+  "no_esta_terminando",
+  "lo_propusiste_vos",
+  "todavia_no_termino",
+  "sin_contraparte",
+  "vacia",
+  "texto_largo",
+  "etiqueta_invalida",
+  "ya_la_dejaste",
+] as const;

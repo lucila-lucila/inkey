@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { ImageResponse } from "next/og";
 import { nombreVisible, resumenParaCompartir } from "@/lib/domain/perfil";
 import { perfilDelToken } from "./datos";
@@ -15,6 +16,7 @@ export const contentType = "image/png";
 export default async function Imagen({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const perfil = await perfilDelToken(token, { contar: false });
+  const t = await getTranslations();
 
   const crema = "#FFF6EA";
   const tinta = "#23201C";
@@ -105,7 +107,7 @@ export default async function Imagen({ params }: { params: Promise<{ token: stri
             {nombre}
           </div>
           <div style={{ display: "flex", fontSize: 30, color: "#57504A", marginTop: 8 }}>
-            {resumenParaCompartir(metricas, perfil.rol)}
+            {resumenParaCompartir(t, metricas, perfil.rol)}
           </div>
         </div>
 

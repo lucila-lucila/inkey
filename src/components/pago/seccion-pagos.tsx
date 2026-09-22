@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button, Card, Pill } from "@/components/ui";
 import { BotonesDueño } from "./botones-dueno";
@@ -56,6 +57,7 @@ export function SeccionPagos({
   /** Base de los links que se comparten por WhatsApp. */
   siteUrl: string;
 }) {
+  const t = useTranslations();
   const [reportando, setReportando] = useState<string | null>(null);
 
   if (filas.length === 0) {
@@ -89,7 +91,7 @@ export function SeccionPagos({
             </div>
             {actual.pago && (
               <Pill tone={ESTADOS_PAGO[actual.pago.status].tono}>
-                {ESTADOS_PAGO[actual.pago.status].texto}
+                {t(`dominio.estadoPago.${actual.pago.status}`)}
               </Pill>
             )}
           </div>
@@ -235,7 +237,7 @@ export function SeccionPagos({
                     {fila.pago ? (
                       <>
                         <Pill tone={ESTADOS_PAGO[fila.pago.status].tono}>
-                          {ESTADOS_PAGO[fila.pago.status].texto}
+                          {t(`dominio.estadoPago.${fila.pago.status}`)}
                         </Pill>
                         <Link
                           href={`/pagos/${fila.pago.id}`}

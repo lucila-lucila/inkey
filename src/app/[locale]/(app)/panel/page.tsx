@@ -9,6 +9,7 @@ import {
 } from "@/lib/domain/alquiler";
 import { nombrePeriodo, periodoActual } from "@/lib/domain/pagos";
 import type { Moneda } from "@/lib/validation/rental";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -57,7 +58,11 @@ function EstadoVacio({
   );
 }
 
-function TarjetaAlquiler({ alquiler }: { alquiler: Alquiler }) {
+/*
+ * Recibe el estado ya traducido y no el traductor: así sigue siendo una
+ * pieza que solo dibuja, sin saber nada de idiomas.
+ */
+function TarjetaAlquiler({ alquiler, estadoTexto }: { alquiler: Alquiler; estadoTexto: string }) {
   const estado = ESTADOS_ALQUILER[alquiler.status as EstadoAlquiler];
 
   return (
@@ -72,7 +77,7 @@ function TarjetaAlquiler({ alquiler }: { alquiler: Alquiler }) {
             {formatearMonto(alquiler.monthly_amount, alquiler.currency as Moneda)} por mes
           </p>
         </div>
-        <Pill tone={estado.tono}>{estado.texto}</Pill>
+        <Pill tone={estado.tono}>{estadoTexto}</Pill>
       </Link>
     </Card>
   );
@@ -80,6 +85,7 @@ function TarjetaAlquiler({ alquiler }: { alquiler: Alquiler }) {
 
 export default async function PanelPage() {
   const supabase = await createClient();
+  const t = await getTranslations();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -178,7 +184,11 @@ export default async function PanelPage() {
       {comoInquilino.length > 0 ? (
         <div className="flex flex-col gap-3">
           {comoInquilino.map((alquiler) => (
-            <TarjetaAlquiler key={alquiler.id} alquiler={alquiler} />
+            <TarjetaAlquiler
+              key={alquiler.id}
+              alquiler={alquiler}
+              estadoTexto={t(`dominio.estadoAlquiler.${alquiler.status}`)}
+            />
           ))}
           <div>
             <ButtonLink href="/alquileres/nuevo?rol=inquilino" variant="secondary" size="md">
@@ -204,7 +214,11 @@ export default async function PanelPage() {
       {comoPropietario.length > 0 ? (
         <div className="flex flex-col gap-3">
           {comoPropietario.map((alquiler) => (
-            <TarjetaAlquiler key={alquiler.id} alquiler={alquiler} />
+            <TarjetaAlquiler
+              key={alquiler.id}
+              alquiler={alquiler}
+              estadoTexto={t(`dominio.estadoAlquiler.${alquiler.status}`)}
+            />
           ))}
           <div>
             <ButtonLink href="/alquileres/nuevo?rol=propietario" variant="secondary" size="md">

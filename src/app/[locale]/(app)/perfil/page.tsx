@@ -5,6 +5,7 @@ import { Card } from "@/components/ui";
 import { TarjetaPerfil } from "@/components/perfil/tarjeta-perfil";
 import { ListaResenas } from "@/components/resena/lista-resenas";
 import { ROLES_PERFIL, type Metricas } from "@/lib/domain/perfil";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/cn";
 import { SeccionDeLinks, type LinkGuardado } from "./piezas";
@@ -28,6 +29,7 @@ export default async function PerfilPage({
   const rol: "tenant" | "owner" = params.rol === "owner" ? "owner" : "tenant";
 
   const supabase = await createClient();
+  const t = await getTranslations();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -80,7 +82,7 @@ export default async function PerfilPage({
   return (
     <div className="flex max-w-[720px] flex-col gap-7">
       <div>
-        <h1 className="t-titulo mt-0 mb-2">{ROLES_PERFIL[rol].titulo}</h1>
+        <h1 className="t-titulo mt-0 mb-2">{t(`dominio.rolPerfil.${rol}.titulo`)}</h1>
         <p className="m-0 text-body">
           Esto es exactamente lo que ve quien abre tu link. Nadie lo ve sin tu permiso.
         </p>
@@ -92,7 +94,7 @@ export default async function PerfilPage({
         aria-label="Qué historial estás viendo"
         className="inline-grid w-fit grid-cols-2 gap-1.5 rounded-full bg-surface-sunk p-1.5"
       >
-        {(["tenant", "owner"] as const).map((valor) => (
+        {ROLES_PERFIL.map((valor) => (
           <Link
             key={valor}
             href={`/perfil?rol=${valor}`}
@@ -102,7 +104,7 @@ export default async function PerfilPage({
               rol === valor ? "bg-primary text-on-primary" : "bg-transparent text-body",
             )}
           >
-            {ROLES_PERFIL[valor].corto}
+            {t(`dominio.rolPerfil.${valor}.corto`)}
           </Link>
         ))}
       </div>

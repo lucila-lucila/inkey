@@ -5,6 +5,7 @@ import { useActionState, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { crearAlquiler, type EstadoNuevoAlquiler } from "./actions";
 import { CompartirInvitacion } from "@/components/alquiler/compartir-invitacion";
+import { useTranslations } from "next-intl";
 import { Button, ButtonLink, CampoMonto, Card, Field, Input } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { textoRol } from "@/lib/domain/alquiler";
@@ -28,6 +29,7 @@ function BotonGuardar() {
 
 export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
   const [estado, accion] = useActionState(crearAlquiler, ESTADO_INICIAL);
+  const t = useTranslations();
   const [paso, setPaso] = useState(0);
   const [errores, setErrores] = useState<Record<string, string>>({});
   const formRef = useRef<HTMLFormElement>(null);
@@ -127,7 +129,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
           Paso {paso + 1} de {PASOS_ALQUILER.length}
         </p>
         <h1 className="mt-1 mb-0 t-titulo">
-          {PASOS_ALQUILER[paso].titulo}
+          {t(`dominio.pasoAlquiler.${PASOS_ALQUILER[paso].clave}`)}
         </h1>
       </div>
 

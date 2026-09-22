@@ -26,7 +26,7 @@ export function parsearMonto(valor: unknown): number {
 const fecha = z
   .string()
   .trim()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "Usá una fecha con el formato día/mes/año.");
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "validacion.fecha.formato");
 
 const opcionalVacio = (esquema: z.ZodTypeAny) =>
   z.preprocess((valor) => {
@@ -37,18 +37,18 @@ const opcionalVacio = (esquema: z.ZodTypeAny) =>
 
 export const datosAlquilerSchema = z
   .object({
-    rol: z.enum(ROLES_ALQUILER, { message: "Elegí si lo cargás como inquilino o como dueño." }),
+    rol: z.enum(ROLES_ALQUILER, { message: "validacion.alquiler.rol" }),
 
     full_address: z
       .string()
       .trim()
-      .min(5, "Escribí la dirección completa, con altura.")
-      .max(200, "Esa dirección es demasiado larga."),
+      .min(5, "validacion.alquiler.direccionCorta")
+      .max(200, "validacion.alquiler.direccionLarga"),
     neighborhood_label: z
       .string()
       .trim()
-      .min(2, "Escribí el barrio y la ciudad. Por ejemplo: Palermo, CABA.")
-      .max(60, "Dejá solo el barrio y la ciudad."),
+      .min(2, "validacion.alquiler.barrioCorto")
+      .max(60, "validacion.alquiler.barrioLargo"),
 
     start_date: fecha,
     end_date: opcionalVacio(fecha),
@@ -56,56 +56,59 @@ export const datosAlquilerSchema = z
     monthly_amount: z.preprocess(
       parsearMonto,
       z
-        .number({ message: "Escribí cuánto pagás por mes." })
-        .positive("El monto tiene que ser mayor a cero.")
-        .max(1_000_000_000, "Ese monto es demasiado grande."),
+        .number({ message: "validacion.alquiler.montoFalta" })
+        .positive("validacion.monto.mayorACero")
+        .max(1_000_000_000, "validacion.monto.demasiadoGrande"),
     ),
-    currency: z.enum(MONEDAS, { message: "Elegí la moneda." }),
+    currency: z.enum(MONEDAS, { message: "validacion.alquiler.moneda" }),
     due_day: z.preprocess(
       (valor) => (valor === "" || valor === null ? undefined : Number(valor)),
       z
-        .number({ message: "Elegí el día de vencimiento." })
+        .number({ message: "validacion.alquiler.diaFalta" })
         .int()
-        .min(1, "El día va del 1 al 31.")
-        .max(31, "El día va del 1 al 31."),
+        .min(1, "validacion.alquiler.diaFueraDeRango")
+        .max(31, "validacion.alquiler.diaFueraDeRango"),
     ),
 
     adjustment_index: opcionalVacio(
-      z.string().trim().max(40, "Escribilo más corto: ICL, IPC, fijo…"),
+      z.string().trim().max(40, "validacion.alquiler.indiceLargo"),
     ),
     adjustment_every_months: z.preprocess(
       (valor) => (valor === "" || valor === null || valor === undefined ? undefined : Number(valor)),
       z
         .number()
         .int()
-        .min(1, "El ajuste va de 1 a 60 meses.")
-        .max(60, "El ajuste va de 1 a 60 meses.")
+        .min(1, "validacion.alquiler.ajusteFueraDeRango")
+        .max(60, "validacion.alquiler.ajusteFueraDeRango")
         .optional(),
     ),
   })
   .refine(
     (datos) => !datos.end_date || datos.end_date >= datos.start_date,
-    { message: "La fecha de fin no puede ser anterior a la de inicio.", path: ["end_date"] },
+    { message: "validacion.alquiler.finAntesDeInicio", path: ["end_date"] },
   )
   .refine(
     (datos) => Boolean(datos.adjustment_index) === (datos.adjustment_every_months !== undefined),
     {
-      message: "Completá el índice y cada cuántos meses ajusta, o dejá los dos vacíos.",
+      message: "validacion.alquiler.ajusteIncompleto",
       path: ["adjustment_every_months"],
     },
   );
 
 export type DatosAlquiler = z.infer<typeof datosAlquilerSchema>;
 
-/** Los campos de cada paso del formulario, para validar de a poco. */
+/*
+ * Los campos de cada paso del formulario, para validar de a poco. El título
+ * de cada paso sale del archivo de textos: acá va solo su clave.
+ */
 export const PASOS_ALQUILER = [
-  { titulo: "¿Dónde es?", campos: ["full_address", "neighborhood_label"] },
+  { clave: "donde", campos: ["full_address", "neighborhood_label"] },
   {
-    titulo: "¿Desde cuándo y cuánto?",
+    clave: "cuando",
     campos: ["start_date", "end_date", "monthly_amount", "currency", "due_day"],
   },
   {
-    titulo: "Ajustes y contrato",
+    clave: "ajustes",
     campos: ["adjustment_index", "adjustment_every_months", "contrato"],
   },
 ] as const;

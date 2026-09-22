@@ -15,10 +15,21 @@ export function registrarFalla(contexto: string, error: unknown): string {
   return ref;
 }
 
-export function mensajeInesperado(ref: string): string {
-  // El error explica qué pasó y qué hacer, sin culpar a nadie.
-  return `No se pudo guardar. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`;
-}
+/*
+ * La clave del mensaje que ve la persona. El texto explica qué pasó y qué
+ * hacer, sin culpar a nadie, y lo arma el archivo de idiomas con el código
+ * de referencia adentro.
+ */
+export const CLAVE_INESPERADO = "errores.inesperado";
+
+/** Lo que devuelve una acción que salió mal. */
+export type EstadoDeError = {
+  estado: "error";
+  /** Una clave del archivo de idiomas, nunca una frase. */
+  mensaje: string;
+  /** El código corto que buscamos en los logs si la persona nos escribe. */
+  ref?: string;
+};
 
 /**
  * Envuelve una acción del servidor: si tira una excepción, la convierte en un
@@ -39,6 +50,6 @@ export async function conRedDeSeguridad<T>(
       if (digest.startsWith("NEXT_REDIRECT") || digest === "NEXT_NOT_FOUND") throw error;
     }
     const ref = registrarFalla(contexto, error);
-    return alFallar(mensajeInesperado(ref), ref);
+    return alFallar(CLAVE_INESPERADO, ref);
   }
 }

@@ -1,3 +1,4 @@
+import type { Traductor } from "@/i18n/texto";
 import type { ResenaPublica } from "./resenas";
 
 /** Las métricas del historial, tal como las devuelve la base. */
@@ -34,7 +35,7 @@ export function nombreVisible(nombre: string, inicial: string): string {
   return inicial ? `${nombre} ${inicial}.` : nombre;
 }
 
-export type Nivel = { titulo: string; detalle: string; logrado: boolean };
+export type Nivel = { clave: string; cantidad: number; logrado: boolean };
 
 /**
  * La cifra grande de la tarjeta del historial y la línea que la acompaña.
@@ -46,29 +47,32 @@ export type Nivel = { titulo: string; detalle: string; logrado: boolean };
 export function cifraPrincipal(
   metricas: Metricas,
   esInquilino: boolean,
-): { numero: number; texto: string } {
-  if (esInquilino) {
-    return { numero: metricas.meses_confirmados, texto: "meses pagados, confirmados por su dueño" };
-  }
-  const total = metricas.contratos_totales;
-  return { numero: total, texto: total === 1 ? "alquiler en Inkey" : "alquileres en Inkey" };
+): { numero: number; clave: string } {
+  return esInquilino
+    ? { numero: metricas.meses_confirmados, clave: "dominio.cifra.inquilino" }
+    : { numero: metricas.contratos_totales, clave: "dominio.cifra.propietario" };
 }
 
-export function resumenDeMetricas(metricas: Metricas, esInquilino: boolean): string {
-  const partes: string[] = [];
+/*
+ * Las partes de la línea de abajo del número. Devuelve claves y números, no
+ * frases: el plural de cada idioma lo resuelve el archivo de textos, que es
+ * donde se puede escribir bien en cada uno.
+ */
+export function resumenDeMetricas(
+  metricas: Metricas,
+  esInquilino: boolean,
+): Array<{ clave: string; cantidad: number }> {
+  const partes: Array<{ clave: string; cantidad: number }> = [];
 
   if (esInquilino && metricas.porcentaje_en_fecha !== null) {
-    partes.push(`${metricas.porcentaje_en_fecha}% en fecha`);
+    partes.push({ clave: "dominio.resumen.enFecha", cantidad: metricas.porcentaje_en_fecha });
   }
   if (!esInquilino) {
-    const pagos = metricas.meses_confirmados;
-    partes.push(pagos === 1 ? "1 pago confirmado" : `${pagos} pagos confirmados`);
+    partes.push({ clave: "dominio.resumen.pagosConfirmados", cantidad: metricas.meses_confirmados });
   }
+  partes.push({ clave: "dominio.resumen.contratosCumplidos", cantidad: metricas.contratos_cumplidos });
 
-  const cumplidos = metricas.contratos_cumplidos;
-  partes.push(cumplidos === 1 ? "1 contrato cumplido" : `${cumplidos} contratos cumplidos`);
-
-  return partes.join(" · ");
+  return partes;
 }
 
 /**
@@ -78,48 +82,45 @@ export function resumenDeMetricas(metricas: Metricas, esInquilino: boolean): str
 export function nivelesDeVerificacion(metricas: Metricas): Nivel[] {
   return [
     {
-      titulo: "Confirmado por el dueño",
-      detalle:
-        metricas.meses_confirmados > 0
-          ? `${metricas.meses_confirmados} ${metricas.meses_confirmados === 1 ? "mes confirmado" : "meses confirmados"} por la otra parte`
-          : "Todavía sin meses confirmados",
+      clave: "confirmadoPorElDueno",
+      cantidad: metricas.meses_confirmados,
       logrado: metricas.meses_confirmados > 0,
     },
     {
-      titulo: "Con comprobante",
-      detalle:
-        metricas.con_comprobante > 0
-          ? `${metricas.con_comprobante} ${metricas.con_comprobante === 1 ? "pago" : "pagos"} con comprobante adjunto`
-          : "Sin comprobantes adjuntos",
+      clave: "conComprobante",
+      cantidad: metricas.con_comprobante,
       logrado: metricas.con_comprobante > 0,
     },
     {
-      titulo: "Con contrato adjunto",
-      detalle:
-        metricas.con_contrato > 0
-          ? `${metricas.con_contrato} ${metricas.con_contrato === 1 ? "contrato adjunto" : "contratos adjuntos"}`
-          : "Sin contrato adjunto",
+      clave: "conContrato",
+      cantidad: metricas.con_contrato,
       logrado: metricas.con_contrato > 0,
     },
   ];
 }
 
-/** El resumen de una línea que va en el preview de WhatsApp. */
-export function resumenParaCompartir(metricas: Metricas, rol: "tenant" | "owner"): string {
+/**
+ * El resumen de una línea que va en el preview de WhatsApp.
+ *
+ * Recibe el traductor porque esto sale en el mismo idioma en que la persona
+ * armó el link: es lo primero que ve quien lo abre.
+ */
+export function resumenParaCompartir(
+  t: Traductor,
+  metricas: Metricas,
+  rol: "tenant" | "owner",
+): string {
   if (rol === "owner") {
-    const contratos = metricas.contratos_totales;
-    return contratos === 1 ? "1 alquiler en Inkey" : `${contratos} alquileres en Inkey`;
+    return t("dominio.compartir.propietario", { cantidad: metricas.contratos_totales });
   }
+  if (metricas.meses_confirmados === 0) return t("dominio.compartir.sinHistorial");
 
-  if (metricas.meses_confirmados === 0) return "Historial de alquiler en Inkey";
-
-  const meses = `${metricas.meses_confirmados} ${metricas.meses_confirmados === 1 ? "mes confirmado" : "meses confirmados"}`;
+  const meses = t("dominio.compartir.meses", { cantidad: metricas.meses_confirmados });
   return metricas.porcentaje_en_fecha !== null
-    ? `${meses} · ${metricas.porcentaje_en_fecha}% en fecha`
+    ? `${meses} · ${t("dominio.resumen.enFecha", { cantidad: metricas.porcentaje_en_fecha })}`
     : meses;
 }
 
-export const ROLES_PERFIL = {
-  tenant: { titulo: "Mi historial como inquilino", corto: "Como inquilino" },
-  owner: { titulo: "Mi reputación como dueño", corto: "Como dueño" },
-} as const;
+/** Los dos lados del perfil propio. El texto vive en `dominio.rolPerfil`. */
+export const ROLES_PERFIL = ["tenant", "owner"] as const;
+export type RolPerfil = (typeof ROLES_PERFIL)[number];

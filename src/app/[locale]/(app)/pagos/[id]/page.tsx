@@ -8,6 +8,7 @@ import { formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
 import { ESTADOS_PAGO, nombrePeriodo, type EstadoPago } from "@/lib/domain/pagos";
 import { nombreDeContraparte } from "@/lib/validation/profile";
 import type { Moneda } from "@/lib/validation/rental";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ function Dato({ etiqueta, valor }: { etiqueta: string; valor: React.ReactNode })
 export default async function PagoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
+  const t = await getTranslations();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -74,7 +76,7 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
           <h1 className="m-0 t-titulo capitalize">
             {nombrePeriodo(String(pago.period).slice(0, 10))}
           </h1>
-          <Pill tone={estado.tono}>{estado.texto}</Pill>
+          <Pill tone={estado.tono}>{t(`dominio.estadoPago.${pago.status}`)}</Pill>
         </div>
       </div>
 

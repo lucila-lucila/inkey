@@ -1,5 +1,6 @@
 import { writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { traductor } from "./apoyo/traductor";
 import { generarRecibo, type DatosRecibo } from "@/lib/pdf/recibo";
 
 const EJEMPLO: DatosRecibo = {
@@ -52,6 +53,8 @@ describe("perfil en PDF", () => {
       inicialApellido: "R",
       rol: "tenant",
       generadoEl: "2026-09-20",
+      t: traductor("es"),
+      idioma: "es",
       metricas: {
         meses_confirmados: 12,
         pagos_en_fecha: 11,

@@ -77,7 +77,7 @@ describe("datos del alquiler", () => {
   it("no deja que el fin sea anterior al inicio", () => {
     const resultado = datosAlquilerSchema.safeParse({ ...BASE, end_date: "2025-12-01" });
     expect(resultado.success).toBe(false);
-    expect(resultado.error?.issues[0]?.message).toContain("anterior");
+    expect(resultado.error?.issues[0]?.message).toBe("validacion.alquiler.finAntesDeInicio");
   });
 
   it("pide índice y frecuencia juntos, o ninguno", () => {

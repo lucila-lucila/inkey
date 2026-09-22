@@ -115,5 +115,144 @@
       "tituloDestacado": "que quede escrito."
     },
     "avisoDeBaja": "Listo, tu cuenta quedó dada de baja. Gracias por haber usado Inkey."
+  },
+  "errores": {
+    "inesperado": "No se pudo guardar. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: {ref}",
+    "pagoNoSeGuardo": "No se pudo guardar el pago. Probá de nuevo en un momento.",
+    "noSePudo": "No se pudo. Probá de nuevo en un momento."
+  },
+  "validacion": {
+    "fecha": {
+      "formato": "Usá una fecha con el formato día/mes/año."
+    },
+    "monto": {
+      "mayorACero": "El monto tiene que ser mayor a cero.",
+      "demasiadoGrande": "Ese monto es demasiado grande."
+    },
+    "alquiler": {
+      "rol": "Elegí si lo cargás como inquilino o como dueño.",
+      "direccionCorta": "Escribí la dirección completa, con altura.",
+      "direccionLarga": "Esa dirección es demasiado larga.",
+      "barrioCorto": "Escribí el barrio y la ciudad. Por ejemplo: Palermo, CABA.",
+      "barrioLargo": "Dejá solo el barrio y la ciudad.",
+      "montoFalta": "Escribí cuánto pagás por mes.",
+      "moneda": "Elegí la moneda.",
+      "diaFalta": "Elegí el día de vencimiento.",
+      "diaFueraDeRango": "El día va del 1 al 31.",
+      "indiceLargo": "Escribilo más corto: ICL, IPC, fijo…",
+      "ajusteFueraDeRango": "El ajuste va de 1 a 60 meses.",
+      "finAntesDeInicio": "La fecha de fin no puede ser anterior a la de inicio.",
+      "ajusteIncompleto": "Completá el índice y cada cuántos meses ajusta, o dejá los dos vacíos."
+    }
+  },
+  "dominio": {
+    "estadoAlquiler": {
+      "pending": "Falta que confirme",
+      "active": "Confirmado",
+      "pending_end": "Terminando",
+      "ended": "Terminado",
+      "rejected": "No era su propiedad"
+    },
+    "estadoPago": {
+      "confirmed": "Confirmado",
+      "reported": "Falta que lo confirme",
+      "not_received": "Todavía no le llegó"
+    },
+    "mensajePago": {
+      "sin_sesion": "Volvé a entrar para seguir.",
+      "no_encontrado": "No encontramos ese pago.",
+      "alquiler_inactivo": "Este alquiler todavía no está confirmado por las dos partes.",
+      "periodo_fuera_del_contrato": "Ese mes queda fuera del contrato.",
+      "periodo_futuro": "Todavía no se puede reportar un mes que no empezó.",
+      "monto_invalido": "Revisá el monto.",
+      "fecha_futura": "La fecha de pago no puede ser posterior a hoy.",
+      "fecha_muy_vieja": "Esa fecha es demasiado anterior al mes que estás reportando.",
+      "ya_reportado": "Ese mes ya lo reportaste.",
+      "ya_confirmado": "Ese pago ya está confirmado.",
+      "no_sos_el_dueño": "Solo el dueño del alquiler puede confirmar un pago."
+    },
+    "mensajeResena": {
+      "sin_sesion": "Volvé a entrar para seguir.",
+      "no_encontrado": "No encontramos ese alquiler.",
+      "no_esta_activo": "Este alquiler no está activo.",
+      "no_esta_terminando": "Este alquiler no está esperando que confirmen el fin.",
+      "lo_propusiste_vos": "Lo propusiste vos: lo tiene que confirmar la otra parte.",
+      "todavia_no_termino": "Las reseñas se escriben cuando el contrato termina.",
+      "sin_contraparte": "Este alquiler no tiene a la otra parte confirmada.",
+      "vacia": "Elegí al menos una etiqueta o escribí algo.",
+      "texto_largo": "El texto no puede pasar de 500 caracteres.",
+      "etiqueta_invalida": "Esa etiqueta no corresponde a esta reseña.",
+      "ya_la_dejaste": "Ya dejaste tu reseña de este alquiler."
+    },
+    "cifra": {
+      "inquilino": "{numero, plural, one {mes pagado, confirmado por su dueño} other {meses pagados, confirmados por su dueño}}",
+      "propietario": "{numero, plural, one {alquiler en Inkey} other {alquileres en Inkey}}"
+    },
+    "resumen": {
+      "enFecha": "{cantidad}% en fecha",
+      "pagosConfirmados": "{cantidad, plural, one {# pago confirmado} other {# pagos confirmados}}",
+      "contratosCumplidos": "{cantidad, plural, one {# contrato cumplido} other {# contratos cumplidos}}"
+    },
+    "compartir": {
+      "propietario": "{cantidad, plural, one {# alquiler en Inkey} other {# alquileres en Inkey}}",
+      "sinHistorial": "Historial de alquiler en Inkey",
+      "meses": "{cantidad, plural, one {# mes confirmado} other {# meses confirmados}}"
+    },
+    "nivel": {
+      "confirmadoPorElDueno": {
+        "titulo": "Confirmado por el dueño",
+        "detalle": "{cantidad, plural, =0 {Todavía sin meses confirmados} one {# mes confirmado por la otra parte} other {# meses confirmados por la otra parte}}"
+      },
+      "conComprobante": {
+        "titulo": "Con comprobante",
+        "detalle": "{cantidad, plural, =0 {Sin comprobantes adjuntos} one {# pago con comprobante adjunto} other {# pagos con comprobante adjunto}}"
+      },
+      "conContrato": {
+        "titulo": "Con contrato adjunto",
+        "detalle": "{cantidad, plural, =0 {Sin contrato adjunto} one {# contrato adjunto} other {# contratos adjuntos}}"
+      }
+    },
+    "rolPerfil": {
+      "tenant": {
+        "titulo": "Mi historial como inquilino",
+        "corto": "Como inquilino"
+      },
+      "owner": {
+        "titulo": "Mi reputación como dueño",
+        "corto": "Como dueño"
+      }
+    },
+    "pasoAlquiler": {
+      "donde": "¿Dónde es?",
+      "cuando": "¿Desde cuándo y cuánto?",
+      "ajustes": "Ajustes y contrato"
+    }
+  },
+  "tarjetaPerfil": {
+    "ultimos12": "Últimos 12 meses",
+    "mesesLlenos": "Los meses llenos son los que confirmó la otra parte.",
+    "queEstaConfirmado": "Qué está confirmado",
+    "alquiloEn": "Alquiló en",
+    "alquilaEn": "Alquila en",
+    "montos": "Montos",
+    "alquilerActual": "Alquiler actual:",
+    "porMes": "por mes",
+    "totalConfirmado": "Total confirmado:"
+  },
+  "pdfPerfil": {
+    "titulo": "Historial de alquiler",
+    "sello": "CONFIRMADO POR LA OTRA PARTE",
+    "inquilino": "Inquilino en Inkey",
+    "propietario": "Propietario en Inkey",
+    "desde": "desde {fecha}",
+    "loQueDijo": "Lo que dijo la otra parte",
+    "nota": "Cada mes confirmado de este historial fue registrado por el inquilino y confirmado por el propietario. Inkey no muestra dirección, teléfono, mail ni comprobantes, y los meses sin confirmar no figuran. No consultamos bancos ni bureaus de crédito.",
+    "generado": "Generado el {fecha} a pedido de quien comparte el perfil.",
+    "pie": "Inkey · Tu historial de alquiler, confirmado",
+    "pagina": "Página {pagina} de {total}"
+  },
+  "perfilPublico": {
+    "tituloMeta": "Historial de alquiler confirmado",
+    "noDisponibleMeta": "Perfil no disponible · Inkey"
   }
 }

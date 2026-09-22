@@ -1,3 +1,4 @@
+import type { Traductor } from "@/i18n/texto";
 import "server-only";
 import {
   Circle,
@@ -133,6 +134,13 @@ export type DatosPerfilPdf = {
   metricas: Metricas;
   resenas?: ResenaPublica[];
   generadoEl: string;
+  /*
+   * El PDF se genera del lado del servidor, donde no hay contexto de React:
+   * el traductor y el idioma llegan de afuera. Sale en el idioma de quien
+   * pide el archivo, que es quien se lo va a mandar a alguien.
+   */
+  t: Traductor;
+  idioma: string;
 };
 
 function Simbolo() {
@@ -158,12 +166,13 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
   const niveles = nivelesDeVerificacion(metricas);
 
   const cifra = cifraPrincipal(metricas, esInquilino);
+  const t = datos.t;
 
   return (
     <Document
-      title={`Historial de alquiler · ${nombreVisible(datos.nombre, datos.inicialApellido)}`}
+      title={`${t("pdfPerfil.titulo")} · ${nombreVisible(datos.nombre, datos.inicialApellido)}`}
       author="Inkey"
-      language="es-AR"
+      language={datos.idioma === "en" ? "en" : "es-AR"}
     >
       <Page size="A4" style={estilos.pagina}>
         <View style={estilos.encabezado}>
@@ -171,27 +180,31 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
             <Simbolo />
             <Text style={estilos.logo}>inkey</Text>
           </View>
-          <Text style={estilos.sello}>CONFIRMADO POR LA OTRA PARTE</Text>
+          <Text style={estilos.sello}>{t("pdfPerfil.sello")}</Text>
         </View>
 
         <Text style={estilos.nombre}>{nombreVisible(datos.nombre, datos.inicialApellido)}</Text>
         <Text style={estilos.rol}>
-          {esInquilino ? "Inquilino" : "Propietario"} en Inkey
-          {metricas.desde ? ` · desde ${formatearFecha(metricas.desde)}` : ""}
+          {esInquilino ? t("pdfPerfil.inquilino") : t("pdfPerfil.propietario")}
+          {metricas.desde ? ` · ${t("pdfPerfil.desde", { fecha: formatearFecha(metricas.desde) })}` : ""}
         </Text>
 
         {/* La misma tarjeta que en pantalla: una cifra manda y el resto acompaña. */}
         <View style={estilos.numeros}>
           <View style={estilos.cifra}>
             <Text style={estilos.cifraValor}>{cifra.numero}</Text>
-            <Text style={estilos.cifraTexto}>{cifra.texto}</Text>
+            <Text style={estilos.cifraTexto}>{t(cifra.clave, { numero: cifra.numero })}</Text>
           </View>
-          <Text style={estilos.cifraResumen}>{resumenDeMetricas(metricas, esInquilino)}</Text>
+          <Text style={estilos.cifraResumen}>
+            {resumenDeMetricas(metricas, esInquilino)
+              .map((parte) => t(parte.clave, { cantidad: parte.cantidad }))
+              .join(" · ")}
+          </Text>
         </View>
 
         {metricas.ultimos_12?.length > 0 && (
           <View>
-            <Text style={estilos.etiqueta}>ÚLTIMOS 12 MESES</Text>
+            <Text style={estilos.etiqueta}>{t("tarjetaPerfil.ultimos12").toUpperCase()}</Text>
             <View style={estilos.barras}>
               {metricas.ultimos_12.map((mes) => (
                 <View key={mes.periodo} style={estilos.barraColumna}>
@@ -208,21 +221,23 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
               ))}
             </View>
             <Text style={estilos.numeroEtiqueta}>
-              Los meses llenos son los que confirmó la otra parte.
+              {t("tarjetaPerfil.mesesLlenos")}
             </Text>
           </View>
         )}
 
         <View style={estilos.seccion}>
-          <Text style={estilos.etiqueta}>QUÉ ESTÁ CONFIRMADO</Text>
+          <Text style={estilos.etiqueta}>{t("tarjetaPerfil.queEstaConfirmado").toUpperCase()}</Text>
           {niveles.map((nivel) => (
-            <View key={nivel.titulo} style={estilos.nivel}>
+            <View key={nivel.clave} style={estilos.nivel}>
               <Text style={{ color: nivel.logrado ? COLORES.confirmado : COLORES.apagado }}>
                 {nivel.logrado ? "•" : "◦"}
               </Text>
               <View>
-                <Text style={estilos.nivelTitulo}>{nivel.titulo}</Text>
-                <Text style={estilos.nivelDetalle}>{nivel.detalle}</Text>
+                <Text style={estilos.nivelTitulo}>{t(`dominio.nivel.${nivel.clave}.titulo`)}</Text>
+                <Text style={estilos.nivelDetalle}>
+                  {t(`dominio.nivel.${nivel.clave}.detalle`, { cantidad: nivel.cantidad })}
+                </Text>
               </View>
             </View>
           ))}
@@ -243,20 +258,20 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
 
         {metricas.montos && (
           <View style={estilos.seccion}>
-            <Text style={estilos.etiqueta}>MONTOS</Text>
+            <Text style={estilos.etiqueta}>{t("tarjetaPerfil.montos").toUpperCase()}</Text>
             {metricas.montos.mensual_actual && (
               <Text style={estilos.nivelDetalle}>
-                Alquiler actual:{" "}
+                {t("tarjetaPerfil.alquilerActual")}{" "}
                 {formatearMonto(
                   metricas.montos.mensual_actual.monto,
                   metricas.montos.mensual_actual.moneda as Moneda,
                 )}{" "}
-                por mes
+                {t("tarjetaPerfil.porMes")}
               </Text>
             )}
             {Object.entries(metricas.montos.total_confirmado ?? {}).map(([moneda, total]) => (
               <Text key={moneda} style={estilos.nivelDetalle}>
-                Total confirmado: {formatearMonto(total, moneda as Moneda)}
+                {t("tarjetaPerfil.totalConfirmado")} {formatearMonto(total, moneda as Moneda)}
               </Text>
             ))}
           </View>
@@ -264,7 +279,7 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
 
         {(datos.resenas?.length ?? 0) > 0 && (
           <View style={estilos.seccion}>
-            <Text style={estilos.etiqueta}>LO QUE DIJO LA OTRA PARTE</Text>
+            <Text style={estilos.etiqueta}>{t("pdfPerfil.loQueDijo").toUpperCase()}</Text>
             {datos.resenas!.map((resena, indice) => (
               <View key={`${resena.fecha}-${indice}`} style={estilos.resena}>
                 {resena.etiquetas.length > 0 && (
@@ -280,16 +295,18 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
         )}
 
         <Text style={estilos.nota}>
-          Cada mes confirmado de este historial fue registrado por el inquilino y confirmado por el
-          propietario. Inkey no muestra dirección, teléfono, mail ni comprobantes, y los meses sin
-          confirmar no figuran. No consultamos bancos ni bureaus de crédito.
+          {t("pdfPerfil.nota")}
           {"\n"}
-          Generado el {formatearFecha(datos.generadoEl)} a pedido de quien comparte el perfil.
+          {t("pdfPerfil.generado", { fecha: formatearFecha(datos.generadoEl) })}
         </Text>
 
         <View style={estilos.pie} fixed>
-          <Text>Inkey · Tu historial de alquiler, confirmado</Text>
-          <Text render={({ pageNumber, totalPages }) => `Página ${pageNumber} de ${totalPages}`} />
+          <Text>{t("pdfPerfil.pie")}</Text>
+          <Text
+            render={({ pageNumber, totalPages }) =>
+              t("pdfPerfil.pagina", { pagina: pageNumber, total: totalPages })
+            }
+          />
         </View>
       </Page>
     </Document>

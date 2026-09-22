@@ -8,6 +8,24 @@ import {
   type Metricas,
 } from "@/lib/domain/perfil";
 import { tokenDeLink, pareceToken, hashearToken } from "@/lib/tokens";
+import { traductor } from "./apoyo/traductor";
+
+/*
+ * Estas funciones devuelven claves, no frases: el texto lo arma el archivo de
+ * idiomas. Los tests lo atraviesan de punta a punta —clave más archivo— y de
+ * paso verifican los plurales de cada idioma, que es donde se cometen los
+ * errores que nadie ve hasta que alguien tiene un solo alquiler.
+ */
+const escribir = (idioma: "es" | "en", cifra: { clave: string; numero: number }) =>
+  traductor(idioma)(cifra.clave, { numero: cifra.numero });
+
+const resumir = (idioma: "es" | "en", metricas: Metricas, esInquilino: boolean) =>
+  resumenDeMetricas(metricas, esInquilino)
+    .map((parte) => traductor(idioma)(parte.clave, { cantidad: parte.cantidad }))
+    .join(" · ");
+
+const detalle = (idioma: "es" | "en", nivel: { clave: string; cantidad: number }) =>
+  traductor(idioma)(`dominio.nivel.${nivel.clave}.detalle`, { cantidad: nivel.cantidad });
 
 const METRICAS: Metricas = {
   meses_confirmados: 12,
@@ -45,25 +63,34 @@ describe("la cifra grande del historial", () => {
   it("al inquilino le cuenta los meses; al dueño, los alquileres", () => {
     expect(cifraPrincipal(METRICAS, true)).toEqual({
       numero: 12,
-      texto: "meses pagados, confirmados por su dueño",
+      clave: "dominio.cifra.inquilino",
     });
-    expect(cifraPrincipal(METRICAS, false)).toEqual({ numero: 2, texto: "alquileres en Inkey" });
+    expect(cifraPrincipal(METRICAS, false)).toEqual({
+      numero: 2,
+      clave: "dominio.cifra.propietario",
+    });
   });
 
-  it("no dice «1 alquileres»", () => {
-    expect(cifraPrincipal({ ...METRICAS, contratos_totales: 1 }, false).texto).toBe(
+  it("no dice «1 alquileres» ni «1 leases»", () => {
+    // El plural lo resuelve el archivo de textos, en cada idioma.
+    expect(escribir("es", cifraPrincipal({ ...METRICAS, contratos_totales: 1 }, false))).toBe(
       "alquiler en Inkey",
+    );
+    expect(escribir("en", cifraPrincipal({ ...METRICAS, contratos_totales: 1 }, false))).toBe(
+      "lease on Inkey",
     );
   });
 
   it("el resumen deja afuera la puntualidad cuando todavía no hay pagos", () => {
-    expect(resumenDeMetricas(METRICAS, true)).toBe("92% en fecha · 1 contrato cumplido");
+    expect(resumir("es", METRICAS, true)).toBe("92% en fecha · 1 contrato cumplido");
+    expect(resumir("en", METRICAS, true)).toBe("92% on time · 1 lease completed");
     // Sin pagos confirmados no hay porcentaje: no inventamos un 0%.
-    expect(resumenDeMetricas(VACIAS, true)).toBe("0 contratos cumplidos");
+    expect(resumir("es", VACIAS, true)).toBe("0 contratos cumplidos");
   });
 
   it("del lado del dueño cuenta los pagos que confirmó", () => {
-    expect(resumenDeMetricas(METRICAS, false)).toBe("12 pagos confirmados · 1 contrato cumplido");
+    expect(resumir("es", METRICAS, false)).toBe("12 pagos confirmados · 1 contrato cumplido");
+    expect(resumir("en", METRICAS, false)).toBe("12 payments confirmed · 1 lease completed");
   });
 });
 
@@ -72,13 +99,14 @@ describe("niveles de verificación", () => {
     const niveles = nivelesDeVerificacion(METRICAS);
     expect(niveles).toHaveLength(3);
     expect(niveles.every((nivel) => nivel.logrado)).toBe(true);
-    expect(niveles[0].detalle).toContain("12 meses confirmados");
+    expect(detalle("es", niveles[0])).toContain("12 meses confirmados");
+    expect(detalle("en", niveles[0])).toContain("12 months confirmed");
   });
 
   it("cuando no hay nada, no acusan a nadie", () => {
     const niveles = nivelesDeVerificacion(VACIAS);
     expect(niveles.every((nivel) => !nivel.logrado)).toBe(true);
-    const texto = JSON.stringify(niveles).toLowerCase();
+    const texto = niveles.map((nivel) => detalle("es", nivel)).join(" ").toLowerCase();
     // Nada de deuda, atraso, incumplimiento ni alarma.
     for (const palabra of ["deuda", "atraso", "moroso", "incumpl", "falta de pago"]) {
       expect(texto).not.toContain(palabra);
@@ -87,23 +115,31 @@ describe("niveles de verificación", () => {
 
   it("habla en singular cuando corresponde", () => {
     const niveles = nivelesDeVerificacion({ ...VACIAS, meses_confirmados: 1, con_comprobante: 1 });
-    expect(niveles[0].detalle).toContain("1 mes confirmado");
-    expect(niveles[1].detalle).toContain("1 pago con comprobante");
+    expect(detalle("es", niveles[0])).toContain("1 mes confirmado");
+    expect(detalle("es", niveles[1])).toContain("1 pago con comprobante");
+    expect(detalle("en", niveles[0])).toContain("1 month confirmed");
   });
 });
 
 describe("resumen para compartir", () => {
   it("resume el historial del inquilino", () => {
-    expect(resumenParaCompartir(METRICAS, "tenant")).toBe("12 meses confirmados · 92% en fecha");
+    expect(resumenParaCompartir(traductor("es"), METRICAS, "tenant")).toBe(
+      "12 meses confirmados · 92% en fecha",
+    );
+    expect(resumenParaCompartir(traductor("en"), METRICAS, "tenant")).toBe(
+      "12 months confirmed · 92% on time",
+    );
   });
 
   it("no promete nada si todavía no hay meses", () => {
-    expect(resumenParaCompartir(VACIAS, "tenant")).toBe("Historial de alquiler en Inkey");
+    expect(resumenParaCompartir(traductor("es"), VACIAS, "tenant")).toBe(
+      "Historial de alquiler en Inkey",
+    );
   });
 
   it("para el dueño habla de alquileres", () => {
-    expect(resumenParaCompartir(METRICAS, "owner")).toBe("2 alquileres en Inkey");
-    expect(resumenParaCompartir({ ...VACIAS, contratos_totales: 1 }, "owner")).toBe(
+    expect(resumenParaCompartir(traductor("es"), METRICAS, "owner")).toBe("2 alquileres en Inkey");
+    expect(resumenParaCompartir(traductor("es"), { ...VACIAS, contratos_totales: 1 }, "owner")).toBe(
       "1 alquiler en Inkey",
     );
   });

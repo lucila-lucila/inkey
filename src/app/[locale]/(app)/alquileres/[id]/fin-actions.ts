@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
 import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
-import { MENSAJES_RESENA } from "@/lib/domain/resenas";
+import { claveDeMensajeResena } from "@/lib/domain/mensajes";
 import { resenaSchema } from "@/lib/validation/resena";
 import { avisarFinDeContrato } from "@/lib/email/avisos";
 import { createClient } from "@/lib/supabase/server";
@@ -14,7 +14,7 @@ export type EstadoFin = { estado: "inicial" } | { estado: "error"; mensaje: stri
 type Respuesta = { ok: boolean; error?: string; publicada?: boolean };
 
 function mensajeDe(error: string | undefined, porDefecto: string): string {
-  return (error && MENSAJES_RESENA[error]) ?? porDefecto;
+  return claveDeMensajeResena(error, porDefecto);
 }
 
 /** Una función por cada paso del fin de contrato: proponer, confirmar, cancelar. */

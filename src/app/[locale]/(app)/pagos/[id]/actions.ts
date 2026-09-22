@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
 import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
-import { MENSAJES_PAGO } from "@/lib/domain/pagos";
+import { claveDeMensajePago } from "@/lib/domain/mensajes";
 import { notaDueñoSchema } from "@/lib/validation/pago";
 import { avisarPagoConfirmado } from "@/lib/email/avisos";
 import { urlFirmada } from "@/lib/storage";
@@ -17,7 +17,7 @@ export type EstadoConfirmacion =
 type Respuesta = { ok: boolean; error?: string; payment_id?: string };
 
 function mensajeDe(error: string | undefined, porDefecto: string): string {
-  return (error && MENSAJES_PAGO[error]) ?? porDefecto;
+  return claveDeMensajePago(error, porDefecto);
 }
 
 /**

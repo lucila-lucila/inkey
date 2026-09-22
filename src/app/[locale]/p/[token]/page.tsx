@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ButtonLink, Cabecera, Card, Pie } from "@/components/ui";
 import { TarjetaPerfil } from "@/components/perfil/tarjeta-perfil";
 import { ListaResenas } from "@/components/resena/lista-resenas";
+import { getTranslations } from "next-intl/server";
 import { nombreVisible, resumenParaCompartir } from "@/lib/domain/perfil";
 import { perfilDelToken } from "./datos";
 
@@ -19,12 +20,14 @@ export async function generateMetadata({
   const perfil = await perfilDelToken(token);
 
   if (perfil.estado !== "valido") {
-    return { title: "Perfil no disponible · Inkey", robots: { index: false, follow: false } };
+    const t = await getTranslations();
+    return { title: t("perfilPublico.noDisponibleMeta"), robots: { index: false, follow: false } };
   }
 
+  const t = await getTranslations();
   const nombre = nombreVisible(perfil.nombre, perfil.inicial_apellido);
-  const titulo = `${nombre} · Historial de alquiler confirmado`;
-  const descripcion = resumenParaCompartir(perfil.metricas, perfil.rol);
+  const titulo = `${nombre} · ${t("perfilPublico.tituloMeta")}`;
+  const descripcion = resumenParaCompartir(t, perfil.metricas, perfil.rol);
 
   return {
     title: titulo,

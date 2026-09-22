@@ -1,12 +1,12 @@
 import type { Moneda, RolAlquiler } from "@/lib/validation/rental";
 
-/** Estados de un alquiler, con el texto que ve la gente. */
+/** El tono de cada estado. El texto vive en `dominio.estadoAlquiler`. */
 export const ESTADOS_ALQUILER = {
-  pending: { texto: "Falta que confirme", tono: "primary" },
-  active: { texto: "Confirmado", tono: "confirm" },
-  pending_end: { texto: "Terminando", tono: "primary" },
-  ended: { texto: "Terminado", tono: "neutral" },
-  rejected: { texto: "No era su propiedad", tono: "neutral" },
+  pending: { tono: "primary" },
+  active: { tono: "confirm" },
+  pending_end: { tono: "primary" },
+  ended: { tono: "neutral" },
+  rejected: { tono: "neutral" },
 } as const;
 
 export type EstadoAlquiler = keyof typeof ESTADOS_ALQUILER;

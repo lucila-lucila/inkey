@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { conRedDeSeguridad, mensajeInesperado, registrarFalla } from "@/lib/errores";
+import { CLAVE_INESPERADO, conRedDeSeguridad, registrarFalla } from "@/lib/errores";
+import { traductor } from "./apoyo/traductor";
 import { variablesFaltantes } from "@/lib/env";
 import { pasoDelCampo, PASOS_ALQUILER } from "@/lib/validation/rental";
 
@@ -14,13 +15,18 @@ describe("nada falla en silencio", () => {
       async () => {
         throw new Error("se rompió todo");
       },
-      (mensaje) => ({ estado: "error" as const, mensaje }),
+      (mensaje, ref) => ({ estado: "error" as const, mensaje, ref }),
     );
 
     expect(resultado.estado).toBe("error");
-    expect(resultado.mensaje).toContain("código");
+    // La acción devuelve la clave del texto, nunca una frase armada.
+    expect(resultado.mensaje).toBe(CLAVE_INESPERADO);
     // El código de referencia tiene que estar, para buscarlo en los logs.
-    expect(resultado.mensaje).toMatch(/[0-9a-f]{6}/);
+    expect(resultado.ref).toMatch(/^[0-9a-f]{6}$/);
+
+    // Y con el archivo de idiomas se convierte en algo que se entiende.
+    expect(traductor("es")(CLAVE_INESPERADO, { ref: resultado.ref! })).toContain(resultado.ref!);
+    expect(traductor("en")(CLAVE_INESPERADO, { ref: resultado.ref! })).toContain("code");
   });
 
   it("el mismo código va a los logs del servidor", () => {
@@ -30,7 +36,9 @@ describe("nada falla en silencio", () => {
     const ref = registrarFalla("contexto", new Error("ups"));
 
     expect(String(logs[0]?.[0])).toContain(`[inkey:${ref}]`);
-    expect(mensajeInesperado(ref)).toContain(ref);
+    // El texto ya no se arma acá: la acción devuelve la clave y el código,
+    // y la pantalla los junta en el idioma de quien mira.
+    expect(CLAVE_INESPERADO).toBe("errores.inesperado");
   });
 
   it("no se traga los redirect de Next", async () => {

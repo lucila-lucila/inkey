@@ -23,6 +23,7 @@ import {
 } from "@/lib/domain/resenas";
 import type { Moneda } from "@/lib/validation/rental";
 import { serverEnv } from "@/lib/env";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { BotonContrato, CancelarAlquiler, NuevoLink, SubirContrato } from "./piezas";
 
@@ -43,6 +44,7 @@ function Dato({ etiqueta, valor }: { etiqueta: string; valor: React.ReactNode })
 export default async function AlquilerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
+  const t = await getTranslations();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -139,7 +141,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
           <h1 className="m-0 t-titulo">
             {alquiler.neighborhood_label}
           </h1>
-          <Pill tone={estado.tono}>{estado.texto}</Pill>
+          <Pill tone={estado.tono}>{t(`dominio.estadoAlquiler.${alquiler.status}`)}</Pill>
         </div>
         <p className="m-0 text-body">{alquiler.full_address}</p>
         <p className="m-0 text-[15px] text-muted">

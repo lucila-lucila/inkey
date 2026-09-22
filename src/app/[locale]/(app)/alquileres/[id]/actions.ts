@@ -7,7 +7,7 @@ import { enlaceInvitacion, generarToken, hashearToken } from "@/lib/tokens";
 import { BUCKET_DOCUMENTOS, subirDocumento, urlFirmada } from "@/lib/storage";
 import { registrarAuditoria } from "@/lib/audit";
 import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
-import { MENSAJES_PAGO } from "@/lib/domain/pagos";
+import { claveDeMensajePago } from "@/lib/domain/mensajes";
 import { avisarPagoReportado } from "@/lib/email/avisos";
 import { reportePagoSchema } from "@/lib/validation/pago";
 import { createClient } from "@/lib/supabase/server";
@@ -250,7 +250,7 @@ async function guardarReporteDePago(
   if (!respuesta.ok) {
     return {
       estado: "error",
-      mensaje: (respuesta.error && MENSAJES_PAGO[respuesta.error]) ?? "No se pudo guardar el pago.",
+      mensaje: claveDeMensajePago(respuesta.error, "errores.pagoNoSeGuardo"),
     };
   }
 

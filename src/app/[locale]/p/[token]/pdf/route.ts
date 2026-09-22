@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { generarPerfilPdf } from "@/lib/pdf/perfil";
+import { getLocale, getTranslations } from "next-intl/server";
 import { registrarFalla } from "@/lib/errores";
 import { perfilDelToken } from "../datos";
 
@@ -27,6 +28,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ tok
       metricas: perfil.metricas,
       resenas: perfil.resenas,
       generadoEl: new Date().toISOString().slice(0, 10),
+      t: await getTranslations(),
+      idioma: await getLocale(),
     });
 
     return new NextResponse(new Uint8Array(pdf), {
