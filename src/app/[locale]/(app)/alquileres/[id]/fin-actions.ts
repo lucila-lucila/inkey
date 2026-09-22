@@ -2,14 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
+import { conRedDeSeguridad, registrarFalla, type EstadoDeError } from "@/lib/errores";
 import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { claveDeMensajeResena } from "@/lib/domain/mensajes";
 import { resenaSchema } from "@/lib/validation/resena";
 import { avisarFinDeContrato } from "@/lib/email/avisos";
 import { createClient } from "@/lib/supabase/server";
 
-export type EstadoFin = { estado: "inicial" } | { estado: "error"; mensaje: string };
+export type EstadoFin = { estado: "inicial" } | EstadoDeError;
 
 type Respuesta = { ok: boolean; error?: string; publicada?: boolean };
 
@@ -35,7 +35,9 @@ async function llamarRpc(
     const ref = registrarFalla(`${nombre}`, error);
     return {
       estado: "error",
-      mensaje: `${porDefecto} Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
+      mensaje: "errores.reintentarConCodigo",
+      antes: { mensaje: porDefecto },
+      ref,
     };
   }
 
@@ -54,8 +56,8 @@ export async function proponerFin(_anterior: EstadoFin, formData: FormData): Pro
   const rentalId = String(formData.get("rental_id") ?? "");
   return conRedDeSeguridad(
     "proponerFin",
-    () => llamarRpc("rental_request_end", rentalId, "No se pudo marcar el fin del contrato."),
-    (mensaje) => ({ estado: "error", mensaje }),
+    () => llamarRpc("rental_request_end", rentalId, "errores.finNoSePudoProponer"),
+    (mensaje, ref): EstadoFin => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -63,8 +65,8 @@ export async function confirmarFin(_anterior: EstadoFin, formData: FormData): Pr
   const rentalId = String(formData.get("rental_id") ?? "");
   return conRedDeSeguridad(
     "confirmarFin",
-    () => llamarRpc("rental_confirm_end", rentalId, "No se pudo confirmar el fin del contrato."),
-    (mensaje) => ({ estado: "error", mensaje }),
+    () => llamarRpc("rental_confirm_end", rentalId, "errores.finNoSePudoConfirmar"),
+    (mensaje, ref): EstadoFin => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -72,14 +74,14 @@ export async function cancelarFin(_anterior: EstadoFin, formData: FormData): Pro
   const rentalId = String(formData.get("rental_id") ?? "");
   return conRedDeSeguridad(
     "cancelarFin",
-    () => llamarRpc("rental_cancel_end", rentalId, "No se pudo dar marcha atrás."),
-    (mensaje) => ({ estado: "error", mensaje }),
+    () => llamarRpc("rental_cancel_end", rentalId, "errores.darMarchaAtras"),
+    (mensaje, ref): EstadoFin => ({ estado: "error", mensaje, ref }),
   );
 }
 
 export type EstadoResena =
   | { estado: "inicial" }
-  | { estado: "error"; mensaje: string }
+  | EstadoDeError
   | { estado: "guardada"; publicada: boolean };
 
 /** Dejar la reseña. Se guarda ya; se muestra cuando corresponde. */
@@ -89,7 +91,7 @@ export async function dejarResena(
 ): Promise<EstadoResena> {
   return conRedDeSeguridad(
     "dejarResena",
-    async () => {
+    async (): Promise<EstadoResena> => {
       const parsed = resenaSchema.safeParse({
         rental_id: formData.get("rental_id"),
         texto: String(formData.get("texto") ?? "").trim() || undefined,
@@ -119,7 +121,9 @@ export async function dejarResena(
         const ref = registrarFalla("dejarResena: rpc review_submit", error);
         return {
           estado: "error" as const,
-          mensaje: `No se pudo guardar tu reseña. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
+          mensaje: "errores.reintentarConCodigo",
+          antes: { mensaje: "errores.guardarResena" },
+          ref,
         };
       }
 
@@ -127,7 +131,7 @@ export async function dejarResena(
       if (!respuesta.ok) {
         return {
           estado: "error" as const,
-          mensaje: mensajeDe(respuesta.error, "No se pudo guardar tu reseña."),
+          mensaje: mensajeDe(respuesta.error, "errores.guardarResena"),
         };
       }
 
@@ -135,6 +139,6 @@ export async function dejarResena(
       revalidatePath("/perfil");
       return { estado: "guardada" as const, publicada: Boolean(respuesta.publicada) };
     },
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref): EstadoFin => ({ estado: "error", mensaje, ref }),
   );
 }

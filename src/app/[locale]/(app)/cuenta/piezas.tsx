@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { traducirMensaje } from "@/i18n/texto";
+import { traducirAviso } from "@/i18n/texto";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { borrarCuenta, guardarDatos, type EstadoBaja, type EstadoDatos } from "./actions";
@@ -30,7 +30,7 @@ export function MisDatos({
   const t = useTranslations();
   const [estado, accion] = useActionState(guardarDatos, { estado: "inicial" } as EstadoDatos);
   const errorDe = (campo: string) =>
-    estado.estado === "error" && estado.campo === campo ? traducirMensaje(t, estado.mensaje) : undefined;
+    estado.estado === "error" && estado.campo === campo ? traducirAviso(t, estado) : undefined;
 
   return (
     <form action={accion} noValidate className="flex flex-col gap-4">
@@ -69,7 +69,7 @@ export function MisDatos({
         )}
         {estado.estado === "error" && !estado.campo && (
           <p role="alert" className="m-0 text-[15px] text-primary-ink">
-            {traducirMensaje(t, estado.mensaje)}
+            {traducirAviso(t, estado)}
           </p>
         )}
       </div>
@@ -138,7 +138,7 @@ export function BorrarCuenta() {
       <Field
         label={t("cuenta.escribiBorrar")}
         htmlFor="confirmacion"
-        error={estado.estado === "error" ? traducirMensaje(t, estado.mensaje) : undefined}
+        error={estado.estado === "error" ? traducirAviso(t, estado) : undefined}
       >
         <Input
           id="confirmacion"

@@ -6,7 +6,7 @@ import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/rat
 import { enlaceInvitacion, generarToken, hashearToken } from "@/lib/tokens";
 import { BUCKET_DOCUMENTOS, subirDocumento, urlFirmada } from "@/lib/storage";
 import { registrarAuditoria } from "@/lib/audit";
-import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
+import { conRedDeSeguridad, registrarFalla, type EstadoDeError } from "@/lib/errores";
 import { claveDeMensajePago } from "@/lib/domain/mensajes";
 import { avisarPagoReportado } from "@/lib/email/avisos";
 import { reportePagoSchema } from "@/lib/validation/pago";
@@ -15,7 +15,7 @@ import { rolInvitado as calcularRolInvitado } from "@/lib/domain/alquiler";
 
 export type EstadoLink =
   | { estado: "inicial" }
-  | { estado: "error"; mensaje: string }
+  | EstadoDeError
   | { estado: "listo"; url: string; barrio: string; rolInvitado: "owner" | "tenant"; nombre: string };
 
 /**
@@ -29,7 +29,7 @@ export async function generarNuevoLink(
   return conRedDeSeguridad(
     "generarNuevoLink",
     () => regenerarInvitacion(anterior, formData),
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref) => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -56,7 +56,7 @@ async function regenerarInvitacion(
     .maybeSingle();
 
   if (!alquiler || alquiler.status !== "pending" || alquiler.created_by !== user.id) {
-    return { estado: "error", mensaje: "Este alquiler ya no está esperando que lo confirmen." };
+    return { estado: "error", mensaje: "errores.alquilerYaConfirmado" };
   }
 
   await supabase
@@ -78,7 +78,7 @@ async function regenerarInvitacion(
 
   if (error) {
     console.error("No se pudo regenerar la invitación", error);
-    return { estado: "error", mensaje: "No se pudo armar el link. Probá de nuevo en un momento." };
+    return { estado: "error", mensaje: "errores.armarLink" };
   }
 
   await registrarAuditoria({
@@ -150,7 +150,7 @@ export async function verContrato(rentalId: string): Promise<{ url: string } | {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { error: "Entrá de nuevo para ver el contrato." };
+  if (!user) return { error: "errores.entraDeNuevoContrato" };
 
   // Si la persona no es parte del alquiler, RLS no devuelve nada.
   const { data: alquiler } = await supabase
@@ -159,15 +159,15 @@ export async function verContrato(rentalId: string): Promise<{ url: string } | {
     .eq("id", rentalId)
     .maybeSingle();
 
-  if (!alquiler?.contract_path) return { error: "Este alquiler no tiene contrato adjunto." };
+  if (!alquiler?.contract_path) return { error: "errores.sinContrato" };
 
   const url = await urlFirmada(alquiler.contract_path, 60);
-  return url ? { url } : { error: "No se pudo abrir el contrato. Probá de nuevo en un momento." };
+  return url ? { url } : { error: "errores.abrirContrato" };
 }
 
 export type EstadoReporte =
   | { estado: "inicial" }
-  | { estado: "error"; mensaje: string; campo?: string };
+  | (EstadoDeError & { campo?: string });
 
 /**
  * El inquilino reporta que pagó. El monto y la fecha los manda él; el
@@ -180,7 +180,7 @@ export async function reportarPago(
   return conRedDeSeguridad(
     "reportarPago",
     () => guardarReporteDePago(anterior, formData),
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref) => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -212,7 +212,7 @@ async function guardarReporteDePago(
   // El comprobante es opcional: si falla la subida lo decimos, pero no
   // perdemos el reporte.
   let comprobante: { ruta: string; tipo: string; tamanio: number } | null = null;
-  let avisoArchivo: string | undefined;
+  let avisoArchivo: { mensaje: string; valores?: Record<string, string | number> } | undefined;
   const archivo = formData.get("comprobante");
 
   if (archivo instanceof File && archivo.size > 0) {
@@ -224,7 +224,7 @@ async function guardarReporteDePago(
     if (subida.ok) {
       comprobante = { ruta: subida.ruta, tipo: archivo.type, tamanio: archivo.size };
     } else {
-      avisoArchivo = subida.mensaje;
+      avisoArchivo = { mensaje: subida.mensaje, valores: subida.valores };
     }
   }
 
@@ -242,7 +242,9 @@ async function guardarReporteDePago(
     const ref = registrarFalla("reportarPago: rpc payment_report", error);
     return {
       estado: "error",
-      mensaje: `No se pudo guardar el pago. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
+      mensaje: "errores.reintentarConCodigo",
+      antes: { mensaje: "errores.guardarPago" },
+      ref,
     };
   }
 
@@ -261,7 +263,8 @@ async function guardarReporteDePago(
     // El pago quedó reportado: lo único que falló fue el archivo.
     return {
       estado: "error",
-      mensaje: `${avisoArchivo} El pago quedó reportado igual: podés adjuntar el comprobante desde el pago.`,
+      mensaje: "errores.pagoSinArchivo",
+      antes: avisoArchivo,
     };
   }
 
@@ -272,7 +275,7 @@ async function guardarReporteDePago(
 
 export type EstadoContrato =
   | { estado: "inicial" }
-  | { estado: "error"; mensaje: string }
+  | EstadoDeError
   | { estado: "listo" };
 
 export async function subirContrato(
@@ -282,7 +285,7 @@ export async function subirContrato(
   return conRedDeSeguridad(
     "subirContrato",
     () => guardarContrato(anterior, formData),
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref) => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -294,7 +297,7 @@ async function guardarContrato(
   const archivo = formData.get("contrato");
 
   if (!(archivo instanceof File) || archivo.size === 0) {
-    return { estado: "error", mensaje: "Elegí un archivo para subir." };
+    return { estado: "error", mensaje: "errores.elegiArchivo" };
   }
 
   const supabase = await createClient();
@@ -309,7 +312,7 @@ async function guardarContrato(
     .eq("id", rentalId)
     .maybeSingle();
 
-  if (!alquiler) return { estado: "error", mensaje: "No encontramos ese alquiler." };
+  if (!alquiler) return { estado: "error", mensaje: "errores.alquilerNoEncontrado" };
 
   const subida = await subirDocumento({ rentalId, archivo, prefijo: "contrato" });
   if (!subida.ok) return { estado: "error", mensaje: subida.mensaje };
@@ -321,7 +324,7 @@ async function guardarContrato(
 
   if (error) {
     console.error("No se pudo guardar el contrato", error);
-    return { estado: "error", mensaje: "El archivo se subió pero no se pudo guardar. Probá de nuevo en un momento." };
+    return { estado: "error", mensaje: "errores.archivoSinGuardar" };
   }
 
   revalidatePath(`/alquileres/${rentalId}`);

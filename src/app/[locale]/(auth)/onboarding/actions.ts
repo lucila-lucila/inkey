@@ -4,12 +4,12 @@ import { redirect } from "next/navigation";
 import { onboardingSchema } from "@/lib/validation/profile";
 import { rutaInternaSegura } from "@/lib/validation/auth";
 import { registrarAuditoria } from "@/lib/audit";
-import { conRedDeSeguridad } from "@/lib/errores";
+import { conRedDeSeguridad, type EstadoDeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 
 export type EstadoOnboarding =
   | { estado: "inicial" }
-  | { estado: "error"; mensaje: string; campo?: string };
+  | (EstadoDeError & { campo?: string });
 
 export async function completarOnboarding(
   anterior: EstadoOnboarding,
@@ -18,7 +18,7 @@ export async function completarOnboarding(
   return conRedDeSeguridad(
     "completarOnboarding",
     () => guardarOnboarding(anterior, formData),
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref) => ({ estado: "error", mensaje, ref }),
   );
 }
 

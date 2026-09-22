@@ -6,7 +6,7 @@ import { useFormStatus } from "react-dom";
 import { crearAlquiler, type EstadoNuevoAlquiler } from "./actions";
 import { CompartirInvitacion } from "@/components/alquiler/compartir-invitacion";
 import { useTranslations } from "next-intl";
-import { traducirMensaje } from "@/i18n/texto";
+import { traducirAviso, traducirMensaje } from "@/i18n/texto";
 import { Button, ButtonLink, CampoMonto, Card, Field, Input } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { claveDeRol } from "@/lib/domain/alquiler";
@@ -82,7 +82,10 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
 
         {estado.avisoArchivo && (
           <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
-            {estado.avisoArchivo}
+            {traducirAviso(t, {
+              mensaje: "errores.alquilerSinContrato",
+              antes: estado.avisoArchivo,
+            })}
           </p>
         )}
 
@@ -114,7 +117,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
           role="alert"
           className="flex flex-col items-start gap-3 rounded-campo bg-primary-soft p-4 text-[15px] text-primary-ink"
         >
-          <p className="m-0">{traducirMensaje(t, errorDelServidor.mensaje)}</p>
+          <p className="m-0">{traducirAviso(t, errorDelServidor)}</p>
           {pasoDelError !== null && pasoDelError !== paso && (
             <Button
               type="button"

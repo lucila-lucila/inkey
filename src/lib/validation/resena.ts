@@ -3,16 +3,16 @@ import { TOPE_TEXTO_RESENA } from "@/lib/domain/resenas";
 
 export const resenaSchema = z
   .object({
-    rental_id: z.string().uuid("No encontramos el alquiler."),
+    rental_id: z.string().uuid("validacion.alquilerNoEncontrado"),
     texto: z
       .string()
       .trim()
-      .max(TOPE_TEXTO_RESENA, `El texto no puede pasar de ${TOPE_TEXTO_RESENA} caracteres.`)
+      .max(TOPE_TEXTO_RESENA, "validacion.resena.textoLargo")
       .optional(),
-    etiquetas: z.array(z.string().max(60)).max(10, "Elegí hasta 10 etiquetas."),
+    etiquetas: z.array(z.string().max(60)).max(10, "validacion.resena.etiquetasDeMas"),
   })
   .refine((datos) => Boolean(datos.texto) || datos.etiquetas.length > 0, {
-    message: "Elegí al menos una etiqueta o escribí algo.",
+    message: "validacion.resena.algoQueDecir",
     path: ["etiquetas"],
   });
 

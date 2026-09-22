@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { registrarAuditoria } from "@/lib/audit";
 import { avisarBajaDeCuenta } from "@/lib/email/avisos";
-import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
+import { conRedDeSeguridad, registrarFalla, type EstadoDeError } from "@/lib/errores";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { datosPersonalesSchema } from "@/lib/validation/profile";
@@ -13,7 +13,7 @@ import { datosPersonalesSchema } from "@/lib/validation/profile";
 export type EstadoDatos =
   | { estado: "inicial" }
   | { estado: "guardado" }
-  | { estado: "error"; mensaje: string; campo?: string };
+  | (EstadoDeError & { campo?: string });
 
 /** Editar nombre, apellido y celular. */
 export async function guardarDatos(
@@ -23,7 +23,7 @@ export async function guardarDatos(
   return conRedDeSeguridad(
     "guardarDatos",
     () => actualizarDatos(anterior, formData),
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref) => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -55,7 +55,9 @@ async function actualizarDatos(
     const ref = registrarFalla("guardarDatos: update profiles", error);
     return {
       estado: "error",
-      mensaje: `No se pudieron guardar los datos. Probá de nuevo. Si sigue pasando, pasanos este código: ${ref}`,
+      mensaje: "errores.reintentarConCodigo",
+      antes: { mensaje: "errores.guardarDatos" },
+      ref,
     };
   }
 
@@ -64,7 +66,7 @@ async function actualizarDatos(
   return { estado: "guardado" };
 }
 
-export type EstadoBaja = { estado: "inicial" } | { estado: "error"; mensaje: string };
+export type EstadoBaja = { estado: "inicial" } | EstadoDeError;
 
 /**
  * Darse de baja.
@@ -77,7 +79,7 @@ export async function borrarCuenta(anterior: EstadoBaja, formData: FormData): Pr
   return conRedDeSeguridad(
     "borrarCuenta",
     () => darDeBaja(anterior, formData),
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref) => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -100,7 +102,9 @@ async function darDeBaja(_anterior: EstadoBaja, formData: FormData): Promise<Est
     const ref = registrarFalla("borrarCuenta: rpc account_delete", error);
     return {
       estado: "error",
-      mensaje: `No se pudo dar de baja la cuenta. Escribinos y lo resolvemos a mano. Código: ${ref}`,
+      mensaje: "errores.conCodigo",
+      antes: { mensaje: "errores.bajaCuenta" },
+      ref,
     };
   }
 
@@ -111,7 +115,7 @@ async function darDeBaja(_anterior: EstadoBaja, formData: FormData): Promise<Est
   };
 
   if (!respuesta?.ok) {
-    return { estado: "error", mensaje: "No se pudo dar de baja la cuenta. Probá de nuevo." };
+    return { estado: "error", mensaje: "errores.bajaCuentaDeNuevo" };
   }
 
   /*

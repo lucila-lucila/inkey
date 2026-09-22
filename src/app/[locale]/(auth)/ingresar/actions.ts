@@ -8,12 +8,12 @@ import { destinoPostIngreso } from "@/lib/auth/destino";
 import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { serverEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
-import { conRedDeSeguridad } from "@/lib/errores";
+import { conRedDeSeguridad, type EstadoDeError } from "@/lib/errores";
 
 export type EstadoIngreso =
   | { estado: "inicial" }
   | { estado: "enviado"; email: string }
-  | { estado: "error"; mensaje: string };
+  | EstadoDeError;
 
 function urlCallback(volverA: string, intencion: Intencion | null): string {
   const url = new URL("/auth/callback", serverEnv.siteUrl);
@@ -31,7 +31,7 @@ export async function enviarMagicLink(
   return conRedDeSeguridad(
     "enviarMagicLink",
     () => mandarMagicLink(anterior, formData),
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref) => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -71,7 +71,7 @@ async function mandarMagicLink(
 
 export type EstadoCodigo =
   | { estado: "inicial" }
-  | { estado: "error"; mensaje: string };
+  | EstadoDeError;
 
 /**
  * Entrar con el código de 6 dígitos que va en el mismo mail que el link.
@@ -87,7 +87,7 @@ export async function entrarConCodigo(
   return conRedDeSeguridad(
     "entrarConCodigo",
     () => verificarCodigo(anterior, formData),
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref) => ({ estado: "error", mensaje, ref }),
   );
 }
 

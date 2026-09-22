@@ -39,7 +39,9 @@ export function detectarTipoReal(bytes: Uint8Array): TipoPermitido | null {
 
 export type ResultadoArchivo =
   | { ok: true; ruta: string }
-  | { ok: false; mensaje: string };
+  /* La clave del aviso y sus huecos: acá abajo no sabemos en qué idioma mira
+     la persona, así que el texto lo arma la pantalla. */
+  | { ok: false; mensaje: string; valores?: Record<string, string | number> };
 
 /**
  * Sube un documento del alquiler. La ruta es <rental_id>/<archivo>: de ahí
@@ -53,15 +55,19 @@ export async function subirDocumento(opciones: {
 }): Promise<ResultadoArchivo> {
   const { rentalId, archivo, prefijo } = opciones;
 
-  if (archivo.size === 0) return { ok: false, mensaje: "El archivo está vacío." };
+  if (archivo.size === 0) return { ok: false, mensaje: "archivo.vacio" };
   if (archivo.size > TAMANIO_MAXIMO) {
-    return { ok: false, mensaje: "El archivo pesa más de 10 MB. Probá con uno más liviano." };
+    return {
+      ok: false,
+      mensaje: "archivo.pesado",
+      valores: { maximo: TAMANIO_MAXIMO / (1024 * 1024) },
+    };
   }
 
   const bytes = new Uint8Array(await archivo.arrayBuffer());
   const tipo = detectarTipoReal(bytes);
   if (!tipo) {
-    return { ok: false, mensaje: "Se puede subir PDF, JPG, PNG o WEBP." };
+    return { ok: false, mensaje: "archivo.tipoNoPermitido" };
   }
 
   const ruta = `${rentalId}/${prefijo}-${randomBytes(8).toString("hex")}.${TIPOS_PERMITIDOS[tipo]}`;
@@ -73,7 +79,7 @@ export async function subirDocumento(opciones: {
 
   if (error) {
     console.error("No se pudo subir el documento", error);
-    return { ok: false, mensaje: "No se pudo subir el archivo. Probá de nuevo en un momento." };
+    return { ok: false, mensaje: "archivo.noSeSubio" };
   }
 
   return { ok: true, ruta };

@@ -4,9 +4,9 @@ export const ingresoSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, "Escribí tu mail.")
-    .max(254, "Ese mail es demasiado largo.")
-    .email("Revisá el mail: tiene que ser del estilo nombre@mail.com.")
+    .min(1, "validacion.mailFalta")
+    .max(254, "validacion.mailLargo")
+    .email("validacion.mailFormato")
     .transform((valor) => valor.toLowerCase()),
 });
 

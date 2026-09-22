@@ -10,7 +10,7 @@ import {
   type EstadoIngreso,
 } from "./actions";
 import { useTranslations } from "next-intl";
-import { traducirMensaje } from "@/i18n/texto";
+import { traducirAviso } from "@/i18n/texto";
 import { Link } from "@/i18n/navigation";
 import { Button, Field, Input } from "@/components/ui";
 import type { Intencion } from "@/lib/validation/profile";
@@ -86,7 +86,7 @@ function Revisa({
           label={t("campoCodigo")}
           htmlFor="codigo"
           hint={t("pistaCodigo")}
-          error={estado.estado === "error" ? traducirMensaje(tt, estado.mensaje) : undefined}
+          error={estado.estado === "error" ? traducirAviso(tt, estado) : undefined}
         >
           <Input
             id="codigo"
@@ -142,7 +142,7 @@ export function IngresoForm({
           label={t("tuMail")}
           htmlFor="email"
           hint={t("pistaMail")}
-          error={estado.estado === "error" ? traducirMensaje(tt, estado.mensaje) : undefined}
+          error={estado.estado === "error" ? traducirAviso(tt, estado) : undefined}
         >
           <Input
             id="email"

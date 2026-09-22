@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { generarRecibo } from "@/lib/pdf/recibo";
 import { nombrePublico } from "@/lib/validation/profile";
 import type { Moneda } from "@/lib/validation/rental";
 import { registrarFalla } from "@/lib/errores";
+import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 
 // El PDF se arma en el servidor, con Node.
@@ -17,6 +19,8 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
+  const t = await getTranslations();
+  const idioma = await getLocale();
 
   const {
     data: { user },
@@ -26,12 +30,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   }
 
   const { data: pago } = await supabase.from("payments").select("*").eq("id", id).maybeSingle();
-  if (!pago) return new NextResponse("No encontramos ese pago.", { status: 404 });
+  if (!pago) return new NextResponse(t("pdfRecibo.noSeEncontro"), { status: 404 });
 
   if (pago.status !== "confirmed") {
-    return new NextResponse("El recibo sale cuando tu dueño confirma el pago.", {
-      status: 409,
-    });
+    return new NextResponse(t("pdfRecibo.todaviaNoConfirmado"), { status: 409 });
   }
 
   const { data: alquiler } = await supabase
@@ -39,7 +41,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .select("tenant_id, owner_id, full_address, neighborhood_label")
     .eq("id", pago.rental_id)
     .maybeSingle();
-  if (!alquiler) return new NextResponse("No encontramos el alquiler.", { status: 404 });
+  if (!alquiler) return new NextResponse(t("pdfRecibo.noSeEncontroAlquiler"), { status: 404 });
 
   const { data: perfiles } = await supabase
     .from("profiles")
@@ -53,8 +55,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const periodo = String(pago.period).slice(0, 10);
 
+  /* Armar el PDF es caro; pedirlo, no. */
+  const limite = await consumirIntento("documento_pdf", await identificadorCliente());
+  if (!limite.permitido) {
+    return new NextResponse(t(MENSAJE_LIMITE), {
+      status: 429,
+      headers: { "retry-after": String(limite.esperaSegundos), "cache-control": "no-store" },
+    });
+  }
+
   try {
     const pdf = await generarRecibo({
+      t,
+      idioma,
       numero: `${String(pago.receipt_serial ?? 1).padStart(4, "0")}`,
       periodo,
       monto: String(pago.amount),
@@ -82,9 +95,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     });
   } catch (error) {
     const ref = registrarFalla(`recibo pdf ${id}`, error);
-    return new NextResponse(
-      `No se pudo generar el recibo. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
-      { status: 500 },
-    );
+    return new NextResponse(t("pdfRecibo.noSePudoGenerar", { ref }), { status: 500 });
   }
 }

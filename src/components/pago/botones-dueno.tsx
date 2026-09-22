@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { traducirMensaje } from "@/i18n/texto";
+import { traducirAviso } from "@/i18n/texto";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
@@ -58,7 +58,7 @@ export function BotonesDueño({ pagoId }: { pagoId: string }) {
     <div className="flex flex-col gap-3">
       {error && (
         <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
-          {traducirMensaje(t, error)}
+          {traducirAviso(t, error)}
         </p>
       )}
 

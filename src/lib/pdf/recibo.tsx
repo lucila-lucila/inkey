@@ -1,6 +1,7 @@
 import "server-only";
 import { Circle, Document, Page, Path, StyleSheet, Svg, Text, View, renderToBuffer } from "@react-pdf/renderer";
-import { formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
+import type { Traductor } from "@/i18n/texto";
+import { formatearFecha, formatearMonto, intlDe } from "@/lib/domain/alquiler";
 import { nombrePeriodo } from "@/lib/domain/pagos";
 import type { Moneda } from "@/lib/validation/rental";
 
@@ -90,6 +91,8 @@ const estilos = StyleSheet.create({
 });
 
 export type DatosRecibo = {
+  t: Traductor;
+  idioma: string;
   numero: string;
   periodo: string;
   monto: string;
@@ -115,11 +118,16 @@ function Celda({ etiqueta, valor }: { etiqueta: string; valor: string }) {
 }
 
 function Recibo({ datos }: { datos: DatosRecibo }) {
+  const { t, idioma } = datos;
+  const tr = (clave: string, valores?: Record<string, string | number>) =>
+    t(`pdfRecibo.${clave}`, valores);
+  const mes = nombrePeriodo(datos.periodo, idioma);
+
   return (
     <Document
-      title={`Recibo ${datos.numero} · ${nombrePeriodo(datos.periodo)}`}
+      title={`${tr("archivo")} ${datos.numero} · ${mes}`}
       author="Inkey"
-      language="es-AR"
+      language={intlDe(idioma)}
     >
       <Page size="A4" style={estilos.pagina}>
         <View style={estilos.encabezado}>
@@ -136,56 +144,53 @@ function Recibo({ datos }: { datos: DatosRecibo }) {
             <Text style={estilos.logo}>inkey</Text>
           </View>
           <View>
-            <Text style={estilos.etiquetaRecibo}>RECIBO</Text>
+            <Text style={estilos.etiquetaRecibo}>{tr("sello").toUpperCase()}</Text>
             <Text style={estilos.numeroRecibo}>{datos.numero}</Text>
           </View>
         </View>
 
-        <Text style={estilos.titulo}>Pago confirmado</Text>
-        <Text style={estilos.subtitulo}>
-          Las dos partes confirmaron el alquiler de {nombrePeriodo(datos.periodo)}.
-        </Text>
+        <Text style={estilos.titulo}>{tr("titulo")}</Text>
+        <Text style={estilos.subtitulo}>{tr("subtitulo", { mes })}</Text>
 
         <View style={estilos.destacado}>
-          <Text style={estilos.montoEtiqueta}>MONTO CONFIRMADO</Text>
+          <Text style={estilos.montoEtiqueta}>{tr("montoConfirmado").toUpperCase()}</Text>
           <Text style={estilos.monto}>{formatearMonto(datos.monto, datos.moneda)}</Text>
         </View>
 
         <View style={estilos.grilla}>
-          <Celda etiqueta="Período" valor={nombrePeriodo(datos.periodo)} />
-          <Celda etiqueta="Fecha de pago" valor={formatearFecha(datos.pagadoEl)} />
-          <Celda etiqueta="Vencimiento" valor={formatearFecha(datos.vencia)} />
+          <Celda etiqueta={tr("periodo")} valor={mes} />
+          <Celda etiqueta={tr("fechaDePago")} valor={formatearFecha(datos.pagadoEl, idioma)} />
+          <Celda etiqueta={tr("vencimiento")} valor={formatearFecha(datos.vencia, idioma)} />
           <Celda
-            etiqueta="Puntualidad"
-            valor={datos.enFecha ? "Pagado en fecha" : "Pagado después del vencimiento"}
+            etiqueta={tr("puntualidad")}
+            valor={datos.enFecha ? tr("enFecha") : tr("fueraDeFecha")}
           />
         </View>
 
         <View style={estilos.separador} />
 
         <View style={estilos.grilla}>
-          <Celda etiqueta="Inquilino" valor={datos.inquilino} />
-          <Celda etiqueta="Propietario" valor={datos.duenio} />
-          <Celda etiqueta="Propiedad" valor={datos.direccion} />
-          <Celda etiqueta="Barrio" valor={datos.barrio} />
+          <Celda etiqueta={tr("inquilino")} valor={datos.inquilino} />
+          <Celda etiqueta={tr("propietario")} valor={datos.duenio} />
+          <Celda etiqueta={tr("propiedad")} valor={datos.direccion} />
+          <Celda etiqueta={tr("barrio")} valor={datos.barrio} />
         </View>
 
         <View style={estilos.separador} />
 
         <Text style={estilos.nota}>
-          Confirmado por el propietario el {formatearFecha(datos.confirmadoEl)}.
-          {datos.conComprobante
-            ? " El inquilino adjuntó comprobante del pago."
-            : " El pago se registró sin comprobante adjunto."}
+          {tr("confirmadoEl", { fecha: formatearFecha(datos.confirmadoEl, idioma) })}{" "}
+          {datos.conComprobante ? tr("conComprobante") : tr("sinComprobante")}
           {"\n"}
-          Este documento deja constancia de que ambas partes registraron y confirmaron el pago en
-          Inkey. No reemplaza al recibo fiscal ni a lo que establezca el contrato de locación.
+          {tr("nota")}
         </Text>
 
         <View style={estilos.pie} fixed>
-          <Text>Inkey · Tu historial de alquiler, confirmado</Text>
+          <Text>{t("pdfPerfil.pie")}</Text>
           <Text
-            render={({ pageNumber, totalPages }) => `Página ${pageNumber} de ${totalPages}`}
+            render={({ pageNumber, totalPages }) =>
+              t("pdfPerfil.pagina", { pagina: pageNumber, total: totalPages })
+            }
           />
         </View>
       </Page>

@@ -186,7 +186,7 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
         <Text style={estilos.nombre}>{nombreVisible(datos.nombre, datos.inicialApellido)}</Text>
         <Text style={estilos.rol}>
           {esInquilino ? t("pdfPerfil.inquilino") : t("pdfPerfil.propietario")}
-          {metricas.desde ? ` · ${t("pdfPerfil.desde", { fecha: formatearFecha(metricas.desde) })}` : ""}
+          {metricas.desde ? ` · ${t("pdfPerfil.desde", { fecha: formatearFecha(metricas.desde, datos.idioma) })}` : ""}
         </Text>
 
         {/* La misma tarjeta que en pantalla: una cifra manda y el resto acompaña. */}
@@ -287,7 +287,7 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
                 )}
                 {resena.texto && <Text style={estilos.resenaTexto}>“{resena.texto}”</Text>}
                 <Text style={estilos.resenaAutor}>
-                  {resena.de}, {formatearFecha(resena.fecha.slice(0, 10))}
+                  {resena.de}, {formatearFecha(resena.fecha.slice(0, 10), datos.idioma)}
                 </Text>
               </View>
             ))}
@@ -297,7 +297,7 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
         <Text style={estilos.nota}>
           {t("pdfPerfil.nota")}
           {"\n"}
-          {t("pdfPerfil.generado", { fecha: formatearFecha(datos.generadoEl) })}
+          {t("pdfPerfil.generado", { fecha: formatearFecha(datos.generadoEl, datos.idioma) })}
         </Text>
 
         <View style={estilos.pie} fixed>

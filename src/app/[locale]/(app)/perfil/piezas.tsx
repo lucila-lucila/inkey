@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { traducirMensaje } from "@/i18n/texto";
+import { traducirAviso } from "@/i18n/texto";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { cambiarMontos, crearLink, revocarLink, verLink, type EstadoLinkPerfil } from "./actions";
@@ -94,7 +94,7 @@ function NuevoLink({
 
         {estado.estado === "error" && (
           <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
-            {traducirMensaje(t, estado.mensaje)}
+            {traducirAviso(t, estado)}
           </p>
         )}
 
@@ -152,7 +152,7 @@ export function SeccionDeLinks({ rol, links }: { rol: "tenant" | "owner"; links:
         links={links}
         abierto={abierto}
         url={url}
-        error={traducirMensaje(t, error)}
+        error={traducirAviso(t, error)}
         mostrar={mostrar}
       />
     </>

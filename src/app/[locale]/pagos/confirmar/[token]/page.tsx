@@ -131,13 +131,13 @@ export default async function ConfirmarDesdeMailPage({
             <div>
               <dt className="t-etiqueta text-muted">{tc("loPagoEl")}</dt>
               <dd className="m-0 text-[17px] font-medium">
-                {formatearFecha(String(resumen.pagado_el).slice(0, 10))}
+                {formatearFecha(String(resumen.pagado_el).slice(0, 10), idioma)}
               </dd>
             </div>
             <div>
               <dt className="t-etiqueta text-muted">{tc("venciaEl")}</dt>
               <dd className="m-0 text-[17px] font-medium">
-                {formatearFecha(String(resumen.vencia).slice(0, 10))}
+                {formatearFecha(String(resumen.vencia).slice(0, 10), idioma)}
               </dd>
             </div>
           </dl>

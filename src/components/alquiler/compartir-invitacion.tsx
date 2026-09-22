@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { traducirMensaje } from "@/i18n/texto";
+import { traducirAviso } from "@/i18n/texto";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
@@ -122,7 +122,7 @@ export function CompartirInvitacion({
           <Field
             label={t("invitar.mailDe", { rol })}
             htmlFor="mail-invitacion"
-            error={estadoMail.estado === "error" ? traducirMensaje(t, estadoMail.mensaje) : undefined}
+            error={estadoMail.estado === "error" ? traducirAviso(t, estadoMail) : undefined}
           >
             <Input
               id="mail-invitacion"

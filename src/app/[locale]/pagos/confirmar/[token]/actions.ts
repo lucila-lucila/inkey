@@ -2,14 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
+import { conRedDeSeguridad, registrarFalla, type EstadoDeError } from "@/lib/errores";
 import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { avisarPagoConfirmado } from "@/lib/email/avisos";
 import { hashearToken, pareceToken } from "@/lib/tokens";
 import { createClient } from "@/lib/supabase/server";
 import { notaDueñoSchema } from "@/lib/validation/pago";
 
-export type EstadoDesdeMail = { estado: "inicial" } | { estado: "error"; mensaje: string };
+export type EstadoDesdeMail = { estado: "inicial" } | EstadoDeError;
 
 type Respuesta = { ok: boolean; error?: string; payment_id?: string };
 
@@ -32,7 +32,7 @@ export async function confirmarDesdeMail(
 
   return conRedDeSeguridad(
     "confirmarDesdeMail",
-    async () => {
+    async (): Promise<EstadoDesdeMail> => {
       if (!pareceToken(token)) return { estado: "error" as const, mensaje: MENSAJES.inexistente };
 
       const limite = await consumirIntento("confirmacion_pago", await identificadorCliente());
@@ -47,7 +47,9 @@ export async function confirmarDesdeMail(
         const ref = registrarFalla("confirmarDesdeMail", error);
         return {
           estado: "error" as const,
-          mensaje: `No se pudo confirmar. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
+          mensaje: "errores.reintentarConCodigo",
+          antes: { mensaje: "errores.confirmar" },
+          ref,
         };
       }
 
@@ -55,7 +57,7 @@ export async function confirmarDesdeMail(
       if (!respuesta.ok) {
         return {
           estado: "error" as const,
-          mensaje: MENSAJES[respuesta.error ?? ""] ?? "No se pudo confirmar.",
+          mensaje: MENSAJES[respuesta.error ?? ""] ?? "errores.confirmar",
         };
       }
 
@@ -63,7 +65,7 @@ export async function confirmarDesdeMail(
       revalidatePath("/panel");
       redirect(`/pagos/confirmar/${token}?resultado=confirmado`);
     },
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref): EstadoDesdeMail => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -76,7 +78,7 @@ export async function noRecibidoDesdeMail(
 
   return conRedDeSeguridad(
     "noRecibidoDesdeMail",
-    async () => {
+    async (): Promise<EstadoDesdeMail> => {
       if (!pareceToken(token)) return { estado: "error" as const, mensaje: MENSAJES.inexistente };
 
       const nota = notaDueñoSchema.safeParse(formData.get("nota") ?? undefined);
@@ -94,7 +96,9 @@ export async function noRecibidoDesdeMail(
         const ref = registrarFalla("noRecibidoDesdeMail", error);
         return {
           estado: "error" as const,
-          mensaje: `No se pudo guardar. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
+          mensaje: "errores.reintentarConCodigo",
+          antes: { mensaje: "errores.guardar" },
+          ref,
         };
       }
 
@@ -102,13 +106,13 @@ export async function noRecibidoDesdeMail(
       if (!respuesta.ok) {
         return {
           estado: "error" as const,
-          mensaje: MENSAJES[respuesta.error ?? ""] ?? "No se pudo guardar.",
+          mensaje: MENSAJES[respuesta.error ?? ""] ?? "errores.guardar",
         };
       }
 
       revalidatePath("/panel");
       redirect(`/pagos/confirmar/${token}?resultado=no_recibido`);
     },
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref): EstadoDesdeMail => ({ estado: "error", mensaje, ref }),
   );
 }

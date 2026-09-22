@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { registrarAuditoria } from "@/lib/audit";
 import { avisarInvitacion } from "@/lib/email/avisos";
-import { conRedDeSeguridad } from "@/lib/errores";
+import { conRedDeSeguridad, type EstadoDeError } from "@/lib/errores";
 import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 import { enlaceInvitacion, hashearToken, pareceToken } from "@/lib/tokens";
@@ -11,7 +11,7 @@ import { invitacionPorMailSchema } from "@/lib/validation/rental";
 
 export type EstadoInvitacionMail =
   | { estado: "inicial" }
-  | { estado: "error"; mensaje: string }
+  | EstadoDeError
   | { estado: "listo"; para: string };
 
 /**
@@ -29,7 +29,7 @@ export async function enviarInvitacionPorMail(
   return conRedDeSeguridad(
     "enviarInvitacionPorMail",
     () => mandarInvitacion(anterior, formData),
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref) => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -49,7 +49,7 @@ async function mandarInvitacion(
 
   const { rental_id: rentalId, token, email } = parsed.data;
   if (!pareceToken(token)) {
-    return { estado: "error", mensaje: "Este link ya no sirve. Generá uno nuevo." };
+    return { estado: "error", mensaje: "errores.linkYaNoSirve" };
   }
 
   const supabase = await createClient();
@@ -69,7 +69,7 @@ async function mandarInvitacion(
     .maybeSingle();
 
   if (!alquiler || alquiler.created_by !== user.id || alquiler.status !== "pending") {
-    return { estado: "error", mensaje: "Este alquiler ya no está esperando que lo confirmen." };
+    return { estado: "error", mensaje: "errores.alquilerYaConfirmado" };
   }
 
   const { data: invitacion } = await supabase
@@ -82,7 +82,7 @@ async function mandarInvitacion(
     .maybeSingle();
 
   if (!invitacion || new Date(invitacion.expires_at) <= new Date()) {
-    return { estado: "error", mensaje: "Ese link venció o se reemplazó. Generá uno nuevo." };
+    return { estado: "error", mensaje: "errores.linkVencidoOReemplazado" };
   }
 
   const salio = await avisarInvitacion({
@@ -97,7 +97,7 @@ async function mandarInvitacion(
   if (!salio) {
     return {
       estado: "error",
-      mensaje: "No pudimos mandar el mail. Copiá el link de acá arriba y mandáselo vos.",
+      mensaje: "errores.mailNoSalio",
     };
   }
 

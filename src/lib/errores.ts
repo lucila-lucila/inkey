@@ -1,5 +1,6 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
+import type { Valores } from "@/i18n/texto";
 
 /**
  * Nada falla en silencio.
@@ -29,6 +30,10 @@ export type EstadoDeError = {
   mensaje: string;
   /** El código corto que buscamos en los logs si la persona nos escribe. */
   ref?: string;
+  /** Los huecos del texto, si los tiene. La pantalla los rellena al traducir. */
+  valores?: Valores;
+  /** Un aviso que va delante, también como clave (ver `traducirAviso`). */
+  antes?: { mensaje: string; valores?: Valores };
 };
 
 /**

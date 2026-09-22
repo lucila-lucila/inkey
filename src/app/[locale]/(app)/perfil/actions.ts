@@ -4,18 +4,18 @@ import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { registrarAuditoria } from "@/lib/audit";
-import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
+import { conRedDeSeguridad, registrarFalla, type EstadoDeError } from "@/lib/errores";
 import { enlacePerfil, hashearToken, tokenDeLink } from "@/lib/tokens";
 import { createClient } from "@/lib/supabase/server";
 
 export type EstadoLinkPerfil =
   | { estado: "inicial" }
-  | { estado: "error"; mensaje: string }
+  | EstadoDeError
   // El id viaja de vuelta para poder abrir ese link en la lista.
   | { estado: "listo"; id: string; url: string };
 
-const SIN_CLAVE =
-  "Falta configurar la clave de los links compartibles (SHARE_LINK_SECRET). Revisá /api/salud.";
+/* La clave del aviso: es un problema de configuración, pero lo lee una persona. */
+const SIN_CLAVE = "errores.sinClaveDeLinks";
 
 /** Crea un link para compartir el historial. */
 export async function crearLink(
@@ -24,7 +24,7 @@ export async function crearLink(
 ): Promise<EstadoLinkPerfil> {
   return conRedDeSeguridad(
     "crearLink",
-    async () => {
+    async (): Promise<EstadoLinkPerfil> => {
       const rol = formData.get("rol") === "owner" ? "owner" : "tenant";
       const etiqueta = String(formData.get("etiqueta") ?? "").trim();
       const montos = formData.get("montos") === "on";
@@ -56,7 +56,9 @@ export async function crearLink(
         const ref = registrarFalla("crearLink: insert en share_links", error);
         return {
           estado: "error" as const,
-          mensaje: `No se pudo crear el link. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
+          mensaje: "errores.reintentarConCodigo",
+          antes: { mensaje: "errores.crearLink" },
+          ref,
         };
       }
 
@@ -71,7 +73,7 @@ export async function crearLink(
       revalidatePath("/perfil");
       return { estado: "listo" as const, id, url: enlacePerfil(token) };
     },
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref): EstadoLinkPerfil => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -133,7 +135,7 @@ export async function verLink(idLink: string): Promise<{ url: string } | { error
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Entrá de nuevo para ver el link." };
+  if (!user) return { error: "errores.entraDeNuevoLink" };
 
   const { data: link } = await supabase
     .from("share_links")
@@ -141,8 +143,8 @@ export async function verLink(idLink: string): Promise<{ url: string } | { error
     .eq("id", idLink)
     .maybeSingle();
 
-  if (!link) return { error: "No encontramos ese link." };
-  if (link.revoked_at) return { error: "Ese link está revocado." };
+  if (!link) return { error: "errores.linkNoEncontrado" };
+  if (link.revoked_at) return { error: "errores.linkRevocado" };
 
   const token = tokenDeLink(link.id);
   return token ? { url: enlacePerfil(token) } : { error: SIN_CLAVE };

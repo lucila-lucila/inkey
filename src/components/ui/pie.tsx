@@ -8,15 +8,6 @@ import { SelectorDeIdioma } from "./selector-de-idioma";
 /** Una sola dirección de contacto en todo el producto. */
 export const MAIL_DE_CONTACTO = "contacto@inkeyapp.com";
 
-/*
- * Dónde se apoya el proyecto. Va en el pie y en ningún otro lado.
- *
- * Sin el prefijo `es.`: Liberapay muestra la página en el idioma de quien la
- * abre, y forzarla al castellano dejaría en castellano a quien vino leyendo
- * Inkey en inglés.
- */
-export const LINK_DE_APOYO = "https://liberapay.com/inkeyapp/";
-
 /**
  * El pie, igual en todas las pantallas.
  *
@@ -57,18 +48,6 @@ export async function Pie({ conLogo = false }: { conLogo?: boolean }) {
           </Link>
           <a href={`mailto:${MAIL_DE_CONTACTO}`} className="text-muted hover:text-ink">
             {MAIL_DE_CONTACTO}
-          </a>
-          {/*
-            Discreto y sin insistir: un link en el pie, nada de banners ni
-            ventanitas. Se abre afuera, así que va con rel de seguridad.
-          */}
-          <a
-            href={LINK_DE_APOYO}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted hover:text-ink"
-          >
-            {t("apoyo")}
           </a>
           <span>{t("hechoEn")}</span>
           {/* Con un solo idioma prendido no hay nada que elegir. */}

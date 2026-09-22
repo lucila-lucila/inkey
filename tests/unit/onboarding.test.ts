@@ -18,7 +18,7 @@ describe("onboarding", () => {
   it("no deja seguir si no se aceptaron los términos", () => {
     const resultado = onboardingSchema.safeParse({ ...BASE, acepta_terminos: null });
     expect(resultado.success).toBe(false);
-    expect(resultado.error?.issues[0]?.message).toContain("aceptes");
+    expect(resultado.error?.issues[0]?.message).toBe("validacion.aceptar");
   });
 
   it("no deja seguir si no se aceptó la privacidad", () => {

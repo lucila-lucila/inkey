@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
-import { traducirMensaje } from "@/i18n/texto";
+import { traducirAviso } from "@/i18n/texto";
 import { mensajeDeRebote } from "@/lib/auth/errores-link";
 import { rutaInternaSegura } from "@/lib/validation/auth";
 import { intencionSegura } from "@/lib/validation/profile";
@@ -36,7 +36,7 @@ export default async function IngresarPage({
       <p className="mt-0 mb-6 text-body">{t("bajada")}</p>
       {error && (
         <p role="alert" className="mb-5 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
-          {traducirMensaje(tt, error)}
+          {traducirAviso(tt, error)}
         </p>
       )}
       <IngresoForm volverA={volverA} intencion={intencion} />

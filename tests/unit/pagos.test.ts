@@ -104,7 +104,7 @@ describe("reporte de pago", () => {
       paid_on: maniana.toISOString().slice(0, 10),
     });
     expect(resultado.success).toBe(false);
-    expect(resultado.error?.issues[0]?.message).toContain("posterior a hoy");
+    expect(resultado.error?.issues[0]?.message).toBe("validacion.fechaFutura");
   });
 
   it("no acepta montos de cero o negativos", () => {

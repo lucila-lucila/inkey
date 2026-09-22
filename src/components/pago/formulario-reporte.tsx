@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { traducirMensaje } from "@/i18n/texto";
+import { traducirAviso } from "@/i18n/texto";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { reportarPago, type EstadoReporte } from "@/app/[locale]/(app)/alquileres/[id]/actions";
@@ -50,7 +50,7 @@ export function FormularioReporte({
 
       {error && (
         <p role="alert" className="m-0 rounded-campo bg-primary-soft p-3 text-[15px] text-primary-ink">
-          {traducirMensaje(t, error.mensaje)}
+          {traducirAviso(t, error)}
         </p>
       )}
 

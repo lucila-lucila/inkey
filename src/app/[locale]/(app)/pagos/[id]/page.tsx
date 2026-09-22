@@ -76,7 +76,7 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <h1 className="m-0 t-titulo capitalize">
-            {nombrePeriodo(String(pago.period).slice(0, 10))}
+            {nombrePeriodo(String(pago.period).slice(0, 10), idioma)}
           </h1>
           <Pill tone={estado.tono}>{t(`dominio.estadoPago.${pago.status}`)}</Pill>
         </div>
@@ -88,13 +88,13 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
             etiqueta={tp("monto")}
             valor={formatearMonto(pago.amount, pago.currency as Moneda)}
           />
-          <Dato etiqueta={tp("fechaDePago")} valor={formatearFecha(String(pago.paid_on).slice(0, 10))} />
+          <Dato etiqueta={tp("fechaDePago")} valor={formatearFecha(String(pago.paid_on).slice(0, 10), idioma)} />
           {/*
             Las dos fechas alcanzan: quien mira saca su propia conclusión. Una
             etiqueta que diga "después del vencimiento" es un reproche, y acá
             no marcamos a nadie en falta.
           */}
-          <Dato etiqueta={tp("venciaEl")} valor={formatearFecha(String(pago.due_date).slice(0, 10))} />
+          <Dato etiqueta={tp("venciaEl")} valor={formatearFecha(String(pago.due_date).slice(0, 10), idioma)} />
         </dl>
 
         {pago.receipt_path && (
@@ -114,7 +114,7 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
               {tp("reporto", {
                 quien: nombreContraparte,
                 monto: formatearMonto(pago.amount, pago.currency as Moneda),
-                fecha: formatearFecha(String(pago.paid_on).slice(0, 10)),
+                fecha: formatearFecha(String(pago.paid_on).slice(0, 10), idioma),
               })}
             </p>
           </div>
@@ -161,11 +161,11 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
             <p className="m-0 text-body">
               {soyDueño
                 ? tp("confirmaste", {
-                    fecha: formatearFecha(String(pago.confirmed_at).slice(0, 10)),
+                    fecha: formatearFecha(String(pago.confirmed_at).slice(0, 10), idioma),
                   })
                 : tp("confirmoElOtro", {
                     quien: nombreContraparte,
-                    fecha: formatearFecha(String(pago.confirmed_at).slice(0, 10)),
+                    fecha: formatearFecha(String(pago.confirmed_at).slice(0, 10), idioma),
                   })}{" "}
               {tp("losDosTienenRecibo")}
             </p>

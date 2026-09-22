@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { registrarAuditoria } from "@/lib/audit";
 import { registrarFalla } from "@/lib/errores";
 import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
@@ -16,6 +17,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
+  const t = await getTranslations();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest) {
   const limite = await consumirIntento("export_datos", await identificadorCliente());
   if (!limite.permitido) {
     return NextResponse.json(
-      { error: MENSAJE_LIMITE },
+      { error: t(MENSAJE_LIMITE) },
       {
         status: 429,
         headers: {
@@ -51,7 +53,7 @@ export async function GET(request: NextRequest) {
   if (error || !data) {
     const ref = registrarFalla("exportar: rpc account_export", error);
     return NextResponse.json(
-      { error: `No se pudieron preparar tus datos. Código: ${ref}` },
+      { error: `${t("errores.exportar")} ${t("errores.conCodigo", { ref })}` },
       { status: 503, headers: { "cache-control": "no-store", "x-robots-tag": "noindex" } },
     );
   }

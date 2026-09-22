@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import en from "../../messages/en.json";
+import es from "../../messages/es.json";
 import {
   DIAS_PARA_PUBLICAR,
   direccionDe,
@@ -48,7 +50,7 @@ describe("validación de la reseña", () => {
   it("no acepta una reseña vacía", () => {
     const resultado = resenaSchema.safeParse({ ...BASE, texto: undefined, etiquetas: [] });
     expect(resultado.success).toBe(false);
-    expect(resultado.error?.issues[0]?.message).toContain("al menos una etiqueta");
+    expect(resultado.error?.issues[0]?.message).toBe("validacion.resena.algoQueDecir");
   });
 
   it("corta el texto en 500 caracteres", () => {
@@ -63,5 +65,18 @@ describe("validación de la reseña", () => {
   it("no acepta una lista interminable de etiquetas", () => {
     const muchas = Array.from({ length: 11 }, (_, i) => `etiqueta_${i}`);
     expect(resenaSchema.safeParse({ ...BASE, etiquetas: muchas }).success).toBe(false);
+  });
+});
+
+describe("el tope del texto", () => {
+  it("dice el mismo número en los dos idiomas que el que valida", () => {
+    /*
+     * El número va escrito en el texto y no como hueco: el mensaje se lo
+     * pasa Zod a la pantalla como clave pelada, sin valores que rellenar.
+     * Si algún día cambia el tope, este test lo agarra.
+     */
+    for (const mensajes of [es, en]) {
+      expect(mensajes.validacion.resena.textoLargo).toContain(String(TOPE_TEXTO_RESENA));
+    }
   });
 });

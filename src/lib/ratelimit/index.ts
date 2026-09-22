@@ -19,6 +19,12 @@ export const LIMITES = {
   resena: { limite: 10, ventanaSegundos: 60 * 60 },
   // El más pesado de todos: arma el historial completo en cada llamada.
   export_datos: { limite: 5, ventanaSegundos: 60 * 60 },
+  /*
+   * Recibos y resúmenes en PDF. Cada uno arma el documento entero en el
+   * servidor: es barato de pedir y caro de responder. Holgado para quien baja
+   * los doce recibos del año de una sentada.
+   */
+  documento_pdf: { limite: 40, ventanaSegundos: 60 * 60 },
 } satisfies Record<string, ReglaLimite>;
 
 export type AccionLimitada = keyof typeof LIMITES;
@@ -113,4 +119,8 @@ export async function consumirIntento(
 }
 
 /** Mensaje único para no dar pistas sobre el estado interno del limitador. */
-export const MENSAJE_LIMITE = "Probaste varias veces seguidas. Esperá unos minutos y volvé a intentar.";
+/*
+ * La clave del aviso, no la frase: quien la devuelve es el servidor, que no
+ * sabe en qué idioma está mirando la persona. La pantalla la traduce.
+ */
+export const MENSAJE_LIMITE = "errores.demasiadosIntentos";

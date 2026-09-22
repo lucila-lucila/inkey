@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
+import { conRedDeSeguridad, registrarFalla, type EstadoDeError } from "@/lib/errores";
 import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/ratelimit";
 import { claveDeMensajePago } from "@/lib/domain/mensajes";
 import { notaDueñoSchema } from "@/lib/validation/pago";
@@ -12,7 +12,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export type EstadoConfirmacion =
   | { estado: "inicial" }
-  | { estado: "error"; mensaje: string };
+  | EstadoDeError;
 
 type Respuesta = { ok: boolean; error?: string; payment_id?: string };
 
@@ -30,7 +30,7 @@ export async function confirmarPago(
 ): Promise<EstadoConfirmacion> {
   return conRedDeSeguridad(
     "confirmarPago",
-    async () => {
+    async (): Promise<EstadoConfirmacion> => {
       const pagoId = String(formData.get("pago_id") ?? "");
       const supabase = await createClient();
       const {
@@ -47,7 +47,9 @@ export async function confirmarPago(
         const ref = registrarFalla("confirmarPago: rpc payment_confirm", error);
         return {
           estado: "error" as const,
-          mensaje: `No se pudo confirmar el pago. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
+          mensaje: "errores.reintentarConCodigo",
+          antes: { mensaje: "errores.confirmarPago" },
+          ref,
         };
       }
 
@@ -55,7 +57,7 @@ export async function confirmarPago(
       if (!respuesta.ok) {
         return {
           estado: "error" as const,
-          mensaje: mensajeDe(respuesta.error, "No se pudo confirmar el pago."),
+          mensaje: mensajeDe(respuesta.error, "errores.confirmarPago"),
         };
       }
 
@@ -65,7 +67,7 @@ export async function confirmarPago(
       revalidatePath("/panel");
       return { estado: "inicial" as const };
     },
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref): EstadoConfirmacion => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -76,7 +78,7 @@ export async function marcarNoRecibido(
 ): Promise<EstadoConfirmacion> {
   return conRedDeSeguridad(
     "marcarNoRecibido",
-    async () => {
+    async (): Promise<EstadoConfirmacion> => {
       const pagoId = String(formData.get("pago_id") ?? "");
       const nota = notaDueñoSchema.safeParse(formData.get("nota") ?? undefined);
 
@@ -102,7 +104,9 @@ export async function marcarNoRecibido(
         const ref = registrarFalla("marcarNoRecibido: rpc payment_not_received", error);
         return {
           estado: "error" as const,
-          mensaje: `No se pudo guardar. Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
+          mensaje: "errores.reintentarConCodigo",
+          antes: { mensaje: "errores.guardar" },
+          ref,
         };
       }
 
@@ -110,7 +114,7 @@ export async function marcarNoRecibido(
       if (!respuesta.ok) {
         return {
           estado: "error" as const,
-          mensaje: mensajeDe(respuesta.error, "No se pudo guardar."),
+          mensaje: mensajeDe(respuesta.error, "errores.guardar"),
         };
       }
 
@@ -118,7 +122,7 @@ export async function marcarNoRecibido(
       revalidatePath("/panel");
       return { estado: "inicial" as const };
     },
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref): EstadoConfirmacion => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -130,7 +134,7 @@ export async function verComprobante(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Entrá de nuevo para ver el comprobante." };
+  if (!user) return { error: "errores.entraDeNuevoComprobante" };
 
   // Si no sos parte del alquiler, RLS no devuelve la fila.
   const { data: pago } = await supabase
@@ -139,8 +143,8 @@ export async function verComprobante(
     .eq("id", pagoId)
     .maybeSingle();
 
-  if (!pago?.receipt_path) return { error: "Este pago no tiene comprobante adjunto." };
+  if (!pago?.receipt_path) return { error: "errores.sinComprobante" };
 
   const url = await urlFirmada(pago.receipt_path, 60);
-  return url ? { url } : { error: "No se pudo abrir el comprobante. Probá de nuevo en un momento." };
+  return url ? { url } : { error: "errores.abrirComprobante" };
 }

@@ -8,12 +8,12 @@ import { consumirIntento, identificadorCliente, MENSAJE_LIMITE } from "@/lib/rat
 import { enlaceInvitacion, generarToken, hashearToken } from "@/lib/tokens";
 import { subirDocumento } from "@/lib/storage";
 import { registrarAuditoria } from "@/lib/audit";
-import { conRedDeSeguridad, registrarFalla } from "@/lib/errores";
+import { conRedDeSeguridad, registrarFalla, type EstadoDeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 
 export type EstadoNuevoAlquiler =
   | { estado: "inicial" }
-  | { estado: "error"; mensaje: string; campo?: string }
+  | (EstadoDeError & { campo?: string })
   | {
       estado: "creado";
       rentalId: string;
@@ -22,7 +22,8 @@ export type EstadoNuevoAlquiler =
       barrio: string;
       rolInvitado: "owner" | "tenant";
       nombre: string;
-      avisoArchivo?: string;
+      /* La clave del aviso y sus huecos: el texto lo arma la pantalla. */
+      avisoArchivo?: { mensaje: string; valores?: Record<string, string | number> };
     };
 
 export async function crearAlquiler(
@@ -32,7 +33,7 @@ export async function crearAlquiler(
   return conRedDeSeguridad(
     "crearAlquiler",
     () => guardarAlquiler(anterior, formData),
-    (mensaje) => ({ estado: "error", mensaje }),
+    (mensaje, ref) => ({ estado: "error", mensaje, ref }),
   );
 }
 
@@ -95,13 +96,18 @@ async function guardarAlquiler(
     const ref = registrarFalla("crearAlquiler: insert en rentals", errorAlta);
     return {
       estado: "error",
-      mensaje: `No se pudo guardar el alquiler (${errorAlta?.code ?? "sin código"}). Probá de nuevo en un momento. Si sigue pasando, pasanos este código: ${ref}`,
+      mensaje: "errores.reintentarConCodigo",
+      antes: {
+        mensaje: "errores.guardarAlquiler",
+        valores: { codigo: errorAlta?.code ?? "?" },
+      },
+      ref,
     };
   }
 
   // El contrato es opcional: si falla, el alquiler ya quedó creado y lo
   // decimos en vez de perder todo lo que la persona cargó.
-  let avisoArchivo: string | undefined;
+  let avisoArchivo: { mensaje: string; valores?: Record<string, string | number> } | undefined;
   const contrato = formData.get("contrato");
   if (contrato instanceof File && contrato.size > 0) {
     const subida = await subirDocumento({
@@ -112,7 +118,7 @@ async function guardarAlquiler(
     if (subida.ok) {
       await supabase.from("rentals").update({ contract_path: subida.ruta }).eq("id", alquiler.id);
     } else {
-      avisoArchivo = `${subida.mensaje} El alquiler quedó guardado igual: podés subir el contrato después.`;
+      avisoArchivo = { mensaje: subida.mensaje, valores: subida.valores };
     }
   }
 
@@ -130,7 +136,9 @@ async function guardarAlquiler(
     const ref = registrarFalla("crearAlquiler: insert en invitations", errorInvitacion);
     return {
       estado: "error",
-      mensaje: `El alquiler quedó guardado, pero no se pudo armar el link. Abrilo desde el panel y generá uno nuevo ahí. Código: ${ref}`,
+      mensaje: "errores.conCodigo",
+      antes: { mensaje: "errores.alquilerSinLink" },
+      ref,
     };
   }
 

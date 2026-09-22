@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { traducirMensaje } from "@/i18n/texto";
+import { traducirAviso } from "@/i18n/texto";
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
@@ -41,7 +41,7 @@ export function OnboardingForm({
   const [intencion, setIntencion] = useState<Intencion>(intencionInicial);
   const error = estado.estado === "error" ? estado : undefined;
   const errorDe = (campo: string) =>
-    error?.campo === campo ? traducirMensaje(tt, error.mensaje) : undefined;
+    error?.campo === campo ? traducirAviso(tt, error) : undefined;
 
   return (
     <form action={accion} noValidate className="flex flex-col gap-5">
@@ -133,12 +133,12 @@ export function OnboardingForm({
 
       {error && !error.campo && (
         <p role="alert" className="text-[15px] text-primary-ink">
-          {traducirMensaje(tt, error.mensaje)}
+          {traducirAviso(tt, error)}
         </p>
       )}
       {error?.campo?.startsWith("acepta") && (
         <p role="alert" className="text-[15px] text-primary-ink">
-          {traducirMensaje(tt, error.mensaje)}
+          {traducirAviso(tt, error)}
         </p>
       )}
 

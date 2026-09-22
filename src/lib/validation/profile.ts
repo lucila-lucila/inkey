@@ -7,7 +7,7 @@ export const INTENCIONES = ["inquilino", "propietario"] as const;
 export type Intencion = (typeof INTENCIONES)[number];
 
 const casillaObligatoria = z
-  .literal("on", { message: "Necesitamos que aceptes para seguir." })
+  .literal("on", { message: "validacion.aceptar" })
   .transform(() => true);
 
 /**
