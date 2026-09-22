@@ -245,6 +245,13 @@ async function recorrido({ page, foto, base, datos, client }: Paso) {
   await page.goto(`${base}/alquileres/${datos.activo}`);
   await foto("11-alquiler-activo");
 
+  // ------------------------------------------------------- 22. resumen anual
+  await page.getByRole("link", { name: /^20\d\d$/ }).first().click();
+  await page.getByRole("heading", { name: /^Resumen 20\d\d$/ }).waitFor();
+  await foto("22-resumen-anual");
+
+  await page.goto(`${base}/alquileres/${datos.activo}`);
+
   /*
    * 7a. Reportar un pago (inquilina).
    *

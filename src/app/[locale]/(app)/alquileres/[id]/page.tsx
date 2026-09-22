@@ -11,6 +11,7 @@ import {
 } from "@/lib/domain/alquiler";
 import { nombreDeContraparte } from "@/lib/validation/profile";
 import { periodosDelAlquiler, vencimientoDe } from "@/lib/domain/pagos";
+import { aniosConResumen } from "@/lib/domain/resumen";
 import { SeccionPagos, type FilaPeriodo, type PagoDelPeriodo } from "@/components/pago/seccion-pagos";
 import { ConfirmarFin, ProponerFin } from "@/components/resena/fin-de-contrato";
 import { FormularioResena } from "@/components/resena/formulario-resena";
@@ -25,6 +26,7 @@ import type { Moneda } from "@/lib/validation/rental";
 import { serverEnv } from "@/lib/env";
 import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { Link } from "@/i18n/navigation";
 import { BotonContrato, CancelarAlquiler, NuevoLink, SubirContrato } from "./piezas";
 
 export const metadata: Metadata = {
@@ -47,6 +49,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
   const idioma = await getLocale();
   const t = await getTranslations();
   const ta = await getTranslations("alquiler");
+  const tr = await getTranslations("resumen");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -133,6 +136,12 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
   const sePublicaEl = alquiler.ended_at
     ? fechaDePublicacion(alquiler.ended_at).toISOString().slice(0, 10)
     : hoy;
+  /* Sin alquiler confirmado no hay meses que resumir. */
+  const anios =
+    alquiler.status === "pending" || alquiler.status === "rejected"
+      ? []
+      : aniosConResumen(alquiler);
+
   const invitacionVencida = invitacion ? new Date(invitacion.expires_at) <= new Date() : false;
   const esCreador = alquiler.created_by === user.id;
 
@@ -193,6 +202,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
                   // La fecha en que cerró de verdad, que puede no ser la pactada.
                   hasta: formatearFecha(
                     alquiler.ended_at ? String(alquiler.ended_at).slice(0, 10) : alquiler.end_date,
+                    idioma,
                   ),
                   fuerte: (partes) => <strong>{partes}</strong>,
                 })}
@@ -298,6 +308,32 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
             barrio={alquiler.neighborhood_label}
             siteUrl={serverEnv.siteUrl}
           />
+        </section>
+      )}
+
+      {/*
+        El resumen anual. Lo ven las dos partes por igual: el año del alquiler
+        es tan del inquilino como del dueño.
+      */}
+      {anios.length > 0 && (
+        <section aria-labelledby="titulo-resumen" className="flex flex-col gap-3">
+          <h2 id="titulo-resumen" className="m-0 t-subtitulo">
+            {tr("enlace")}
+          </h2>
+          <Card className="flex flex-col gap-4">
+            <p className="m-0 text-body">{tr("enlaceDetalle")}</p>
+            <div className="flex flex-wrap gap-2">
+              {anios.map((anio) => (
+                <Link
+                  key={anio}
+                  href={`/alquileres/${alquiler.id}/resumen/${anio}`}
+                  className="rounded-chip bg-surface-sunk px-4 py-2 text-[15px] font-medium text-ink no-underline hover:brightness-[0.97]"
+                >
+                  {anio}
+                </Link>
+              ))}
+            </div>
+          </Card>
         </section>
       )}
 

@@ -28,8 +28,9 @@ Camila, que se registra en el momento para el onboarding y el panel vacío.
 | 13 | Reportar un pago (inquilina) |
 | 14–15 | Confirmar un pago y "todavía no me llegó" (dueño) |
 | 16 | `/perfil` con un link creado |
-| 17b | La reseña, en un contrato terminado |
+| 17a–17b | El fin de contrato y la reseña |
 | 18 | `/cuenta` |
 | 19 | `/invitacion/[token]`, sin sesión |
 | 20 | `/pagos/confirmar/[token]`, el link del mail |
 | 21 | `/p/[token]`, el perfil público |
+| 22 | El resumen anual de un alquiler |
