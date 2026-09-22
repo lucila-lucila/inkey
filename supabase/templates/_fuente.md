@@ -7,10 +7,22 @@ viven en `src/lib/email/plantillas.ts` y no se tocan desde acá.
 ## Cómo se cargan
 
 Panel de Supabase → **Authentication → Emails → Templates**. Una pestaña por
-plantilla. De cada archivo de esta carpeta:
+plantilla. De cada archivo:
 
 - el **asunto** está en la primera línea, después de `Subject:`;
 - el **cuerpo** es todo lo que sigue: copialo entero en el campo del mensaje.
+
+Van las cinco de `bilingue/`, una en cada pestaña:
+
+| Archivo | Pestaña de Supabase | Cuándo se manda |
+| --- | --- | --- |
+| `bilingue/magic-link.html` | Magic Link | Cada vez que alguien pide entrar. |
+| `bilingue/confirmar-alta.html` | Confirm signup | La primera vez, cuando se crea la cuenta. |
+| `bilingue/invitacion-usuario.html` | Invite user | Cuando se invita a alguien desde el panel de Supabase. |
+| `bilingue/cambio-de-mail.html` | Change Email Address | Cuando alguien cambia su mail. |
+| `bilingue/reingreso.html` | Reauthentication | Antes de una acción sensible, para confirmar identidad. |
+
+La pestaña **Reset Password** queda como viene: Inkey no usa contraseñas.
 
 ## El encabezado
 
@@ -38,6 +50,11 @@ Las cinco, con el castellano arriba y una versión corta en inglés abajo,
 separadas por una línea. Como el botón y el código son los mismos para los
 dos, el bloque en inglés no los repite: dice qué es y remite a lo de arriba.
 
+El asunto también va en los dos idiomas, separado con `·`, porque es lo
+primero (y a veces lo único) que se ve en la bandeja de entrada. El
+castellano va adelante: en el celular, el inglés puede quedar cortado, pero
+alcanza para reconocer el mail.
+
 **Estas son las que hay que cargar en Supabase**, porque resuelven de una vez
 lo que Supabase no puede resolver solo (ver abajo). El pie también va en los
 dos idiomas.
@@ -54,8 +71,8 @@ los recibe, porque los arma Inkey leyendo el perfil.
 
 Entonces hay tres opciones:
 
-- **bilingüe** (`bilingue/`), que es la recomendada y la que está cargada:
-  todo el mundo entiende su mail sin que tengamos que elegir por nadie;
+- **bilingüe** (`bilingue/`), que es la recomendada: todo el mundo entiende
+  su mail sin que tengamos que elegir por nadie;
 - **castellano** (los archivos de esta carpeta), si algún día el inglés se
   apaga del todo;
 - **inglés** (`en/`), si el público cambia.
