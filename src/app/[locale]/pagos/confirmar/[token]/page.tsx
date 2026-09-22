@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { ButtonLink, Cabecera, Card, Pie } from "@/components/ui";
 import { formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
 import { nombrePeriodo } from "@/lib/domain/pagos";
@@ -51,6 +51,7 @@ export default async function ConfirmarDesdeMailPage({
   params: Promise<{ token: string }>;
   searchParams: Promise<{ respuesta?: string; resultado?: string }>;
 }) {
+  const idioma = await getLocale();
   const t = await getTranslations();
   const tc = await getTranslations("confirmarMail");
   const { token } = await params;
@@ -115,7 +116,7 @@ export default async function ConfirmarDesdeMailPage({
           <p className="m-0 text-body">
             {tc("reporto", {
               quien,
-              mes: nombrePeriodo(resumen.periodo!),
+              mes: nombrePeriodo(resumen.periodo!, idioma),
               barrio: resumen.barrio ?? "",
             })}
           </p>

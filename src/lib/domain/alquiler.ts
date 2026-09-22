@@ -55,12 +55,25 @@ export function montoParaCampo(valor: number | string | null | undefined): strin
   return conSeparadores(String(numero).replace(".", ","));
 }
 
-export function formatearFecha(fecha: string | null | undefined): string {
+/*
+ * El orden es siempre el de acá: día, mes, año. Lo único que cambia con el
+ * idioma es el nombre del mes, porque "septiembre" adentro de una frase en
+ * inglés no lo lee nadie. `en-GB` usa el mismo orden que `es-AR`, así que la
+ * fecha se ve igual en los dos: "21 de septiembre de 2026" / "21 September
+ * 2026".
+ */
+export function intlDe(idioma: string): string {
+  return idioma === "en" ? "en-GB" : "es-AR";
+}
+
+export function formatearFecha(fecha: string | null | undefined, idioma = "es"): string {
   if (!fecha) return "—";
   const [anio, mes, dia] = fecha.split("-").map(Number);
-  return new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "long", year: "numeric" }).format(
-    new Date(Date.UTC(anio, mes - 1, dia)),
-  );
+  return new Intl.DateTimeFormat(intlDe(idioma), {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(Date.UTC(anio, mes - 1, dia)));
 }
 
 /**

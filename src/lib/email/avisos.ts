@@ -1,4 +1,7 @@
 import "server-only";
+import { getTranslations } from "next-intl/server";
+import { idiomaParaMostrar } from "@/i18n/idioma";
+import type { Traductor } from "@/i18n/texto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { serverEnv } from "@/lib/env";
 import { nombreDeContraparte } from "@/lib/validation/profile";
@@ -19,6 +22,30 @@ import {
  * tareas secundarias y se llaman después de que la acción principal ya quedó
  * guardada.
  */
+
+/**
+ * El traductor de quien va a recibir el mail.
+ *
+ * Los avisos salen de un cron: del otro lado no hay navegador ni cookie, así
+ * que el idioma sale del perfil. Quien todavía no eligió, o eligió uno que
+ * hoy está apagado, lo recibe en el idioma activo.
+ */
+async function traductorDe(userId: string | null): Promise<Traductor> {
+  let guardado: string | null = null;
+
+  if (userId) {
+    const supabase = createAdminClient();
+    const { data } = (await supabase
+      ?.from("profiles")
+      .select("locale")
+      .eq("id", userId)
+      .maybeSingle()) ?? { data: null };
+    guardado = data?.locale ?? null;
+  }
+
+  const t = await getTranslations({ locale: idiomaParaMostrar(guardado) });
+  return t as unknown as Traductor;
+}
 
 async function nombreDe(userId: string | null): Promise<string> {
   if (!userId) return "La otra parte";
@@ -62,6 +89,7 @@ export async function avisarPagoReportado(paymentId: string, recordatorio = fals
 
     const mail = pagoReportado(
       {
+        t: await traductorDe(alquiler.owner_id),
         nombreInquilino: await nombreDe(alquiler.tenant_id),
         periodo: String(pago.period).slice(0, 10),
         monto: String(pago.amount),
@@ -118,6 +146,7 @@ export async function avisarPagoConfirmado(paymentId: string): Promise<void> {
       para,
       dedupeKey: `pago.confirmado:${pago.id}`,
       mail: pagoConfirmado({
+        t: await traductorDe(alquiler.tenant_id),
         periodo: String(pago.period).slice(0, 10),
         barrio: alquiler.neighborhood_label,
         monto: String(pago.amount),
@@ -149,6 +178,8 @@ export async function avisarInvitacion(datos: {
       para: datos.para,
       dedupeKey: `invitacion.enviada:${datos.rentalId}:${datos.para}:${Date.now()}`,
       mail: invitacion({
+        // A quien recibe la invitación todavía no lo conocemos: idioma activo.
+        t: await traductorDe(null),
         quien: await nombreDe(datos.quienId),
         barrio: datos.barrio,
         rol: datos.rol,
@@ -184,6 +215,7 @@ export async function avisarRespuestaInvitacion(rentalId: string, acepto: boolea
       para,
       dedupeKey: `invitacion.respondida:${alquiler.id}`,
       mail: invitacionRespondida({
+        t: await traductorDe(alquiler.created_by),
         acepto,
         barrio: alquiler.neighborhood_label,
         url: new URL(`/alquileres/${alquiler.id}`, serverEnv.siteUrl).toString(),
@@ -224,6 +256,7 @@ export async function avisarFinDeContrato(rentalId: string): Promise<void> {
         para,
         dedupeKey: `contrato.terminado:${alquiler.id}:${quien}`,
         mail: contratoTerminado({
+          t: await traductorDe(quien),
           barrio: alquiler.neighborhood_label,
           quien: await nombreDe(elOtro),
           url,
@@ -262,6 +295,7 @@ export async function avisarBajaDeCuenta(
         para,
         dedupeKey: `cuenta.baja:${aviso.rental_id}:${aviso.user_id}`,
         mail: comprobantesPorBorrar({
+          t: await traductorDe(aviso.user_id),
           barrio: aviso.barrio,
           url: new URL(`/alquileres/${aviso.rental_id}`, serverEnv.siteUrl).toString(),
           vence,

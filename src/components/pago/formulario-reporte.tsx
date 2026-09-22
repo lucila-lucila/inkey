@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { traducirMensaje } from "@/i18n/texto";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
@@ -35,6 +35,7 @@ export function FormularioReporte({
   onCancelar?: () => void;
 }) {
   const t = useTranslations();
+  const idioma = useLocale();
   const [estado, accion] = useActionState(reportarPago, ESTADO_INICIAL);
   const error = estado.estado === "error" ? estado : undefined;
 
@@ -44,7 +45,7 @@ export function FormularioReporte({
       <input type="hidden" name="period" value={periodo} />
 
       <p className="m-0 text-[15px] text-muted">
-        Estás reportando el pago de <strong className="text-ink">{nombrePeriodo(periodo)}</strong>.
+        Estás reportando el pago de <strong className="text-ink">{nombrePeriodo(periodo, idioma)}</strong>.
       </p>
 
       {error && (

@@ -215,7 +215,7 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
                     ]}
                   />
                   <Text style={estilos.barraMes}>
-                    {nombrePeriodo(`${mes.periodo}-01`, true).slice(0, 3)}
+                    {nombrePeriodo(`${mes.periodo}-01`, datos.idioma, true).slice(0, 3)}
                   </Text>
                 </View>
               ))}

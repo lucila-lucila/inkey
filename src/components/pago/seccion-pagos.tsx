@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button, Card, Pill } from "@/components/ui";
 import { BotonesDueño } from "./botones-dueno";
@@ -57,6 +57,7 @@ export function SeccionPagos({
   /** Base de los links que se comparten por WhatsApp. */
   siteUrl: string;
 }) {
+  const idioma = useLocale();
   const t = useTranslations();
   const ts = useTranslations("pagosSeccion");
   const [reportando, setReportando] = useState<string | null>(null);
@@ -84,10 +85,10 @@ export function SeccionPagos({
             <div>
               <p className="t-etiqueta m-0 text-muted">{ts("mesEnCurso")}</p>
               <p className="m-0 t-subtitulo capitalize">
-                {nombrePeriodo(actual.periodo)}
+                {nombrePeriodo(actual.periodo, idioma)}
               </p>
               <p className="m-0 text-[15px] text-muted">
-                Vence el {formatearFecha(actual.vence)}
+                Vence el {formatearFecha(actual.vence, idioma)}
               </p>
             </div>
             {actual.pago && (
@@ -126,7 +127,7 @@ export function SeccionPagos({
                     href={enlaceWhatsApp(
                       mensajeInsistirPago({
                         t,
-                        mes: nombrePeriodo(actual.periodo),
+                        mes: nombrePeriodo(actual.periodo, idioma),
                         barrio,
                         url: `${siteUrl}/pagos/${actual.pago.id}`,
                       }),
@@ -190,11 +191,11 @@ export function SeccionPagos({
               <div>
                 <p className="t-etiqueta m-0 text-muted">{ts("teReportaron")}</p>
                 <p className="m-0 t-subtitulo capitalize">
-                  {nombrePeriodo(fila.periodo)}
+                  {nombrePeriodo(fila.periodo, idioma)}
                 </p>
                 <p className="m-0 text-[17px]">
                   {formatearMonto(fila.pago!.amount, fila.pago!.currency as Moneda)} · pagado el{" "}
-                  {formatearFecha(fila.pago!.paid_on)}
+                  {formatearFecha(fila.pago!.paid_on, idioma)}
                 </p>
               </div>
               <BotonesDueño pagoId={fila.pago!.id} />
@@ -225,12 +226,12 @@ export function SeccionPagos({
                 <Card className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="m-0 text-[17px] font-medium capitalize">
-                      {nombrePeriodo(fila.periodo)}
+                      {nombrePeriodo(fila.periodo, idioma)}
                     </p>
                     <p className="m-0 text-[15px] text-muted">
                       {fila.pago
-                        ? `${formatearMonto(fila.pago.amount, fila.pago.currency as Moneda)} · pagado el ${formatearFecha(fila.pago.paid_on)}`
-                        : `Vencía el ${formatearFecha(fila.vence)}`}
+                        ? `${formatearMonto(fila.pago.amount, fila.pago.currency as Moneda)} · pagado el ${formatearFecha(fila.pago.paid_on, idioma)}`
+                        : `Vencía el ${formatearFecha(fila.vence, idioma)}`}
                     </p>
                   </div>
 

@@ -8,7 +8,7 @@ import { formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
 import { ESTADOS_PAGO, nombrePeriodo, type EstadoPago } from "@/lib/domain/pagos";
 import { nombreDeContraparte } from "@/lib/validation/profile";
 import type { Moneda } from "@/lib/validation/rental";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -28,6 +28,7 @@ function Dato({ etiqueta, valor }: { etiqueta: string; valor: React.ReactNode })
 export default async function PagoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
+  const idioma = await getLocale();
   const t = await getTranslations();
   const tp = await getTranslations("pagoDetalle");
   const {

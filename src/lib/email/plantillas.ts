@@ -1,4 +1,5 @@
-import { formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
+import type { Traductor } from "@/i18n/texto";
+import { claveDeRol, formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
 import { nombrePeriodo } from "@/lib/domain/pagos";
 import type { Moneda } from "@/lib/validation/rental";
 
@@ -29,6 +30,14 @@ const FUENTE =
   "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 export type Mail = { asunto: string; html: string; texto: string };
+
+/*
+ * El idioma del mail sale del traductor de quien lo recibe. Lo guardamos en
+ * el propio traductor para no tener que pasarlo dos veces a cada plantilla.
+ */
+function idiomaDe(t: Traductor): string {
+  return t("mail.codigoIdioma");
+}
 
 /*
  * Nombres y barrios los escribe la gente, y acá terminan dentro de HTML. Un
@@ -62,7 +71,13 @@ function boton(url: string, texto: string, tono: "marca" | "confirmado" | "suave
  * tal cual; el título viene del asunto, que puede llevar el nombre de alguien,
  * así que se escapa acá también.
  */
-function marco(opciones: { titulo: string; cuerpo: string; siteUrl: string; pie?: string }): string {
+function marco(opciones: {
+  t: Traductor;
+  titulo: string;
+  cuerpo: string;
+  siteUrl: string;
+  pie?: string;
+}): string {
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>${esc(opciones.titulo)}</title></head>
@@ -75,8 +90,8 @@ function marco(opciones: { titulo: string; cuerpo: string; siteUrl: string; pie?
       ${opciones.cuerpo}
     </td></tr>
     <tr><td style="padding:20px 8px;font:400 13px/1.5 ${FUENTE};color:${COLORES.muted};">
-      ${opciones.pie ?? "Te escribimos porque compartís un alquiler en Inkey."}
-      <br>Inkey · Tu historial de alquiler, confirmado
+      ${opciones.pie ?? opciones.t("mail.pieGenerico")}
+      <br>${opciones.t("mail.firma")}
     </td></tr>
   </table>
 </body></html>`;
@@ -98,6 +113,8 @@ function ficha(filas: Array<[string, string]>): string {
 }
 
 export type DatosPago = {
+  /* En el idioma de quien recibe el mail, no en el de quien lo dispara. */
+  t: Traductor;
   nombreInquilino: string;
   periodo: string;
   monto: string;
@@ -112,48 +129,62 @@ export function pagoReportado(
   datos: DatosPago & { urlConfirmar: string; urlNoRecibido: string },
   recordatorio = false,
 ): Mail {
-  const mes = nombrePeriodo(datos.periodo);
+  const mes = nombrePeriodo(datos.periodo, idiomaDe(datos.t));
   const monto = formatearMonto(datos.monto, datos.moneda);
 
+  const t = datos.t;
   const asunto = recordatorio
-    ? `Te falta confirmar el pago de ${mes}`
-    : `${limpio(datos.nombreInquilino)} pagó ${mes}`;
+    ? t("mail.pagoAsuntoRecordatorio", { mes })
+    : t("mail.pagoAsunto", { quien: limpio(datos.nombreInquilino), mes });
 
   const cuerpo = `
-    <h1 style="${h1}">${recordatorio ? "Te falta confirmar un pago" : "¿Te llegó este pago?"}</h1>
+    <h1 style="${h1}">${recordatorio ? t("mail.pagoTituloRecordatorio") : t("mail.pagoTitulo")}</h1>
     <p style="${p}">
       ${
         recordatorio
-          ? `Hace unos días ${esc(datos.nombreInquilino)} reportó el pago de ${mes} en ${esc(datos.barrio)} y todavía no nos dijiste si te llegó.`
-          : `${esc(datos.nombreInquilino)} reportó que pagó el alquiler de ${mes} en ${esc(datos.barrio)}.`
+          ? t("mail.pagoCuerpoRecordatorio", {
+              quien: esc(datos.nombreInquilino),
+              mes,
+              barrio: esc(datos.barrio),
+            })
+          : t("mail.pagoCuerpo", {
+              quien: esc(datos.nombreInquilino),
+              mes,
+              barrio: esc(datos.barrio),
+            })
       }
     </p>
     ${ficha([
-      ["Monto", monto],
-      ["Lo pagó el", formatearFecha(datos.pagadoEl)],
-      ["Período", mes],
+      [t("mail.monto"), monto],
+      [t("mail.loPagoEl"), formatearFecha(datos.pagadoEl, idiomaDe(t))],
+      [t("mail.periodo"), mes],
     ])}
-    <p style="${p}">Respondé desde acá, sin entrar ni crear contraseña:</p>
-    <div style="margin:0 0 12px;">${boton(datos.urlConfirmar, "Recibido", "confirmado")}</div>
-    <div>${boton(datos.urlNoRecibido, "Todavía no me llegó", "suave")}</div>
+    <p style="${p}">${t("mail.pagoRespondeDesdeAca")}</p>
+    <div style="margin:0 0 12px;">${boton(datos.urlConfirmar, t("mail.recibido"), "confirmado")}</div>
+    <div>${boton(datos.urlNoRecibido, t("mail.noMeLlego"), "suave")}</div>
   `;
 
   const texto = [
-    recordatorio ? "Te falta confirmar un pago" : "¿Te llegó este pago?",
+    recordatorio ? t("mail.pagoTituloRecordatorio") : t("mail.pagoTitulo"),
     "",
-    `${limpio(datos.nombreInquilino)} reportó que pagó ${mes} en ${limpio(datos.barrio)}.`,
-    `Monto: ${monto}`,
-    `Lo pagó el: ${formatearFecha(datos.pagadoEl)}`,
+    t("mail.pagoCuerpo", {
+      quien: limpio(datos.nombreInquilino),
+      mes,
+      barrio: limpio(datos.barrio),
+    }),
+    `${t("mail.monto")}: ${monto}`,
+    `${t("mail.loPagoEl")}: ${formatearFecha(datos.pagadoEl, idiomaDe(t))}`,
     "",
-    `Confirmar que lo recibiste: ${datos.urlConfirmar}`,
-    `Decir que todavía no llegó: ${datos.urlNoRecibido}`,
+    t("mail.pagoTextoConfirmar", { url: datos.urlConfirmar }),
+    t("mail.pagoTextoNoLlego", { url: datos.urlNoRecibido }),
   ].join("\n");
 
-  return { asunto, html: marco({ titulo: asunto, cuerpo, siteUrl: datos.siteUrl }), texto };
+  return { asunto, html: marco({ t, titulo: asunto, cuerpo, siteUrl: datos.siteUrl }), texto };
 }
 
 /** Al inquilino: el dueño confirmó. */
 export function pagoConfirmado(datos: {
+  t: Traductor;
   periodo: string;
   barrio: string;
   monto: string;
@@ -161,71 +192,73 @@ export function pagoConfirmado(datos: {
   urlRecibo: string;
   siteUrl: string;
 }): Mail {
-  const mes = nombrePeriodo(datos.periodo);
-  const asunto = `Tu dueño confirmó el pago de ${mes}`;
+  const t = datos.t;
+  const mes = nombrePeriodo(datos.periodo, idiomaDe(t));
+  const asunto = t("mail.confirmadoAsunto", { mes });
 
   const cuerpo = `
-    <div style="display:inline-block;background:${COLORES.confirmadoTinte};color:${COLORES.confirmadoTinta};font:600 13px/1 ${FUENTE};letter-spacing:1px;text-transform:uppercase;padding:8px 12px;border-radius:12px;margin:0 0 16px;">Confirmado</div>
-    <h1 style="${h1}">Listo, quedó confirmado</h1>
+    <div style="display:inline-block;background:${COLORES.confirmadoTinte};color:${COLORES.confirmadoTinta};font:600 13px/1 ${FUENTE};letter-spacing:1px;text-transform:uppercase;padding:8px 12px;border-radius:12px;margin:0 0 16px;">${t("mail.confirmadoSello")}</div>
+    <h1 style="${h1}">${t("mail.confirmadoTitulo")}</h1>
     <p style="${p}">
-      Tu dueño confirmó el pago de ${mes} en ${esc(datos.barrio)}. Ese mes ya suma a tu historial, y los
-      dos tienen el recibo.
+      ${t("mail.confirmadoCuerpo", { mes, barrio: esc(datos.barrio) })}
     </p>
     ${ficha([
-      ["Monto", formatearMonto(datos.monto, datos.moneda)],
-      ["Período", mes],
+      [t("mail.monto"), formatearMonto(datos.monto, datos.moneda)],
+      [t("mail.periodo"), mes],
     ])}
-    <div>${boton(datos.urlRecibo, "Descargar el recibo", "marca")}</div>
+    <div>${boton(datos.urlRecibo, t("mail.confirmadoBoton"), "marca")}</div>
   `;
 
   const texto = [
-    "Listo, quedó confirmado.",
+    t("mail.confirmadoTitulo"),
     "",
-    `Tu dueño confirmó el pago de ${mes} en ${limpio(datos.barrio)}.`,
-    `Descargá el recibo: ${datos.urlRecibo}`,
+    t("mail.confirmadoCuerpo", { mes, barrio: limpio(datos.barrio) }),
+    t("mail.confirmadoTexto", { url: datos.urlRecibo }),
   ].join("\n");
 
-  return { asunto, html: marco({ titulo: asunto, cuerpo, siteUrl: datos.siteUrl }), texto };
+  return { asunto, html: marco({ t, titulo: asunto, cuerpo, siteUrl: datos.siteUrl }), texto };
 }
 
 /** A quien recibe una invitación a confirmar un alquiler. */
 export function invitacion(datos: {
+  t: Traductor;
   quien: string;
   barrio: string;
   rol: "owner" | "tenant";
   url: string;
   siteUrl: string;
 }): Mail {
-  const asunto = `${limpio(datos.quien)} te invita a confirmar un alquiler en Inkey`;
-  const comoQue = datos.rol === "owner" ? "dueño" : "inquilino";
+  const t = datos.t;
+  const asunto = t("mail.invitacionAsunto", { quien: limpio(datos.quien) });
+  const comoQue = t(claveDeRol(datos.rol));
 
   const cuerpo = `
-    <h1 style="${h1}">${esc(datos.quien)} te invita a confirmar un alquiler</h1>
+    <h1 style="${h1}">${t("mail.invitacionTitulo", { quien: esc(datos.quien) })}</h1>
     <p style="${p}">
-      Registró el alquiler de ${esc(datos.barrio)} en Inkey y te suma como ${comoQue}. En Inkey las dos
-      partes confirman cada pago: así el historial vale, porque nadie puede inventarse un mes.
+      ${t("mail.invitacionCuerpo", { barrio: esc(datos.barrio), rol: comoQue })}
     </p>
-    <p style="${p}">Abrí el link, mirá el resumen y confirmá si es correcto.</p>
-    <div>${boton(datos.url, "Ver la invitación", "marca")}</div>
+    <p style="${p}">${t("mail.invitacionAbri")}</p>
+    <div>${boton(datos.url, t("mail.invitacionBoton"), "marca")}</div>
     <p style="${p}margin-top:20px;font-size:14px;color:${COLORES.muted};">
-      Si no es tu propiedad, desde ahí mismo podés decirlo. El link vence en 7 días.
+      ${t("mail.invitacionNota")}
     </p>
   `;
 
   const texto = [
-    `${limpio(datos.quien)} te invita a confirmar el alquiler de ${limpio(datos.barrio)} en Inkey.`,
+    t("mail.invitacionTexto", { quien: limpio(datos.quien), barrio: limpio(datos.barrio) }),
     "",
-    `Abrí el link: ${datos.url}`,
-    "El link vence en 7 días.",
+    t("mail.invitacionTextoLink", { url: datos.url }),
+    t("mail.invitacionTextoVence"),
   ].join("\n");
 
   return {
     asunto,
     html: marco({
+      t,
       titulo: asunto,
       cuerpo,
       siteUrl: datos.siteUrl,
-      pie: "Te escribimos porque alguien te invitó a confirmar un alquiler en Inkey.",
+      pie: t("mail.pieInvitacion"),
     }),
     texto,
   };
@@ -233,68 +266,64 @@ export function invitacion(datos: {
 
 /** A quien invitó: la otra parte respondió. */
 export function invitacionRespondida(datos: {
+  t: Traductor;
   acepto: boolean;
   barrio: string;
   url: string;
   siteUrl: string;
 }): Mail {
+  const t = datos.t;
   const asunto = datos.acepto
-    ? `Confirmaron el alquiler de ${limpio(datos.barrio)}`
-    : `No confirmaron el alquiler de ${limpio(datos.barrio)}`;
+    ? t("mail.respuestaAsuntoSi", { barrio: limpio(datos.barrio) })
+    : t("mail.respuestaAsuntoNo", { barrio: limpio(datos.barrio) });
 
   const cuerpo = datos.acepto
     ? `
-      <h1 style="${h1}">Listo, ya está confirmado</h1>
-      <p style="${p}">
-        La otra parte confirmó el alquiler de ${esc(datos.barrio)}. Desde ahora van a ir confirmando
-        cada pago, mes a mes.
-      </p>
-      <div>${boton(datos.url, "Ver el alquiler", "marca")}</div>`
+      <h1 style="${h1}">${t("mail.respuestaTituloSi")}</h1>
+      <p style="${p}">${t("mail.respuestaCuerpoSi", { barrio: esc(datos.barrio) })}</p>
+      <div>${boton(datos.url, t("mail.verElAlquiler"), "marca")}</div>`
     : `
-      <h1 style="${h1}">Esa propiedad no era suya</h1>
-      <p style="${p}">
-        Quien recibió el link de ${esc(datos.barrio)} dijo que no es su propiedad. Puede que te hayas
-        equivocado de contacto: cargá el alquiler de nuevo con los datos correctos.
-      </p>
-      <div>${boton(datos.url, "Ver el alquiler", "suave")}</div>`;
+      <h1 style="${h1}">${t("mail.respuestaTituloNo")}</h1>
+      <p style="${p}">${t("mail.respuestaCuerpoNo", { barrio: esc(datos.barrio) })}</p>
+      <div>${boton(datos.url, t("mail.verElAlquiler"), "suave")}</div>`;
 
   const texto = datos.acepto
-    ? `Confirmaron el alquiler de ${limpio(datos.barrio)}. Verlo: ${datos.url}`
-    : `Quien recibió el link de ${limpio(datos.barrio)} dijo que no es su propiedad. Verlo: ${datos.url}`;
+    ? t("mail.respuestaTextoSi", { barrio: limpio(datos.barrio), url: datos.url })
+    : t("mail.respuestaTextoNo", { barrio: limpio(datos.barrio), url: datos.url });
 
-  return { asunto, html: marco({ titulo: asunto, cuerpo, siteUrl: datos.siteUrl }), texto };
+  return { asunto, html: marco({ t, titulo: asunto, cuerpo, siteUrl: datos.siteUrl }), texto };
 }
 
 /** A las dos partes, cuando el contrato termina. */
 export function contratoTerminado(datos: {
+  t: Traductor;
   barrio: string;
   quien: string;
   url: string;
   siteUrl: string;
 }): Mail {
-  const asunto = `Terminó el alquiler de ${limpio(datos.barrio)}: contá cómo fue`;
+  const t = datos.t;
+  const asunto = t("mail.finAsunto", { barrio: limpio(datos.barrio) });
 
   const cuerpo = `
-    <h1 style="${h1}">Terminó el alquiler de ${esc(datos.barrio)}</h1>
+    <h1 style="${h1}">${t("mail.finTitulo", { barrio: esc(datos.barrio) })}</h1>
     <p style="${p}">
-      Los dos confirmaron que el contrato terminó. Ahora pueden dejarse una reseña: etiquetas
-      rápidas y, si querés, unas líneas.
+      ${t("mail.finCuerpo")}
     </p>
     <p style="${p}">
-      Nadie ve tu reseña hasta que ${esc(datos.quien)} deje la suya, o hasta 14 días después. Así nadie
-      escribe mirando lo que dijo el otro.
+      ${t("mail.finNadieVe", { quien: esc(datos.quien) })}
     </p>
-    <div>${boton(datos.url, "Dejar mi reseña", "marca")}</div>
+    <div>${boton(datos.url, t("mail.finBoton"), "marca")}</div>
   `;
 
   const texto = [
-    `Terminó el alquiler de ${limpio(datos.barrio)}.`,
+    t("mail.finTexto", { barrio: limpio(datos.barrio) }),
     "",
-    `Dejá tu reseña: ${datos.url}`,
-    `Nadie la ve hasta que ${limpio(datos.quien)} deje la suya, o hasta 14 días después.`,
+    t("mail.finTextoLink", { url: datos.url }),
+    t("mail.finTextoNadieVe", { quien: limpio(datos.quien) }),
   ].join("\n");
 
-  return { asunto, html: marco({ titulo: asunto, cuerpo, siteUrl: datos.siteUrl }), texto };
+  return { asunto, html: marco({ t, titulo: asunto, cuerpo, siteUrl: datos.siteUrl }), texto };
 }
 
 /**
@@ -305,35 +334,38 @@ export function contratoTerminado(datos: {
  * nadie se quede sin su respaldo.
  */
 export function comprobantesPorBorrar(datos: {
+  t: Traductor;
   barrio: string;
   url: string;
   vence: string;
   siteUrl: string;
 }): Mail {
-  const asunto = `Descargá los comprobantes de ${limpio(datos.barrio)} antes del ${formatearFecha(datos.vence)}`;
+  const t = datos.t;
+  const asunto = t("mail.archivosAsunto", {
+    barrio: limpio(datos.barrio),
+    fecha: formatearFecha(datos.vence, idiomaDe(t)),
+  });
 
   const cuerpo = `
-    <h1 style="${h1}">Guardá los comprobantes que necesites</h1>
+    <h1 style="${h1}">${t("mail.archivosTitulo")}</h1>
     <p style="${p}">
-      La otra parte del alquiler de ${esc(datos.barrio)} dio de baja su cuenta. Los comprobantes y el
-      contrato que había subido se borran el ${formatearFecha(datos.vence)}.
+      ${t("mail.archivosCuerpo", { barrio: esc(datos.barrio), fecha: formatearFecha(datos.vence, idiomaDe(t)) })}
     </p>
     <p style="${p}">
-      Hasta esa fecha podés descargarlos desde el alquiler. Tu historial de pagos confirmados no se
-      toca: ese también es tuyo y queda como está.
+      ${t("mail.archivosHasta")}
     </p>
-    <div>${boton(datos.url, "Ver el alquiler", "marca")}</div>
+    <div>${boton(datos.url, t("mail.verElAlquiler"), "marca")}</div>
   `;
 
   const texto = [
-    "Guardá los comprobantes que necesites.",
+    t("mail.archivosTitulo"),
     "",
-    `La otra parte del alquiler de ${limpio(datos.barrio)} dio de baja su cuenta.`,
-    `Los archivos que había subido se borran el ${formatearFecha(datos.vence)}.`,
-    `Descargalos desde acá: ${datos.url}`,
+    t("mail.archivosTexto1", { barrio: limpio(datos.barrio) }),
+    t("mail.archivosTexto2", { fecha: formatearFecha(datos.vence, idiomaDe(t)) }),
+    t("mail.archivosTexto3", { url: datos.url }),
     "",
-    "Tu historial de pagos confirmados no se toca.",
+    t("mail.archivosTexto4"),
   ].join("\n");
 
-  return { asunto, html: marco({ titulo: asunto, cuerpo, siteUrl: datos.siteUrl }), texto };
+  return { asunto, html: marco({ t, titulo: asunto, cuerpo, siteUrl: datos.siteUrl }), texto };
 }

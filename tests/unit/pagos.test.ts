@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { formatearFecha } from "@/lib/domain/alquiler";
 import {
   cuentaEnFecha,
   nombrePeriodo,
@@ -45,9 +46,16 @@ describe("períodos", () => {
     expect(periodoActual(new Date("2026-09-20T12:00:00Z"))).toBe("2026-09-01");
   });
 
-  it("nombra los meses en castellano", () => {
+  it("nombra los meses en el idioma de quien lee", () => {
     expect(nombrePeriodo("2026-09-01")).toBe("septiembre de 2026");
-    expect(nombrePeriodo("2026-09-01", true)).toContain("2026");
+    expect(nombrePeriodo("2026-09-01", "en")).toBe("September 2026");
+    expect(nombrePeriodo("2026-09-01", "es", true)).toContain("2026");
+  });
+
+  it("la fecha mantiene el orden de acá en los dos idiomas", () => {
+    // Día, mes y año: lo único que cambia es el nombre del mes.
+    expect(formatearFecha("2026-09-21")).toBe("21 de septiembre de 2026");
+    expect(formatearFecha("2026-09-21", "en")).toBe("21 September 2026");
   });
 });
 

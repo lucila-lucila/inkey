@@ -23,7 +23,7 @@ import {
 } from "@/lib/domain/resenas";
 import type { Moneda } from "@/lib/validation/rental";
 import { serverEnv } from "@/lib/env";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { BotonContrato, CancelarAlquiler, NuevoLink, SubirContrato } from "./piezas";
 
@@ -44,6 +44,7 @@ function Dato({ etiqueta, valor }: { etiqueta: string; valor: React.ReactNode })
 export default async function AlquilerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
+  const idioma = await getLocale();
   const t = await getTranslations();
   const ta = await getTranslations("alquiler");
   const {
@@ -157,8 +158,8 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
             valor={formatearMonto(alquiler.monthly_amount, alquiler.currency as Moneda)}
           />
           <Dato etiqueta={ta("vencimiento")} valor={t(claveDeVencimiento(alquiler.due_day), { dia: alquiler.due_day })} />
-          <Dato etiqueta={ta("desde")} valor={formatearFecha(alquiler.start_date)} />
-          <Dato etiqueta={ta("hasta")} valor={formatearFecha(alquiler.end_date)} />
+          <Dato etiqueta={ta("desde")} valor={formatearFecha(alquiler.start_date, idioma)} />
+          <Dato etiqueta={ta("hasta")} valor={formatearFecha(alquiler.end_date, idioma)} />
           <Dato
             etiqueta={ta("ajuste")}
             valor={
@@ -188,7 +189,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
             alquiler.status === "ended" ? (
               <p className="m-0 text-[17px]">
                 {ta.rich("compartieron", {
-                  desde: formatearFecha(alquiler.start_date),
+                  desde: formatearFecha(alquiler.start_date, idioma),
                   // La fecha en que cerró de verdad, que puede no ser la pactada.
                   hasta: formatearFecha(
                     alquiler.ended_at ? String(alquiler.ended_at).slice(0, 10) : alquiler.end_date,
@@ -213,7 +214,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
               <p className="m-0 text-body">
                 {ta("todaviaNoConfirmo")}
                 {invitacion && !invitacionVencida &&
-                  ta("linkVence", { fecha: formatearFecha(invitacion.expires_at.slice(0, 10)) })}
+                  ta("linkVence", { fecha: formatearFecha(invitacion.expires_at.slice(0, 10), idioma) })}
                 {invitacionVencida && ta("linkVencido")}
               </p>
               {esCreador && (
@@ -246,7 +247,7 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
                   ? ta("estaPublicada")
                   : ta("sePublicaCuando", {
                       quien: nombreContraparte,
-                      fecha: formatearFecha(sePublicaEl),
+                      fecha: formatearFecha(sePublicaEl, idioma),
                     })}
               </p>
             </Card>

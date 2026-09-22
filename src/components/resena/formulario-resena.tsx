@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { traducirMensaje } from "@/i18n/texto";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
@@ -38,6 +38,7 @@ export function FormularioResena({
   sePublicaEl: string;
 }) {
   const t = useTranslations();
+  const idioma = useLocale();
   const [estado, accion] = useActionState(dejarResena, ESTADO_INICIAL);
   const [elegidas, setElegidas] = useState<string[]>([]);
   const [texto, setTexto] = useState("");
@@ -49,7 +50,7 @@ export function FormularioResena({
         <p className="m-0 text-body">
           {estado.publicada
             ? t("resena.sePublicaronJuntas")
-            : t("resena.sePublicaCuando", { quien, fecha: formatearFecha(sePublicaEl) })}
+            : t("resena.sePublicaCuando", { quien, fecha: formatearFecha(sePublicaEl, idioma) })}
         </p>
       </Card>
     );
@@ -60,7 +61,7 @@ export function FormularioResena({
       <div>
         <h3 className="t-subtitulo mt-0 mb-1.5">{t("resena.contaComoFue")}</h3>
         <p className="m-0 text-body">
-          {t("resena.nadieVe", { quien, fecha: formatearFecha(sePublicaEl) })}
+          {t("resena.nadieVe", { quien, fecha: formatearFecha(sePublicaEl, idioma) })}
         </p>
       </div>
 

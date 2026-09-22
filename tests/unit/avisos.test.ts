@@ -17,6 +17,7 @@ import {
 const SITE = "https://inkey.test";
 
 const PAGO = {
+  t: traductor("es"),
   nombreInquilino: "Martina R.",
   periodo: "2026-09-01",
   monto: "450000",
@@ -64,6 +65,7 @@ describe("plantillas de mail", () => {
 
   it("el aviso de confirmado lleva al recibo", () => {
     const mail = pagoConfirmado({
+      t: traductor("es"),
       periodo: "2026-09-01",
       barrio: "Palermo, CABA",
       monto: "450000",
@@ -79,6 +81,7 @@ describe("plantillas de mail", () => {
 
   it("la invitación dice quién invita, para qué y cuánto dura", () => {
     const mail = invitacion({
+      t: traductor("es"),
       quien: "Martina R.",
       barrio: "Palermo, CABA",
       rol: "owner",
@@ -94,12 +97,14 @@ describe("plantillas de mail", () => {
 
   it("la respuesta a la invitación cambia según qué contestaron", () => {
     const si = invitacionRespondida({
+      t: traductor("es"),
       acepto: true,
       barrio: "Palermo, CABA",
       url: `${SITE}/alquileres/1`,
       siteUrl: SITE,
     });
     const no = invitacionRespondida({
+      t: traductor("es"),
       acepto: false,
       barrio: "Palermo, CABA",
       url: `${SITE}/alquileres/1`,
@@ -114,6 +119,7 @@ describe("plantillas de mail", () => {
 
   it("el fin de contrato explica que la reseña no se ve enseguida", () => {
     const mail = contratoTerminado({
+      t: traductor("es"),
       barrio: "Palermo, CABA",
       quien: "Jorge L.",
       url: `${SITE}/alquileres/1`,
@@ -191,6 +197,7 @@ describe("lo que escribe la gente, dentro de un mail", () => {
 
   it("tampoco en la invitación ni en el fin de contrato", () => {
     const invita = invitacion({
+      t: traductor("es"),
       quien: NOMBRE_HOSTIL,
       barrio: "Palermo, CABA",
       rol: "owner",
@@ -198,6 +205,7 @@ describe("lo que escribe la gente, dentro de un mail", () => {
       siteUrl: SITE,
     });
     const fin = contratoTerminado({
+      t: traductor("es"),
       barrio: BARRIO_HOSTIL,
       quien: NOMBRE_HOSTIL,
       url: `${SITE}/alquileres/1`,
@@ -217,5 +225,28 @@ describe("lo que escribe la gente, dentro de un mail", () => {
 
     expect(mail.asunto).not.toContain("\n");
     expect(mail.asunto).toContain("Ana Bcc: alguien@otro.test");
+  });
+});
+
+describe("los mails salen en el idioma de quien los recibe", () => {
+  it("el aviso de pago, en inglés", () => {
+    const mail = pagoReportado({ ...PAGO, t: traductor("en") });
+    revisarMail(mail);
+
+    expect(mail.asunto).toBe("Martina R. paid September 2026");
+    expect(mail.html).toContain("Did this payment arrive?");
+    // Los botones también: son la acción que se espera de esa persona.
+    expect(mail.html).toContain("Received");
+    expect(mail.html).toContain("It hasn't arrived yet");
+    // Nada en castellano se cuela.
+    expect(mail.texto).not.toContain("pagó");
+  });
+
+  it("el monto sigue en formato argentino, se lea en el idioma que se lea", () => {
+    // La app opera en Argentina: el monto no cambia de forma con el idioma.
+    for (const idioma of ["es", "en"] as const) {
+      const mail = pagoReportado({ ...PAGO, t: traductor(idioma) });
+      expect(mail.html).toContain("450.000");
+    }
   });
 });

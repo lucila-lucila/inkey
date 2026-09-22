@@ -1,4 +1,4 @@
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Avatar, Card, CheckIcon, Pill } from "@/components/ui";
 import { formatearMonto } from "@/lib/domain/alquiler";
 import { nombrePeriodo } from "@/lib/domain/pagos";
@@ -32,6 +32,7 @@ export function TarjetaPerfil({
   const esInquilino = rol === "tenant";
   const meses = metricas.ultimos_12 ?? [];
   const cifra = cifraPrincipal(metricas, esInquilino);
+  const idioma = useLocale();
   const t = useTranslations();
   const tt = useTranslations("tarjetaPerfil");
 
@@ -83,10 +84,10 @@ export function TarjetaPerfil({
                   className={`block h-[30px] w-full rounded-[6px] ${
                     mes.confirmado ? "bg-confirm" : "bg-surface-sunk"
                   }`}
-                  title={`${nombrePeriodo(`${mes.periodo}-01`)}: ${mes.confirmado ? "confirmado" : "sin confirmar"}`}
+                  title={`${nombrePeriodo(`${mes.periodo}-01`, idioma)}: ${mes.confirmado ? "confirmado" : "sin confirmar"}`}
                 />
                 <span className="max-[560px]:hidden">
-                  {nombrePeriodo(`${mes.periodo}-01`, true).slice(0, 3)}
+                  {nombrePeriodo(`${mes.periodo}-01`, idioma, true).slice(0, 3)}
                 </span>
               </div>
             ))}

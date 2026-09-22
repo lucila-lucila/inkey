@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { traductor } from "./apoyo/traductor";
 import { invitacion } from "@/lib/email/plantillas";
 
 /**
@@ -223,6 +224,7 @@ function encabezadoDe(html: string): string {
 
 describe("el encabezado de los mails", () => {
   const mailDeLaApp = invitacion({
+    t: traductor("es"),
     quien: "Martina R.",
     barrio: "Palermo, CABA",
     rol: "owner",

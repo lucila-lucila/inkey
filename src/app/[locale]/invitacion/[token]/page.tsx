@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ButtonLink, Cabecera, Card, Pie } from "@/components/ui";
 import { formatearFecha, formatearMonto, claveDeRol, claveDeVencimiento } from "@/lib/domain/alquiler";
@@ -68,6 +68,7 @@ export default async function InvitacionPage({
   params: Promise<{ token: string }>;
   searchParams: Promise<{ error?: string; resultado?: string }>;
 }) {
+  const idioma = await getLocale();
   const t = await getTranslations();
   const ti = await getTranslations("invitacion");
   const { token } = await params;
@@ -175,11 +176,11 @@ export default async function InvitacionPage({
             </div>
             <div>
               <dt className="t-etiqueta text-muted">{ti("desde")}</dt>
-              <dd className="m-0 text-[17px] font-medium">{formatearFecha(alquiler.desde)}</dd>
+              <dd className="m-0 text-[17px] font-medium">{formatearFecha(alquiler.desde, idioma)}</dd>
             </div>
             <div>
               <dt className="t-etiqueta text-muted">{ti("hasta")}</dt>
-              <dd className="m-0 text-[17px] font-medium">{formatearFecha(alquiler.hasta)}</dd>
+              <dd className="m-0 text-[17px] font-medium">{formatearFecha(alquiler.hasta, idioma)}</dd>
             </div>
             {alquiler.indice_ajuste && (
               <div>

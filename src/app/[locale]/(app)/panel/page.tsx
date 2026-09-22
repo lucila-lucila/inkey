@@ -9,7 +9,7 @@ import {
 } from "@/lib/domain/alquiler";
 import { nombrePeriodo, periodoActual } from "@/lib/domain/pagos";
 import type { Moneda } from "@/lib/validation/rental";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -95,6 +95,7 @@ function TarjetaAlquiler({ alquiler, estadoTexto }: { alquiler: Alquiler; estado
 
 export default async function PanelPage() {
   const supabase = await createClient();
+  const idioma = await getLocale();
   const t = await getTranslations();
   const tp = await getTranslations("panel");
   const {
@@ -285,7 +286,7 @@ export default async function PanelPage() {
               <Card key={pago.id} hero className="flex flex-col items-start gap-3">
                 <p className="m-0 text-[17px]">
                   {tp.rich("confirmaPago", {
-                    mes: nombrePeriodo(pago.period),
+                    mes: nombrePeriodo(pago.period, idioma),
                     lugar: nombreDelAlquiler.get(pago.rental_id) ?? "",
                     ...RESALTADO,
                   })}
@@ -300,7 +301,7 @@ export default async function PanelPage() {
               <Card key={`reportar-${alquiler.id}`} hero className="flex flex-col items-start gap-3">
                 <p className="m-0 text-[17px]">
                   {tp.rich("yaPagaste", {
-                    mes: nombrePeriodo(mesActual),
+                    mes: nombrePeriodo(mesActual, idioma),
                     lugar: alquiler.neighborhood_label,
                     ...RESALTADO,
                   })}
@@ -315,7 +316,7 @@ export default async function PanelPage() {
               <Card key={`rebotado-${pago.id}`} className="flex flex-col items-start gap-3">
                 <p className="m-0 text-[17px]">
                   {tp.rich("noRecibio", {
-                    mes: nombrePeriodo(pago.period),
+                    mes: nombrePeriodo(pago.period, idioma),
                     lugar: nombreDelAlquiler.get(pago.rental_id) ?? "",
                     ...RESALTADO,
                   })}

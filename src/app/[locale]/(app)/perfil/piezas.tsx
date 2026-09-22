@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { traducirMensaje } from "@/i18n/texto";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
@@ -172,6 +172,7 @@ function ListaDeLinks({
   error: string | null;
   mostrar: (id: string) => void;
 }) {
+  const idioma = useLocale();
   const t = useTranslations();
   if (links.length === 0) {
     return (
@@ -205,7 +206,7 @@ function ListaDeLinks({
                     </p>
                   )}
                   <p className="m-0 text-[15px] text-muted">
-                    {t("links.creado", { fecha: formatearFecha(link.created_at.slice(0, 10)) })} ·{" "}
+                    {t("links.creado", { fecha: formatearFecha(link.created_at.slice(0, 10), idioma) })} ·{" "}
                     {t("links.aperturas", { cantidad: link.view_count })}
                   </p>
                 </div>

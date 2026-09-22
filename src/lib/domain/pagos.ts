@@ -1,4 +1,5 @@
 import type { Traductor } from "@/i18n/texto";
+import { intlDe } from "./alquiler";
 import { vencimientoDelPeriodo } from "./alquiler";
 
 /** Un período es un mes: lo representamos como el día 1, en formato YYYY-MM-DD. */
@@ -17,10 +18,10 @@ export function partesDelPeriodo(periodo: Periodo): { anio: number; mes: number 
   return { anio, mes };
 }
 
-/** "octubre de 2026" · con `corto`, "oct. 2026". */
-export function nombrePeriodo(periodo: Periodo, corto = false): string {
+/** "octubre de 2026" · "October 2026" · con `corto`, "oct. 2026". */
+export function nombrePeriodo(periodo: Periodo, idioma = "es", corto = false): string {
   const { anio, mes } = partesDelPeriodo(periodo);
-  return new Intl.DateTimeFormat("es-AR", {
+  return new Intl.DateTimeFormat(intlDe(idioma), {
     month: corto ? "short" : "long",
     year: "numeric",
   }).format(new Date(Date.UTC(anio, mes - 1, 1)));
