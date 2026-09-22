@@ -83,7 +83,7 @@ export default async function PerfilPublicoPage({
     <Marco>
       <div className="flex flex-col gap-5">
         <div>
-          <p className="t-etiqueta m-0 text-confirm-ink">Historial confirmado</p>
+          <p className="t-etiqueta m-0 text-primary-ink">Historial confirmado</p>
           <h1 className="t-titulo mt-2 mb-2">
             {esInquilino
               ? `El historial de alquiler de ${nombreVisible(perfil.nombre, perfil.inicial_apellido)}`

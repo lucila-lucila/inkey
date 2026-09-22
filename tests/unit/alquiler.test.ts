@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   enlaceWhatsApp,
+  conSeparadores,
   formatearMonto,
+  montoParaCampo,
   mensajeInvitacion,
   rolInvitado,
   textoVencimiento,
@@ -35,9 +37,32 @@ describe("monto", () => {
     expect(parsearMonto("")).toBeNaN();
   });
 
+  it("no deja que el signo se separe del número al cortar el renglón", () => {
+    // Espacio duro, no uno común: "$" y "450.000" son una sola cosa.
+    expect(formatearMonto(450000, "ARS")).toContain("\u00a0");
+    expect(formatearMonto(450000, "ARS")).not.toContain("$ 4");
+  });
+
+  it("separa los miles mientras se escribe el monto", () => {
+    expect(conSeparadores("450000")).toBe("450.000");
+    expect(conSeparadores("1234567")).toBe("1.234.567");
+    expect(conSeparadores("450")).toBe("450");
+    // Lo que no es número se cae; la coma decimal sobrevive, una sola.
+    expect(conSeparadores("$ 450.000")).toBe("450.000");
+    expect(conSeparadores("1000,5")).toBe("1.000,5");
+    expect(conSeparadores("1000,5,3")).toBe("1.000,53");
+  });
+
+  it("deja el monto de la base listo para el campo", () => {
+    expect(montoParaCampo(450000)).toBe("450.000");
+    expect(montoParaCampo("450000.00")).toBe("450.000");
+    expect(montoParaCampo(null)).toBe("");
+    expect(montoParaCampo("")).toBe("");
+  });
+
   it("muestra los dólares tal cual, sin convertir", () => {
-    expect(formatearMonto(1200, "USD")).toBe("US$ 1.200");
-    expect(formatearMonto(450000, "ARS")).toBe("$ 450.000");
+    expect(formatearMonto(1200, "USD")).toBe("US$\u00a01.200");
+    expect(formatearMonto(450000, "ARS")).toBe("$\u00a0450.000");
   });
 });
 

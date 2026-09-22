@@ -273,7 +273,8 @@ async function recorrido({ page, foto, base, datos, client }: Paso) {
   // ------------------------------------------------------------ 9. mi perfil
   await page.goto(`${base}/perfil`);
   await page.getByRole("button", { name: "Crear el link" }).click();
-  await page.getByText(/Tu link está listo/).waitFor({ timeout: 15_000 });
+  // El link recién creado aparece abierto en la lista, listo para copiar.
+  await page.locator("input[readonly]").first().waitFor({ timeout: 15_000 });
   await foto("16-perfil-con-links");
 
   const linkPublico = await page.locator("input[readonly]").first().inputValue();

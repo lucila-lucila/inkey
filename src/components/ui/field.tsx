@@ -26,7 +26,9 @@ export function Field({
       </label>
       {children}
       {hint && !error && (
-        <p id={`${htmlFor}-hint`} className="t-etiqueta text-muted">
+        /* Texto corriente: `t-etiqueta` es para los eyebrows, y en mayúsculas
+           una ayuda pesa más que el campo al que está ayudando. */
+        <p id={`${htmlFor}-hint`} className="text-[15px] leading-[1.5] text-muted">
           {hint}
         </p>
       )}
@@ -63,7 +65,8 @@ export function Checkbox({
       <input
         id={id}
         type="checkbox"
-        className="mt-1 size-5 shrink-0 accent-[var(--green)]"
+        // El token se llamaba `--green` y no existe: el tilde salía del color del sistema.
+        className="mt-1 size-5 shrink-0 accent-[var(--confirm)]"
         {...props}
       />
       <label htmlFor={id} className="text-[15px] leading-relaxed text-body">

@@ -5,7 +5,7 @@ import { useActionState, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { crearAlquiler, type EstadoNuevoAlquiler } from "./actions";
 import { CompartirInvitacion } from "@/components/alquiler/compartir-invitacion";
-import { Button, ButtonLink, Card, Field, Input } from "@/components/ui";
+import { Button, ButtonLink, CampoMonto, Card, Field, Input } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { textoRol } from "@/lib/domain/alquiler";
 import {
@@ -173,12 +173,7 @@ export function NuevoAlquilerForm({ rol }: { rol: RolAlquiler }) {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-[2fr_1fr]">
           <Field label="Cuánto pagás por mes" htmlFor="monthly_amount" error={errorDe("monthly_amount")}>
-            <Input
-              id="monthly_amount"
-              name="monthly_amount"
-              inputMode="decimal"
-              placeholder="450.000"
-            />
+            <CampoMonto id="monthly_amount" name="monthly_amount" placeholder="450.000" />
           </Field>
           <Field label="Moneda" htmlFor="currency" error={errorDe("currency")}>
             <select

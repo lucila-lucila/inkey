@@ -53,6 +53,11 @@
    * siempre tinta, así que el verde tiene que ser siempre el aclarado.
    */
   --invertido-confirm: #7fc3a6;
+  /*
+   * La terracota sobre fondo invertido, por el mismo motivo que el verde:
+   * la de la paleta clara no tiene contraste contra la tinta.
+   */
+  --invertido-primary: #e59b78;
 
   /* tipografía */
   --display: "Bricolage Grotesque", "Helvetica Neue", Helvetica, Arial, sans-serif;

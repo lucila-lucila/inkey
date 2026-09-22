@@ -176,10 +176,29 @@ export default async function AlquilerPage({ params }: { params: Promise<{ id: s
 
         <Card className="flex flex-col gap-4">
           {contraparte ? (
-            <p className="m-0 text-[17px]">
-              <strong>{nombreDeContraparte(contraparte)}</strong>{" "}
-              confirmó el alquiler. Desde acá van a ir confirmando los pagos mes a mes.
-            </p>
+            /*
+              Un contrato terminado ya no confirma nada más: hablar en futuro
+              ahí no tiene sentido. Cuando cerró, lo que corresponde es contar
+              cuánto duró.
+            */
+            alquiler.status === "ended" ? (
+              <p className="m-0 text-[17px]">
+                Compartieron este alquiler desde{" "}
+                <strong>{formatearFecha(alquiler.start_date)}</strong> hasta{" "}
+                {/* La fecha en que cerró de verdad, que puede no ser la pactada. */}
+                <strong>
+                  {formatearFecha(
+                    alquiler.ended_at ? String(alquiler.ended_at).slice(0, 10) : alquiler.end_date,
+                  )}
+                </strong>
+                .
+              </p>
+            ) : (
+              <p className="m-0 text-[17px]">
+                <strong>{nombreDeContraparte(contraparte)}</strong> confirmó el alquiler. Desde acá
+                van a ir confirmando los pagos mes a mes.
+              </p>
+            )
           ) : alquiler.status === "rejected" ? (
             <p className="m-0 text-body">
               La persona que recibió el link dijo que no es {textoRol(rolContraparte)} de esta

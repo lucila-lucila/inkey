@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { reportarPago, type EstadoReporte } from "@/app/(app)/alquileres/[id]/actions";
-import { Button, Field, Input } from "@/components/ui";
+import { Button, CampoMonto, Field, Input } from "@/components/ui";
 import { nombrePeriodo } from "@/lib/domain/pagos";
 
 const ESTADO_INICIAL: EstadoReporte = { estado: "inicial" };
@@ -51,10 +51,9 @@ export function FormularioReporte({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Cuánto pagaste" htmlFor={`amount-${periodo}`}>
-          <Input
+          <CampoMonto
             id={`amount-${periodo}`}
             name="amount"
-            inputMode="decimal"
             defaultValue={montoSugerido}
           />
         </Field>

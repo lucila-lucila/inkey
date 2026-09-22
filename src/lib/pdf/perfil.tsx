@@ -12,7 +12,13 @@ import {
 } from "@react-pdf/renderer";
 import { formatearFecha, formatearMonto } from "@/lib/domain/alquiler";
 import { nombrePeriodo } from "@/lib/domain/pagos";
-import { nivelesDeVerificacion, nombreVisible, type Metricas } from "@/lib/domain/perfil";
+import {
+  cifraPrincipal,
+  nivelesDeVerificacion,
+  nombreVisible,
+  resumenDeMetricas,
+  type Metricas,
+} from "@/lib/domain/perfil";
 import type { ResenaPublica } from "@/lib/domain/resenas";
 import type { Moneda } from "@/lib/validation/rental";
 
@@ -32,7 +38,6 @@ const COLORES = {
   marca: "#B8451A",
   crema: "#FFF6EA",
   hundido: "#F1E7D8",
-  sol: "#F2D06B",
   superficie: "#FFFFFF",
 };
 
@@ -67,9 +72,11 @@ const estilos = StyleSheet.create({
   },
   nombre: { fontFamily: "Helvetica-Bold", fontSize: 30, letterSpacing: -1 },
   rol: { color: COLORES.cuerpo, marginTop: 2, marginBottom: 24 },
-  numeros: { flexDirection: "row", gap: 12, marginBottom: 28 },
-  numero: { flex: 1, borderRadius: 16, padding: 16 },
-  numeroValor: { fontFamily: "Helvetica-Bold", fontSize: 26, letterSpacing: -0.5 },
+  numeros: { marginBottom: 28 },
+  cifra: { flexDirection: "row", alignItems: "center", gap: 10 },
+  cifraValor: { fontFamily: "Helvetica-Bold", fontSize: 38, letterSpacing: -1 },
+  cifraTexto: { fontSize: 11, color: COLORES.cuerpo, maxWidth: 170 },
+  cifraResumen: { fontSize: 9, color: COLORES.apagado, marginTop: 6 },
   numeroEtiqueta: { fontSize: 9, color: COLORES.cuerpo, marginTop: 2 },
   etiqueta: {
     fontFamily: "Helvetica-Bold",
@@ -150,29 +157,7 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
   const esInquilino = rol === "tenant";
   const niveles = nivelesDeVerificacion(metricas);
 
-  const numeros = esInquilino
-    ? [
-        { valor: String(metricas.meses_confirmados), etiqueta: "meses confirmados", destacado: true },
-        {
-          valor: metricas.porcentaje_en_fecha === null ? "—" : `${metricas.porcentaje_en_fecha}%`,
-          etiqueta: "pagos en fecha",
-          destacado: false,
-        },
-        {
-          valor: String(metricas.contratos_cumplidos),
-          etiqueta: "contratos cumplidos",
-          destacado: false,
-        },
-      ]
-    : [
-        { valor: String(metricas.contratos_totales), etiqueta: "alquileres", destacado: true },
-        { valor: String(metricas.meses_confirmados), etiqueta: "pagos confirmados", destacado: false },
-        {
-          valor: String(metricas.contratos_cumplidos),
-          etiqueta: "contratos cumplidos",
-          destacado: false,
-        },
-      ];
+  const cifra = cifraPrincipal(metricas, esInquilino);
 
   return (
     <Document
@@ -195,19 +180,13 @@ function Perfil({ datos }: { datos: DatosPerfilPdf }) {
           {metricas.desde ? ` · desde ${formatearFecha(metricas.desde)}` : ""}
         </Text>
 
+        {/* La misma tarjeta que en pantalla: una cifra manda y el resto acompaña. */}
         <View style={estilos.numeros}>
-          {numeros.map((dato) => (
-            <View
-              key={dato.etiqueta}
-              style={[
-                estilos.numero,
-                { backgroundColor: dato.destacado ? COLORES.sol : COLORES.hundido },
-              ]}
-            >
-              <Text style={estilos.numeroValor}>{dato.valor}</Text>
-              <Text style={estilos.numeroEtiqueta}>{dato.etiqueta}</Text>
-            </View>
-          ))}
+          <View style={estilos.cifra}>
+            <Text style={estilos.cifraValor}>{cifra.numero}</Text>
+            <Text style={estilos.cifraTexto}>{cifra.texto}</Text>
+          </View>
+          <Text style={estilos.cifraResumen}>{resumenDeMetricas(metricas, esInquilino)}</Text>
         </View>
 
         {metricas.ultimos_12?.length > 0 && (

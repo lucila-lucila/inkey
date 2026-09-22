@@ -13,10 +13,13 @@ export const metadata: Metadata = {
 function Seccion({
   titulo,
   bajada,
+  sinTarjeta = false,
   children,
 }: {
   titulo: string;
   bajada?: string;
+  /** Para lo que no es un bloque de datos, como la baja de cuenta. */
+  sinTarjeta?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -25,7 +28,11 @@ function Seccion({
         <h2 className="m-0 t-subtitulo">{titulo}</h2>
         {bajada && <p className="mt-1.5 mb-0 text-body">{bajada}</p>}
       </div>
-      <Card className="flex flex-col gap-4">{children}</Card>
+      {sinTarjeta ? (
+        <div className="flex flex-col gap-4">{children}</div>
+      ) : (
+        <Card className="flex flex-col gap-4">{children}</Card>
+      )}
     </section>
   );
 }
@@ -70,13 +77,13 @@ export default async function CuentaPage() {
         <div className="flex flex-wrap gap-3">
           <a
             href="/cuenta/exportar?formato=json"
-            className="inline-flex min-h-[52px] items-center justify-center rounded-full border-[1.5px] border-line bg-surface px-6 text-[17px] font-medium text-ink no-underline hover:bg-surface-sunk"
+            className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-surface-sunk px-6 text-[17px] font-medium text-ink no-underline hover:brightness-[0.97]"
           >
             Descargar en JSON
           </a>
           <a
             href="/cuenta/exportar?formato=csv"
-            className="inline-flex min-h-[52px] items-center justify-center rounded-full border-[1.5px] border-line bg-surface px-6 text-[17px] font-medium text-ink no-underline hover:bg-surface-sunk"
+            className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-surface-sunk px-6 text-[17px] font-medium text-ink no-underline hover:brightness-[0.97]"
           >
             Descargar en CSV
           </a>
@@ -123,6 +130,7 @@ export default async function CuentaPage() {
       <Seccion
         titulo="Dar de baja mi cuenta"
         bajada="Se borran tus datos personales. El historial confirmado sigue existiendo para la otra parte, porque también es suyo."
+        sinTarjeta
       >
         <BorrarCuenta />
       </Seccion>

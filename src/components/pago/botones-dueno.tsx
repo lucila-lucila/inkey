@@ -20,10 +20,14 @@ function BotonRecibido() {
   );
 }
 
+/*
+ * En este paso ya no compite con "Recibido": es LA acción que se está por
+ * hacer, así que va con el peso de la marca y no apagado.
+ */
 function BotonNoLlego() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant="secondary" disabled={pending} className="w-full">
+    <Button type="submit" disabled={pending} className="w-full">
       {pending ? "Guardando…" : "Todavía no me llegó"}
     </Button>
   );

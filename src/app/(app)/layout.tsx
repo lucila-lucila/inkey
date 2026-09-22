@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cerrarSesion } from "@/app/(auth)/ingresar/actions";
-import { Avatar, Button, Logo, Pie } from "@/components/ui";
+import { BotonSalir, MenuDeCuenta } from "@/components/app/menu-de-cuenta";
+import { Logo, Pie } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { iniciales } from "@/lib/validation/profile";
 
@@ -28,7 +29,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="wrap flex items-center justify-between gap-4 py-4">
           <div className="flex items-center gap-7">
             <Logo href="/panel" size="sm" />
-            <nav className="flex gap-5 text-[15px] font-medium">
+            {/* En el celular esta barra no entra: los links viven en el menú. */}
+            <nav className="flex gap-5 text-[15px] font-medium max-[760px]:hidden">
               <Link href="/panel" className="text-ink no-underline hover:underline hover:underline-offset-4">
                 Panel
               </Link>
@@ -41,12 +43,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </nav>
           </div>
           <div className="flex items-center gap-3">
-            {nombre && <Avatar initials={iniciales(nombre, apellido)} className="size-10 text-[16px]" />}
-            <form action={cerrarSesion}>
-              <Button type="submit" variant="quiet" size="md">
-                Salir
-              </Button>
-            </form>
+            {nombre ? (
+              <MenuDeCuenta iniciales={iniciales(nombre, apellido)} cerrarSesion={cerrarSesion} />
+            ) : (
+              <BotonSalir cerrarSesion={cerrarSesion} />
+            )}
           </div>
         </div>
       </header>

@@ -85,17 +85,12 @@ export default async function PagoPage({ params }: { params: Promise<{ id: strin
             valor={formatearMonto(pago.amount, pago.currency as Moneda)}
           />
           <Dato etiqueta="Fecha de pago" valor={formatearFecha(String(pago.paid_on).slice(0, 10))} />
+          {/*
+            Las dos fechas alcanzan: quien mira saca su propia conclusión. Una
+            etiqueta que diga "después del vencimiento" es un reproche, y acá
+            no marcamos a nadie en falta.
+          */}
           <Dato etiqueta="Vencía el" valor={formatearFecha(String(pago.due_date).slice(0, 10))} />
-          <Dato
-            etiqueta="Puntualidad"
-            valor={
-              pago.on_time ? (
-                <span className="text-confirm-ink">En fecha</span>
-              ) : (
-                <span className="text-muted">Después del vencimiento</span>
-              )
-            }
-          />
         </dl>
 
         {pago.receipt_path && (

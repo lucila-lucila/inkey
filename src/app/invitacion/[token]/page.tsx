@@ -142,7 +142,7 @@ export default async function InvitacionPage({
     <Marco>
       <div className="flex flex-col gap-5">
         <div>
-          <p className="t-etiqueta m-0 text-confirm-ink">Invitación a confirmar</p>
+          <p className="t-etiqueta m-0 text-primary-ink">Invitación a confirmar</p>
           <h1 className="mt-1.5 mb-2 t-titulo">
             {quien} te invita a confirmar este alquiler
           </h1>
@@ -207,7 +207,7 @@ export default async function InvitacionPage({
                 Entrar para confirmar
               </ButtonLink>
               <p className="m-0 text-center text-[15px] text-muted">
-                Entrás con tu mail o con Google. Sin contraseñas.
+                Entrás con tu mail. Sin contraseñas.
               </p>
             </>
           )}
@@ -217,7 +217,7 @@ export default async function InvitacionPage({
         <p className="m-0 text-[15px] text-muted">
           Al confirmar quedás como {textoRol(rol)} de este alquiler. Vos también vas a poder dejar y
           recibir reseñas al final del contrato.{" "}
-          <Link href="/" className="font-medium text-confirm-ink">
+          <Link href="/" className="font-medium text-primary-ink">
             Cómo funciona Inkey
           </Link>
         </p>

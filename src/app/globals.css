@@ -28,6 +28,7 @@
   --color-invertido: var(--invertido-bg);
   --color-invertido-ink: var(--invertido-ink);
   --color-invertido-confirm: var(--invertido-confirm);
+  --color-invertido-primary: var(--invertido-primary);
 
   --font-display: var(--display);
   --font-sans: var(--sans);

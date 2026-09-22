@@ -37,6 +37,41 @@ export function nombreVisible(nombre: string, inicial: string): string {
 export type Nivel = { titulo: string; detalle: string; logrado: boolean };
 
 /**
+ * La cifra grande de la tarjeta del historial y la línea que la acompaña.
+ *
+ * Una sola cosa manda —los meses confirmados— y el resto va en chico. Vive
+ * acá porque lo usan la pantalla, el perfil público y el PDF, y los tres
+ * tienen que decir exactamente lo mismo.
+ */
+export function cifraPrincipal(
+  metricas: Metricas,
+  esInquilino: boolean,
+): { numero: number; texto: string } {
+  if (esInquilino) {
+    return { numero: metricas.meses_confirmados, texto: "meses pagados, confirmados por su dueño" };
+  }
+  const total = metricas.contratos_totales;
+  return { numero: total, texto: total === 1 ? "alquiler en Inkey" : "alquileres en Inkey" };
+}
+
+export function resumenDeMetricas(metricas: Metricas, esInquilino: boolean): string {
+  const partes: string[] = [];
+
+  if (esInquilino && metricas.porcentaje_en_fecha !== null) {
+    partes.push(`${metricas.porcentaje_en_fecha}% en fecha`);
+  }
+  if (!esInquilino) {
+    const pagos = metricas.meses_confirmados;
+    partes.push(pagos === 1 ? "1 pago confirmado" : `${pagos} pagos confirmados`);
+  }
+
+  const cumplidos = metricas.contratos_cumplidos;
+  partes.push(cumplidos === 1 ? "1 contrato cumplido" : `${cumplidos} contratos cumplidos`);
+
+  return partes.join(" · ");
+}
+
+/**
  * Niveles de verificación. Son siempre afirmaciones de lo que sí pasó: acá no
  * hay nada que marque a nadie en falta.
  */

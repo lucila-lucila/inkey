@@ -129,7 +129,7 @@ export function SeccionPagos({
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-[52px] items-center justify-center rounded-full border-[1.5px] border-line bg-surface px-6 text-[17px] font-medium text-ink no-underline hover:bg-surface-sunk"
+                    className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-surface-sunk px-6 text-[17px] font-medium text-ink no-underline hover:brightness-[0.97]"
                   >
                     Recordárselo por WhatsApp
                   </a>

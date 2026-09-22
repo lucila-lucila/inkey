@@ -16,7 +16,7 @@ export function Acceso() {
     <div id="empezar" className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-x-7 gap-y-4 max-[560px]:flex-col max-[560px]:items-stretch">
         {/* Ancho según su contenido: un botón a lo ancho de la columna grita. */}
-        <ButtonLink href="/ingresar?intencion=inquilino" className="self-start max-[560px]:self-stretch">
+        <ButtonLink href="/ingresar?intencion=inquilino" className="self-start whitespace-nowrap max-[560px]:self-stretch">
           Crear mi historial
         </ButtonLink>
 

@@ -11,6 +11,13 @@ export const ESTADOS_ALQUILER = {
 
 export type EstadoAlquiler = keyof typeof ESTADOS_ALQUILER;
 
+/*
+ * El signo va pegado al número con un espacio duro: "$ 450.000" es una sola
+ * cosa y no puede partirse al final de un renglón, ni en pantalla, ni en el
+ * mail, ni en el PDF.
+ */
+const ESPACIO_DURO = "\u00a0";
+
 export function formatearMonto(monto: number | string, moneda: Moneda): string {
   const numero = typeof monto === "string" ? Number(monto) : monto;
   const formateado = new Intl.NumberFormat("es-AR", {
@@ -18,7 +25,33 @@ export function formatearMonto(monto: number | string, moneda: Moneda): string {
     maximumFractionDigits: 2,
   }).format(numero);
   // Los dólares se muestran tal cual: no convertimos nada.
-  return moneda === "USD" ? `US$ ${formateado}` : `$ ${formateado}`;
+  const signo = moneda === "USD" ? "US$" : "$";
+  return `${signo}${ESPACIO_DURO}${formateado}`;
+}
+
+/*
+ * Los miles mientras se escribe, para el campo donde se carga un monto.
+ * "450000" obliga a contar ceros; "450.000" se lee de un vistazo.
+ */
+export function conSeparadores(valor: string): string {
+  // Solo dígitos y una coma decimal: lo demás se cae solo.
+  const limpio = valor.replace(/[^\d,]/g, "");
+  const [enteros, ...resto] = limpio.split(",");
+  const agrupados = enteros.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  // Una sola coma, aunque escriban varias.
+  return resto.length > 0 ? `${agrupados},${resto.join("")}` : agrupados;
+}
+
+/*
+ * El valor inicial del campo. Llega como numérico de la base ("450000.00"),
+ * donde el punto es el decimal y no el separador de miles: por eso se lee
+ * como número y recién después se le ponen los puntos de los miles.
+ */
+export function montoParaCampo(valor: number | string | null | undefined): string {
+  if (valor === null || valor === undefined || valor === "") return "";
+  const numero = Number(valor);
+  if (!Number.isFinite(numero)) return "";
+  return conSeparadores(String(numero).replace(".", ","));
 }
 
 export function formatearFecha(fecha: string | null | undefined): string {

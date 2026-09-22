@@ -91,10 +91,19 @@ export function BorrarCuenta() {
   const [estado, accion] = useActionState(borrarCuenta, { estado: "inicial" } as EstadoBaja);
 
   if (!abierto) {
+    /*
+      Una acción de texto y no un botón: darse de baja es algo que se ofrece,
+      no algo que se invita a hacer. Un botón centrado en su propia tarjeta le
+      daba el peso de una acción principal.
+    */
     return (
-      <Button type="button" variant="quiet" onClick={() => setAbierto(true)}>
+      <button
+        type="button"
+        onClick={() => setAbierto(true)}
+        className="cursor-pointer self-start border-0 bg-transparent p-0 text-left text-[16px] font-medium text-body underline underline-offset-4 hover:text-ink"
+      >
         Quiero dar de baja mi cuenta
-      </Button>
+      </button>
     );
   }
 

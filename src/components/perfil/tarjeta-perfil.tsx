@@ -1,7 +1,13 @@
-import { Avatar, Card, CheckIcon, Pill, Stat } from "@/components/ui";
+import { Avatar, Card, CheckIcon, Pill } from "@/components/ui";
 import { formatearMonto } from "@/lib/domain/alquiler";
 import { nombrePeriodo } from "@/lib/domain/pagos";
-import { nivelesDeVerificacion, nombreVisible, type Metricas } from "@/lib/domain/perfil";
+import {
+  cifraPrincipal,
+  nivelesDeVerificacion,
+  nombreVisible,
+  resumenDeMetricas,
+  type Metricas,
+} from "@/lib/domain/perfil";
 import { iniciales } from "@/lib/validation/profile";
 import type { Moneda } from "@/lib/validation/rental";
 
@@ -24,6 +30,7 @@ export function TarjetaPerfil({
   const niveles = nivelesDeVerificacion(metricas);
   const esInquilino = rol === "tenant";
   const meses = metricas.ultimos_12 ?? [];
+  const cifra = cifraPrincipal(metricas, esInquilino);
 
   return (
     <Card hero className="flex flex-col gap-7">
@@ -37,23 +44,23 @@ export function TarjetaPerfil({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2.5">
-        {esInquilino ? (
-          <>
-            <Stat value={metricas.meses_confirmados} label="meses confirmados" destacado />
-            <Stat
-              value={metricas.porcentaje_en_fecha === null ? "—" : `${metricas.porcentaje_en_fecha}%`}
-              label="pagos en fecha"
-            />
-            <Stat value={metricas.contratos_cumplidos} label="contratos cumplidos" />
-          </>
-        ) : (
-          <>
-            <Stat value={metricas.contratos_totales} label="alquileres" destacado />
-            <Stat value={metricas.meses_confirmados} label="pagos confirmados" />
-            <Stat value={metricas.contratos_cumplidos} label="contratos cumplidos" />
-          </>
-        )}
+      {/*
+        Una sola cifra grande y el resto en una línea, igual que la tarjeta de
+        ejemplo de la landing: lo que importa es cuántos meses hay confirmados.
+        Las tres cajas de colores repartían el peso entre métricas que no valen
+        lo mismo, y en el celular el texto no entraba.
+      */}
+      <div className="flex flex-col">
+        <div className="flex items-center gap-4">
+          <span className="t-numero font-display text-[52px] leading-none font-extrabold tracking-[-2px]">
+            {cifra.numero}
+          </span>
+          <span className="max-w-[12em] text-[17px] leading-[1.35] text-body">{cifra.texto}</span>
+        </div>
+
+        <p className="mt-2 mb-0 text-[15px] text-muted">
+          {resumenDeMetricas(metricas, esInquilino)}
+        </p>
       </div>
 
       {meses.length > 0 && (

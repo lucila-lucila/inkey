@@ -11,7 +11,8 @@ import { createClient } from "@/lib/supabase/server";
 export type EstadoLinkPerfil =
   | { estado: "inicial" }
   | { estado: "error"; mensaje: string }
-  | { estado: "listo"; url: string };
+  // El id viaja de vuelta para poder abrir ese link en la lista.
+  | { estado: "listo"; id: string; url: string };
 
 const SIN_CLAVE =
   "Falta configurar la clave de los links compartibles (SHARE_LINK_SECRET). Revisá /api/salud.";
@@ -68,7 +69,7 @@ export async function crearLink(
       });
 
       revalidatePath("/perfil");
-      return { estado: "listo" as const, url: enlacePerfil(token) };
+      return { estado: "listo" as const, id, url: enlacePerfil(token) };
     },
     (mensaje) => ({ estado: "error", mensaje }),
   );

@@ -7,7 +7,7 @@ import { ListaResenas } from "@/components/resena/lista-resenas";
 import { ROLES_PERFIL, type Metricas } from "@/lib/domain/perfil";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/cn";
-import { ListaDeLinks, NuevoLink, type LinkGuardado } from "./piezas";
+import { SeccionDeLinks, type LinkGuardado } from "./piezas";
 
 export const metadata: Metadata = {
   title: "Mi perfil · Inkey",
@@ -142,8 +142,7 @@ export default async function PerfilPage({
         <h2 id="titulo-links" className="t-subtitulo m-0">
           Tus links
         </h2>
-        <NuevoLink rol={rol} />
-        <ListaDeLinks links={(links ?? []) as LinkGuardado[]} />
+        <SeccionDeLinks rol={rol} links={(links ?? []) as LinkGuardado[]} />
       </section>
     </div>
   );

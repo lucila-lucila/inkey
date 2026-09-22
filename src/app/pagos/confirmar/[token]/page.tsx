@@ -107,7 +107,7 @@ export default async function ConfirmarDesdeMailPage({
     <Marco>
       <div className="flex flex-col gap-5">
         <div>
-          <p className="t-etiqueta m-0 text-confirm-ink">Te reportaron un pago</p>
+          <p className="t-etiqueta m-0 text-primary-ink">Te reportaron un pago</p>
           <h1 className="t-titulo mt-2 mb-2">¿Te llegó este pago?</h1>
           <p className="m-0 text-body">
             {quien} reportó que pagó el alquiler de {nombrePeriodo(resumen.periodo!)} en{" "}

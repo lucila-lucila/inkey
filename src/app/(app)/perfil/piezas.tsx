@@ -41,31 +41,25 @@ function BotonCopiar({ url }: { url: string }) {
   );
 }
 
-export function NuevoLink({ rol }: { rol: "tenant" | "owner" }) {
+/*
+ * El formulario de alta. No muestra el link recién creado: para eso está la
+ * lista, que es una sola. Antes se veía el link acá arriba y otra vez abajo,
+ * y parecían dos links distintos.
+ */
+function NuevoLink({
+  rol,
+  alCrear,
+}: {
+  rol: "tenant" | "owner";
+  alCrear: (link: { id: string; url: string }) => void;
+}) {
   const [estado, accion] = useActionState(crearLink, ESTADO_INICIAL);
+  const [avisado, setAvisado] = useState<string | null>(null);
 
-  if (estado.estado === "listo") {
-    return (
-      <Card className="flex flex-col gap-4">
-        <div>
-          <h3 className="t-subtitulo mt-0 mb-1.5">Tu link está listo</h3>
-          <p className="m-0 text-body">
-            Mandáselo a quien quieras. Podés revocarlo cuando quieras y deja de funcionar en el
-            acto.
-          </p>
-        </div>
-        <div className="flex gap-2.5 max-[560px]:flex-col">
-          <input
-            readOnly
-            value={estado.url}
-            onFocus={(evento) => evento.currentTarget.select()}
-            aria-label="Link de tu perfil"
-            className="min-h-[52px] w-full min-w-0 flex-1 rounded-campo border border-line bg-surface-sunk px-4 text-[15px] text-ink"
-          />
-          <BotonCopiar url={estado.url} />
-        </div>
-      </Card>
-    );
+  // El alta la resuelve el servidor; acá solo avisamos cuál es el nuevo.
+  if (estado.estado === "listo" && avisado !== estado.id) {
+    setAvisado(estado.id);
+    alCrear({ id: estado.id, url: estado.url });
   }
 
   return (
@@ -117,7 +111,14 @@ export type LinkGuardado = {
   subject_role: string;
 };
 
-export function ListaDeLinks({ links }: { links: LinkGuardado[] }) {
+/*
+ * La sección entera: el alta y la lista, juntas.
+ *
+ * Van en un solo componente porque comparten una cosa: cuál es el link que
+ * se acaba de crear. Así aparece una sola vez, ya abierto y listo para
+ * copiar, en la misma lista donde van a estar todos los demás.
+ */
+export function SeccionDeLinks({ rol, links }: { rol: "tenant" | "owner"; links: LinkGuardado[] }) {
   const [abierto, setAbierto] = useState<string | null>(null);
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -131,6 +132,40 @@ export function ListaDeLinks({ links }: { links: LinkGuardado[] }) {
     else setError(resultado.error);
   }
 
+  return (
+    <>
+      <NuevoLink
+        rol={rol}
+        alCrear={({ id, url: recien }) => {
+          setError(null);
+          setAbierto(id);
+          setUrl(recien);
+        }}
+      />
+      <ListaDeLinks
+        links={links}
+        abierto={abierto}
+        url={url}
+        error={error}
+        mostrar={mostrar}
+      />
+    </>
+  );
+}
+
+function ListaDeLinks({
+  links,
+  abierto,
+  url,
+  error,
+  mostrar,
+}: {
+  links: LinkGuardado[];
+  abierto: string | null;
+  url: string | null;
+  error: string | null;
+  mostrar: (id: string) => void;
+}) {
   if (links.length === 0) {
     return (
       <Card>
@@ -151,9 +186,18 @@ export function ListaDeLinks({ links }: { links: LinkGuardado[] }) {
             <Card className="flex flex-col gap-3">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="m-0 text-[17px] font-medium">
-                    {link.label ?? "Link sin nombre"}
-                  </p>
+                  {/*
+                    Sin nombre no decimos "Link sin nombre", que no le sirve a
+                    nadie: le proponemos ponerle uno, que es lo que hace falta
+                    cuando hay más de un link dando vueltas.
+                  */}
+                  {link.label ? (
+                    <p className="m-0 text-[17px] font-medium">{link.label}</p>
+                  ) : (
+                    <p className="m-0 text-[17px] font-medium text-body">
+                      Ponele un nombre para acordarte a quién se lo mandaste
+                    </p>
+                  )}
                   <p className="m-0 text-[15px] text-muted">
                     Creado el {formatearFecha(link.created_at.slice(0, 10))} ·{" "}
                     {link.view_count === 0
@@ -183,11 +227,14 @@ export function ListaDeLinks({ links }: { links: LinkGuardado[] }) {
                       </Button>
                     </form>
 
-                    <form action={revocarLink}>
-                      <input type="hidden" name="link_id" value={link.id} />
-                      <Button type="submit" variant="quiet" size="md">
+                    {/* Revocar no se ofrece como un botón más: es el final del link. */}
+                    <form action={revocarLink} className="ml-auto">
+                      <button
+                        type="submit"
+                        className="cursor-pointer border-0 bg-transparent p-0 text-[15px] text-muted underline underline-offset-4 hover:text-ink"
+                      >
                         Revocar
-                      </Button>
+                      </button>
                     </form>
                   </div>
 

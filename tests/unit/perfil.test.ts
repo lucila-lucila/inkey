@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  cifraPrincipal,
   nivelesDeVerificacion,
   nombreVisible,
+  resumenDeMetricas,
   resumenParaCompartir,
   type Metricas,
 } from "@/lib/domain/perfil";
@@ -36,6 +38,32 @@ describe("nombre público", () => {
   it("muestra el nombre y la inicial, nunca el apellido", () => {
     expect(nombreVisible("Martina", "R")).toBe("Martina R.");
     expect(nombreVisible("Martina", "")).toBe("Martina");
+  });
+});
+
+describe("la cifra grande del historial", () => {
+  it("al inquilino le cuenta los meses; al dueño, los alquileres", () => {
+    expect(cifraPrincipal(METRICAS, true)).toEqual({
+      numero: 12,
+      texto: "meses pagados, confirmados por su dueño",
+    });
+    expect(cifraPrincipal(METRICAS, false)).toEqual({ numero: 2, texto: "alquileres en Inkey" });
+  });
+
+  it("no dice «1 alquileres»", () => {
+    expect(cifraPrincipal({ ...METRICAS, contratos_totales: 1 }, false).texto).toBe(
+      "alquiler en Inkey",
+    );
+  });
+
+  it("el resumen deja afuera la puntualidad cuando todavía no hay pagos", () => {
+    expect(resumenDeMetricas(METRICAS, true)).toBe("92% en fecha · 1 contrato cumplido");
+    // Sin pagos confirmados no hay porcentaje: no inventamos un 0%.
+    expect(resumenDeMetricas(VACIAS, true)).toBe("0 contratos cumplidos");
+  });
+
+  it("del lado del dueño cuenta los pagos que confirmó", () => {
+    expect(resumenDeMetricas(METRICAS, false)).toBe("12 pagos confirmados · 1 contrato cumplido");
   });
 });
 
